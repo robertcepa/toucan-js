@@ -1,0 +1,55 @@
+{
+  "name": "toucan-js",
+  "version": "0.0.1-rc.1",
+  "description": "Cloudflare Workers client for Sentry",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertcepa/toucan-js.git"
+  },
+  "keywords": [
+    "debugging",
+    "errors",
+    "exceptions",
+    "logging",
+    "sentry",
+    "toucan",
+    "workers"
+  ],
+  "dependencies": {
+    "uuid": "^7.0.3",
+    "cookie": "^0.4.0",
+    "stacktrace-js": "^2.0.2"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@sentry/types": "^5.15.4",
+    "@types/cookie": "^0.3.3",
+    "@types/stacktrace-js": "^2.0.3",
+    "@types/uuid": "^7.0.2",
+    "rollup": "^2.3.4",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "typescript": "^3.8.3",
+    "ts-loader": "^6.2.2",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "author": "robertcepa@icloud.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robertcepa/toucan-js/issues"
+  },
+  "homepage": "https://github.com/robertcepa/toucan-js#readme",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ]
+}

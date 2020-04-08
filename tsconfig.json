@@ -1,0 +1,23 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "module": "esnext",
+    "declaration": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "preserveConstEnums": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "lib": ["esnext", "webworker"]
+  }
+}
