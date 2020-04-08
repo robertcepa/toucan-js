@@ -224,7 +224,7 @@ export default class Toucan {
     if (secretKey) {
       url.searchParams.append("sentry_secret", secretKey);
     }
-    url.searchParams.append("sentry_client", "cf-workers/1.0");
+    url.searchParams.append("sentry_client", `__name__/__version__`);
 
     return url.href;
   }
