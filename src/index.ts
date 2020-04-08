@@ -17,7 +17,7 @@ type Options = {
   environment?: SentryOptions["environment"];
   release?: SentryOptions["release"];
   beforeSend?: (event: Event) => Event;
-  packageJson?: Record<string, any>;
+  pkg?: Record<string, any>;
   whitelistedHeaders?: string[] | RegExp;
   whitelistedCookies?: string[] | RegExp;
   whitelistedSearchParams?: string[] | RegExp;
@@ -160,13 +160,13 @@ export default class Toucan {
    * @returns Event
    */
   private buildEvent(additionalData: Event): Event {
-    const packageJson = this.options.packageJson;
+    const pkg = this.options.pkg;
 
     // 'release' option takes precedence, if not present - try to derive from package.json
     const release = this.options.release
       ? this.options.release
-      : packageJson
-      ? `${packageJson.name}-${packageJson.version}`
+      : pkg
+      ? `${pkg.name}-${pkg.version}`
       : undefined;
     // per https://docs.sentry.io/development/sdk-dev/event-payloads/#required-attributes
     const payload: Event = {
@@ -178,10 +178,10 @@ export default class Toucan {
       user: this.user,
       timestamp: this.timestamp(),
       level: "error",
-      modules: packageJson
+      modules: pkg
         ? {
-            ...packageJson.dependencies,
-            ...packageJson.devDependencies,
+            ...pkg.dependencies,
+            ...pkg.devDependencies,
           }
         : undefined,
       breadcrumbs: this.getBreadcrumbs(),
@@ -224,7 +224,7 @@ export default class Toucan {
     if (secretKey) {
       url.searchParams.append("sentry_secret", secretKey);
     }
-    url.searchParams.append("sentry_client", "cf-workers/1.0");
+    url.searchParams.append("sentry_client", `__name__/__version__`);
 
     return url.href;
   }
