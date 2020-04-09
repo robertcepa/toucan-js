@@ -54,7 +54,6 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 - setTag: Set key:value that will be sent as tags data with the event.
 - setTags: Set an object that will be merged sent as tags data with the event.
 - setUser: Updates user context information for future events.
--
 
 ## Options
 
