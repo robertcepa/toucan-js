@@ -7,6 +7,7 @@ import {
   Stacktrace,
   Breadcrumb as SentryBreadcrumb,
 } from "@sentry/types";
+import { API } from "@sentry/core";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
 import { fromError } from "stacktrace-js";
@@ -41,7 +42,7 @@ export default class Toucan {
 
   constructor(options: Options) {
     this.options = options;
-    this.url = this.parseDSN(options.dsn);
+    this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
     this.user = undefined;
     this.request = this.toSentryRequest(options.event.request);
     this.breadcrumbs = [];
@@ -188,45 +189,14 @@ export default class Toucan {
       tags: this.tags,
       ...additionalData,
       request: { ...this.request },
+      sdk: {
+        name: "__name__",
+        version: "__version__",
+      },
     };
 
     const beforeSend = this.options.beforeSend ?? this.beforeSend;
     return beforeSend(payload);
-  }
-
-  /**
-   * Parse the dsn string according to https://docs.sentry.io/development/sdk-dev/overview/#parsing-the-dsn
-   *
-   * @param dsn DSN string
-   * @returns Sentry URL will auth data set in search params.
-   */
-  private parseDSN(dsn: string) {
-    const doubleSlashParts = dsn.split("://");
-    const protocol = doubleSlashParts[0];
-
-    const atParts = doubleSlashParts[1].split("@");
-
-    const secretParts = atParts[0].split(":");
-
-    const publicKey = secretParts[0];
-    const secretKey = secretParts[1];
-
-    const slashParts = atParts[1].split("/");
-
-    const hostname = slashParts[0];
-    const projectId = slashParts[1];
-
-    const sentryVersion = 7;
-
-    const url = new URL(`${protocol}://${hostname}/api/${projectId}/store/`);
-    url.searchParams.append("sentry_version", sentryVersion.toString(10));
-    url.searchParams.append("sentry_key", publicKey);
-    if (secretKey) {
-      url.searchParams.append("sentry_secret", secretKey);
-    }
-    url.searchParams.append("sentry_client", `__name__/__version__`);
-
-    return url.href;
   }
 
   /**
