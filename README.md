@@ -30,8 +30,11 @@ addEventListener("fetch", (event) => {
 
 async function doStuff(event: FetchEvent, sentry: Toucan) {
   try {
+    sentry.addBreadcrumb({
+      message: "About to do some I/O...",
+      category: "log",
+    });
     // do some I/O
-    sentry.addBreadcrumb({ message: "Doing some I/O...", category: "log" });
     return new Response("OK", {
       status: 200,
     });
