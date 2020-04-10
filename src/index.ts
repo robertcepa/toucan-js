@@ -173,7 +173,7 @@ export default class Toucan {
     const payload: Event = {
       event_id: uuidv4().replace(/-/g, ""), // dashes are not allowed
       logger: "EdgeWorker",
-      platform: "javascript",
+      platform: "node",
       release,
       environment: this.options.environment,
       user: this.user,
