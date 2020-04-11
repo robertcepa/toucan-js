@@ -7,7 +7,7 @@ export default [
   // CommonJS (for Node) and ES module (for bundlers) build.
   {
     input: "src/index.ts",
-    external: ["@sentry/core", "uuid", "cookie", "stacktrace-js"],
+    external: () => true, // All modules are external, let consumers bundle them
     plugins: [
       replace({
         __name__: pkg.name,

@@ -1,8 +1,11 @@
 {
   "include": ["src"],
+  "exclude": ["src/__tests__"],
   "compilerOptions": {
-    "module": "esnext",
+    "module": "ESNext",
+    "target": "ES2019",
     "declaration": true,
+    "declarationMap": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "alwaysStrict": true,
@@ -18,6 +21,6 @@
     "resolveJsonModule": true,
     "rootDir": "src",
     "outDir": "dist",
-    "lib": ["esnext", "webworker"]
+    "lib": ["ESNext", "WebWorker"]
   }
 }
