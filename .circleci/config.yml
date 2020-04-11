@@ -19,10 +19,10 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-      - build:
+      - run:
           name: Build
           command: yarn build
-      - test:
+      - run:
           name: Test
           command: yarn test
 workflows:
