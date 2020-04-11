@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://tinyurl.com/w7f76bg" alt="Logo" height="200">
+  <img src="https://tinyurl.com/u4oo7cp" alt="Logo" height="200">
 </p>
 
 [![npm version](https://img.shields.io/npm/v/toucan-js)](https://www.npmjs.com/package/toucan-js)
