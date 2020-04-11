@@ -1,3 +1,6 @@
+[![npm version](https://img.shields.io/npm/v/toucan-js)](https://www.npmjs.com/package/toucan-js)
+[![npm version](https://img.shields.io/npm/dw/toucan-js)](https://www.npmjs.com/package/toucan-js)
+
 # toucan-js
 
 Toucan is reliable [Sentry](https://docs.sentry.io/) client for [Cloudflare Workers](https://developers.cloudflare.com/workers/). It adheres to [Sentry unified API guidelines](https://docs.sentry.io/development/sdk-dev/unified-api/) - with minor differences.
@@ -15,7 +18,7 @@ npm install --save toucan-js
 ```ts
 import Toucan from "toucan-js";
 
-addEventListener("fetch", (event) => {
+addEventListener("fetch", event => {
   const sentry = new Toucan({
     dsn: "dsn...",
     event,
