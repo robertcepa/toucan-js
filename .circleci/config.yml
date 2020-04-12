@@ -1,7 +1,4 @@
 version: 2.1
-defaults: &defaults
-  executor:
-    name: node/default
 orbs:
   node: circleci/node@1.1.6
 jobs:
