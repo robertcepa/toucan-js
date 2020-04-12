@@ -6,7 +6,8 @@ orbs:
   node: circleci/node@1.1.6
 jobs:
   build-and-test:
-    <<: *defaults 
+    executor:
+      name: node/default
     steps:
       - checkout
       - restore_cache:
@@ -27,14 +28,10 @@ jobs:
       - run:
           name: Test
           command: yarn test
-      - persist_to_workspace:
-          root: ~/.
-          paths: dist
   publish:
-    <<: *defaults 
+    executor:
+      name: node/default 
     steps:
-      - attach_workspace:
-        at: ~/.
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
