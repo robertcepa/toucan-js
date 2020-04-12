@@ -41,9 +41,18 @@ jobs:
           name: Publish package
           command: npm publish
 workflows:
-    build-test-publish:
+    build-test:
       jobs:
         - build-and-test
+            filters:
+              branches:
+                ignore: master
+    master:
+      jobs:
+        - build-and-test
+            filters:
+              branches:
+                only: master
         - publish:
             requires:
               - build-and-test
