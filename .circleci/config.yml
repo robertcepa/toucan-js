@@ -43,13 +43,13 @@ jobs:
 workflows:
     build-test:
       jobs:
-        - build-and-test
+        - build-and-test:
             filters:
               branches:
                 ignore: master
     master:
       jobs:
-        - build-and-test
+        - build-and-test:
             filters:
               branches:
                 only: master
