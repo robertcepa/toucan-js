@@ -25,7 +25,25 @@ jobs:
       - run:
           name: Test
           command: yarn test
+  publish:
+    executor:
+      name: node/default 
+    steps:
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
 workflows:
-    build-and-test:
+    build-test-publish:
       jobs:
         - build-and-test
+        - publish:
+            requires:
+              - build-and-test
+            filters:
+              tags:
+                only: /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+              branches:
+                only: master
