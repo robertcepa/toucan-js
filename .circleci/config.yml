@@ -32,14 +32,14 @@ jobs:
     executor:
       name: node/default 
     steps:
+      - attach_workspace:
+          at: ~/.
       - run:
           name: Authenticate with registry
           command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
       - run:
           name: Publish package
           command: npm publish
-      - attach_workspace:
-          at: ~/.
 workflows:
     build-test-publish:
       jobs:
