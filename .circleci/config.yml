@@ -1,10 +1,12 @@
 version: 2.1
+defaults: &defaults
+  executor:
+    name: node/default
 orbs:
   node: circleci/node@1.1.6
 jobs:
   build-and-test:
-    executor:
-      name: node/default
+    <<: *defaults 
     steps:
       - checkout
       - restore_cache:
@@ -25,7 +27,29 @@ jobs:
       - run:
           name: Test
           command: yarn test
+      - persist_to_workspace:
+          root: ~/.
+          paths: dist
+  publish:
+    <<: *defaults 
+    steps:
+      - attach_workspace:
+        at: ~/.
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/repo/.npmrc
+      - run:
+          name: Publish package
+          command: npm publish
 workflows:
     build-and-test:
       jobs:
         - build-and-test
+    publish:
+      requires:
+        - build-and-test
+      filters:
+        tags:
+          only: /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+        branches:
+          only: master
