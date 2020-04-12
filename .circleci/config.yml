@@ -25,6 +25,9 @@ jobs:
       - run:
           name: Test
           command: yarn test
+      - persist_to_workspace:
+          root: ~/.
+          paths: .
   publish:
     executor:
       name: node/default 
@@ -35,6 +38,8 @@ jobs:
       - run:
           name: Publish package
           command: npm publish
+      - attach_workspace:
+          at: ~/.
 workflows:
     build-test-publish:
       jobs:
