@@ -13,7 +13,15 @@ export default [
         __name__: pkg.name,
         __version__: pkg.version,
       }),
-      typescript(), // so Rollup can convert TypeScript to JavaScript
+      typescript({
+        tsconfigOverride: {
+          include: ["./src/**/*"],
+          compilerOptions: {
+            rootDir: "src",
+            outDir: "dist",
+          },
+        },
+      }), // so Rollup can convert TypeScript to JavaScript
     ],
     output: [
       { file: pkg.main, format: "cjs" },
