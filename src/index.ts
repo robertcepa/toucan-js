@@ -1,54 +1,91 @@
-// https://docs.sentry.io/development/sdk-dev/overview/
-import {
-  Options as SentryOptions,
-  User,
-  Request,
-  Event as SentryEvent,
-  Stacktrace,
-  Breadcrumb as SentryBreadcrumb,
-} from "@sentry/types";
+/**
+ * Sentry client for Cloudflare Workers.
+ * Adheres to https://docs.sentry.io/development/sdk-dev/overview/
+ */
+import { User, Request, Stacktrace } from "@sentry/types";
+import { Options, Event, Breadcrumb, Level } from "./types";
 import { API } from "@sentry/core";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
 import { fromError } from "stacktrace-js";
 
-type Options = {
-  dsn: NonNullable<SentryOptions["dsn"]>;
-  event: FetchEvent;
-  environment?: SentryOptions["environment"];
-  release?: SentryOptions["release"];
-  beforeSend?: (event: Event) => Event;
-  pkg?: Record<string, any>;
-  whitelistedHeaders?: string[] | RegExp;
-  whitelistedCookies?: string[] | RegExp;
-  whitelistedSearchParams?: string[] | RegExp;
-};
-
-type Level = "fatal" | "error" | "warning" | "info" | "debug";
-// Overwrite default level type of enum to type of union of string literals
-type Breadcrumb = Omit<SentryBreadcrumb, "level"> & { level?: Level };
-type Event = Omit<SentryEvent, "level" | "breadcrumbs"> & {
-  level?: Level;
-  breadcrumbs?: Breadcrumb[];
-};
-
 export default class Toucan {
+  /**
+   * If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
+   */
+  private disabled: boolean;
+
+  /**
+   * Options passed to constructor. See Options type.
+   */
   private options: Options;
+
+  /**
+   * Full store endpoint with auth search params. Parsed from options.dsn.
+   */
   private url: string;
+
+  /**
+   * Sentry user object.
+   */
   private user?: User;
+
+  /**
+   * Sentry request object transformed from incoming event.request.
+   */
   private request: Request;
+
+  /**
+   * Sentry breadcrumbs array.
+   */
   private breadcrumbs: Breadcrumb[];
+
+  /**
+   * Sentry tags object.
+   */
   private tags?: Record<string, string>;
 
   constructor(options: Options) {
+    if (!options.dsn || options.dsn.length === 0) {
+      // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
+      this.url = "";
+      this.disabled = true;
+    } else {
+      try {
+        this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
+        this.disabled = false;
+      } catch (dsnError) {
+        console.warn(dsnError);
+        this.url = "";
+        this.disabled = true;
+      }
+    }
     this.options = options;
-    this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
     this.user = undefined;
     this.request = this.toSentryRequest(options.event.request);
     this.breadcrumbs = [];
     this.tags = undefined;
 
     this.beforeSend = this.beforeSend.bind(this);
+
+    /**
+     * Wrap all class method in a proxy that:
+     * 1. Wraps all code in try/catch to handle internal erros gracefully.
+     * 2. Prevents execution if disabled = true
+     */
+    return new Proxy(this, {
+      get: (target, key: string, receiver) => {
+        return (...args: any) => {
+          if (this.disabled) return;
+
+          try {
+            return Reflect.get(target, key, receiver).apply(target, args);
+          } catch (err) {
+            console.warn(err);
+          }
+        };
+      },
+    });
   }
 
   /**
@@ -388,5 +425,10 @@ export default class Toucan {
     } else {
       return this.breadcrumbs;
     }
+  }
+
+  hello() {
+    console.log(this.disabled);
+    throw new Error("hello");
   }
 }
