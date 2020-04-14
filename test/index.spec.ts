@@ -6,20 +6,25 @@ import {
   mockFetch,
   mockDateNow,
   resetDateNow,
+  mockUuid,
 } from "./helpers";
 
 const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
+
+jest.mock("uuid");
 
 describe("Toucan", () => {
   beforeEach(() => {
     mockServiceWorkerEnv();
     mockFetch();
     mockDateNow();
+    mockUuid();
     jest.resetModules();
   });
 
   afterEach(() => {
     resetDateNow();
+    jest.clearAllMocks();
   });
 
   test("disabled mode", async () => {

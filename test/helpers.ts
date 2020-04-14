@@ -1,4 +1,5 @@
 import makeServiceWorkerEnv from "service-worker-mock";
+import { v4 as uuidv4 } from "uuid";
 
 export const makeEvent = () =>
   new FetchEvent("fetch", {
@@ -39,4 +40,8 @@ export const mockDateNow = () => {
 
 export const resetDateNow = () => {
   Date.now = realDateNow;
+};
+
+export const mockUuid = () => {
+  (uuidv4 as any).mockImplementation(() => "651b177fe1cb4ac89e15c1ecd2cb1d0a");
 };
