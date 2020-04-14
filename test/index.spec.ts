@@ -50,7 +50,7 @@ describe("Toucan", () => {
     expect(toucan3.captureMessage("test")).toBeUndefined();
   });
 
-  test("captureException", async () => {
+  test("captureMessage", async () => {
     const event = makeEvent();
     const toucan = new Toucan({
       dsn: VALID_DSN,
