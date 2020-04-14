@@ -4,6 +4,5 @@ declare module NodeJS {
       Promise<Response>,
       [RequestInfo, (RequestInit | undefined)?]
     >;
-    uuidv4Mock: jest.Mock<string>;
   }
 }
