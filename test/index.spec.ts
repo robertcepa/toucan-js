@@ -1,30 +1,30 @@
 import Toucan from "../src/index";
-import makeServiceWorkerEnv from "service-worker-mock";
-
-const makeEvent = () =>
-  new FetchEvent("fetch", {
-    request: new Request("https://example.com"),
-  });
+import {
+  makeEvent,
+  getFetchMockPayload,
+  mockServiceWorkerEnv,
+  mockFetch,
+  mockDateNow,
+  resetDateNow,
+  mockUuid,
+} from "./helpers";
 
 const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
 
+jest.mock("uuid");
+
 describe("Toucan", () => {
   beforeEach(() => {
-    Object.assign(
-      global,
-      makeServiceWorkerEnv(),
-      // If you're using sinon ur similar you'd probably use below instead of makeFetchMock
-      // fetch: sinon.stub().returns(Promise.resolve())
-      {
-        fetch: async (...args: Parameters<typeof fetch>) => {
-          return new Response("OK", {
-            status: 200,
-            statusText: "OK",
-          });
-        },
-      }
-    );
+    mockServiceWorkerEnv();
+    mockFetch();
+    mockDateNow();
+    mockUuid();
     jest.resetModules();
+  });
+
+  afterEach(() => {
+    resetDateNow();
+    jest.clearAllMocks();
   });
 
   test("disabled mode", async () => {
@@ -58,5 +58,7 @@ describe("Toucan", () => {
     });
 
     expect(toucan.captureMessage("test")).toHaveLength(32);
+    expect(global.fetchMock).toHaveBeenCalledTimes(1);
+    expect(getFetchMockPayload(global.fetchMock)).toMatchSnapshot();
   });
 });
