@@ -51,14 +51,8 @@ export default class Toucan {
       this.url = "";
       this.disabled = true;
     } else {
-      try {
-        this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
-        this.disabled = false;
-      } catch (dsnError) {
-        console.warn(dsnError);
-        this.url = "";
-        this.disabled = true;
-      }
+      this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
+      this.disabled = false;
     }
     this.options = options;
     this.user = undefined;
@@ -69,7 +63,7 @@ export default class Toucan {
     this.beforeSend = this.beforeSend.bind(this);
 
     /**
-     * Wrap all class method in a proxy that:
+     * Wrap all class methods in a proxy that:
      * 1. Wraps all code in try/catch to handle internal erros gracefully.
      * 2. Prevents execution if disabled = true
      */
@@ -425,10 +419,5 @@ export default class Toucan {
     } else {
       return this.breadcrumbs;
     }
-  }
-
-  hello() {
-    console.log(this.disabled);
-    throw new Error("hello");
   }
 }

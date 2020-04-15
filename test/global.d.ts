@@ -1,8 +1,11 @@
 declare module NodeJS {
   interface Global {
-    fetchMock: jest.Mock<
+    fetch: jest.Mock<
       Promise<Response>,
       [RequestInfo, (RequestInit | undefined)?]
     >;
+    console: {
+      warn: jest.Mock;
+    };
   }
 }

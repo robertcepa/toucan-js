@@ -1,11 +1,6 @@
 import makeServiceWorkerEnv from "service-worker-mock";
 import { v4 as uuidv4 } from "uuid";
 
-export const makeEvent = () =>
-  new FetchEvent("fetch", {
-    request: new Request("https://example.com"),
-  });
-
 export type FetchMock = ReturnType<typeof makeFetchMock>;
 
 export const makeFetchMock = () =>
@@ -17,15 +12,13 @@ export const makeFetchMock = () =>
   });
 
 export const mockFetch = () => {
-  const fetchMock = makeFetchMock();
   Object.assign(global, {
-    fetch: fetchMock,
-    fetchMock,
+    fetch: makeFetchMock(),
   });
 };
 
 export const getFetchMockPayload = (fetchMock: FetchMock) => {
-  return JSON.parse(global.fetchMock.mock.calls[0][1]?.body as any);
+  return JSON.parse(global.fetch.mock.calls[0][1]?.body as any);
 };
 
 export const mockServiceWorkerEnv = () => {
@@ -44,4 +37,36 @@ export const resetDateNow = () => {
 
 export const mockUuid = () => {
   (uuidv4 as any).mockImplementation(() => "651b177fe1cb4ac89e15c1ecd2cb1d0a");
+};
+
+const realConsole = console;
+export const mockConsole = () => {
+  console = {
+    ...realConsole,
+    warn: jest.fn(() => {}),
+    error: jest.fn(() => {}),
+  };
+};
+
+export const resetConsole = () => {
+  console = realConsole;
+};
+
+/**
+ * This does 2 things:
+ * 1. Triggers fetch event and waits for response (event.respondWith promise).
+ * 2. Waits for all waitUntil work to complete. This is useful for testing Toucan because all POST requests to Sentry server are sent via event.waitUntil.
+ *    This means we cannot test fetch mock immediately after getting a response, but we also need to wait for all work in waitUntil promise.
+ * @param self
+ * @param request
+ */
+export const triggerFetchAndWait = async (
+  self: WorkerGlobalScope & typeof globalThis,
+  request = new Request("https://example.com")
+) => {
+  // Waits for fetch response (event.respondWith)
+  await self.trigger("fetch", request);
+  // Waits for all waitUntil work to complete (event.waitUntil)
+  // missing typings but exists in https://github.com/zackargyle/service-workers/blob/master/packages/service-worker-mock/models/ExtendableEvent.js
+  await (self.ExtendableEvent as any).eventsDoneWaiting();
 };
