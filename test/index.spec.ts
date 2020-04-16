@@ -1,13 +1,16 @@
 import Toucan from "../src/index";
 import {
-  makeEvent,
   getFetchMockPayload,
   mockServiceWorkerEnv,
   mockFetch,
   mockDateNow,
   resetDateNow,
   mockUuid,
+  mockConsole,
+  resetConsole,
+  triggerFetchAndWait,
 } from "./helpers";
+import {} from "@cloudflare/workers-types"; // to get Cloudflare Workers overrides for addEventListener type
 
 const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
 
@@ -19,46 +22,85 @@ describe("Toucan", () => {
     mockFetch();
     mockDateNow();
     mockUuid();
+    mockConsole();
     jest.resetModules();
   });
 
   afterEach(() => {
     resetDateNow();
+    resetConsole();
     jest.clearAllMocks();
   });
 
   test("disabled mode", async () => {
-    const event = makeEvent();
-
-    // Valid option, set disabled = true
-    const toucan1 = new Toucan({
-      dsn: "",
-      event,
-    });
-    // Valid option, set disabled = true
-    const toucan2 = new Toucan({
-      event,
-    } as any);
-    // Invalid option, log 'SentryError: Invalid Dsn', and set disabled = true
-    const toucan3 = new Toucan({
-      dsn: "hello",
-      event,
+    const results: ReturnType<Toucan["captureMessage"]>[] = [];
+    self.addEventListener("fetch", (event) => {
+      // Empty DNS is a Valid option that signifies disabling the SDK, set disabled = true
+      const toucan = new Toucan({
+        dsn: "",
+        event,
+      });
+      results.push(toucan.captureMessage("test1"));
+      results.push(toucan.captureMessage("test2"));
+      results.push(toucan.captureMessage("test3"));
+      results.push(toucan.captureMessage("test4"));
     });
 
-    expect(toucan1.captureMessage("test")).toBeUndefined();
-    expect(toucan2.captureMessage("test")).toBeUndefined();
-    expect(toucan3.captureMessage("test")).toBeUndefined();
+    // Trigger fetch event defined above
+    await self.trigger("fetch", new Request("https://example.com"));
+
+    // No POST requests to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(0);
+    // But Toucan should still function, returning 'undefined' (no eventIds generated)
+    results.forEach((result) => expect(result).toBeUndefined());
   });
 
   test("captureMessage", async () => {
-    const event = makeEvent();
-    const toucan = new Toucan({
-      dsn: VALID_DSN,
-      event,
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+      result = toucan.captureMessage("test");
+      event.respondWith(new Response("OK", { status: 200 }));
     });
 
-    expect(toucan.captureMessage("test")).toHaveLength(32);
-    expect(global.fetchMock).toHaveBeenCalledTimes(1);
-    expect(getFetchMockPayload(global.fetchMock)).toMatchSnapshot();
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureMessage should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("captureException", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      try {
+        throw new Error("test");
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
   });
 });

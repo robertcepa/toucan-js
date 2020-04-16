@@ -30,6 +30,7 @@
     "uuid": "^7.0.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^1.0.7",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
     "@rollup/plugin-replace": "^2.3.1",
