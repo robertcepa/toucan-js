@@ -10,56 +10,16 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 15,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\test\\\\index.spec.ts",
-              "lineno": 88,
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
+              "lineno": 0,
             },
             Object {
-              "colno": 4,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\service-worker-mock\\\\utils\\\\eventHandler.js",
-              "function": "handleEvent",
-              "lineno": 39,
-            },
-            Object {
-              "colno": 14,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\service-worker-mock\\\\utils\\\\eventHandler.js",
-              "function": "eventHandler",
-              "lineno": 45,
-            },
-            Object {
-              "colno": 16,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\service-worker-mock\\\\index.js",
-              "function": "ServiceWorkerGlobalScope.trigger",
-              "lineno": 121,
-            },
-            Object {
-              "colno": 14,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\test\\\\helpers.ts",
-              "function": "Object.exports.triggerFetchAndWait",
-              "lineno": 68,
-            },
-            Object {
-              "colno": 11,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\test\\\\index.spec.ts",
-              "function": "Object.<anonymous>",
-              "lineno": 97,
-            },
-            Object {
-              "colno": 37,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\jest-jasmine2\\\\build\\\\jasmineAsyncInstall.js",
-              "function": "Object.asyncJestTest",
-              "lineno": 100,
-            },
-            Object {
-              "colno": 12,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\jest-jasmine2\\\\build\\\\queueRunner.js",
-              "lineno": 45,
-            },
-            Object {
-              "colno": 19,
-              "filename": "C:\\\\Users\\\\Robert\\\\git\\\\toucan-js\\\\node_modules\\\\jest-jasmine2\\\\build\\\\queueRunner.js",
-              "function": "mapper",
-              "lineno": 28,
+              "colno": 0,
+              "filename": "file",
+              "function": "bar",
+              "lineno": 0,
             },
           ],
         },
@@ -106,3 +66,98 @@ Object {
 `;
 
 exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan setRequestBody 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "data": Object {
+      "bar": "baz",
+      "foo": "bar",
+    },
+    "method": "POST",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan setTag 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "tags": Object {
+    "foo": "bar",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan setTags 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "tags": Object {
+    "bar": "baz",
+    "foo": "bar",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan setUser 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+  "user": Object {
+    "email": "test@gmail.com",
+    "id": "testid",
+  },
+}
+`;
