@@ -1,5 +1,6 @@
 import makeServiceWorkerEnv from "service-worker-mock";
 import { v4 as uuidv4 } from "uuid";
+import { fromError } from "stacktrace-js";
 
 export type FetchMock = ReturnType<typeof makeFetchMock>;
 
@@ -37,6 +38,25 @@ export const resetDateNow = () => {
 
 export const mockUuid = () => {
   (uuidv4 as any).mockImplementation(() => "651b177fe1cb4ac89e15c1ecd2cb1d0a");
+};
+
+export const mockStackTrace = () => {
+  (fromError as any) = async () => {
+    return [
+      {
+        columnNumber: 0,
+        lineNumber: 0,
+        fileName: "file",
+        functionName: "foo",
+      },
+      {
+        columnNumber: 0,
+        lineNumber: 0,
+        fileName: "file",
+        functionName: "bar",
+      },
+    ];
+  };
 };
 
 const realConsole = console;
