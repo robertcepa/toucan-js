@@ -247,8 +247,9 @@ export default class Toucan {
     }
 
     const headers: Record<string, string> = {};
+
     // Build headers (omit cookie header, because we built in in the previous step)
-    for (const [k, v] of request.headers as any) {
+    for (const [k, v] of (request.headers as any).entries()) {
       if (k !== "cookie") {
         headers[k] = v;
       }

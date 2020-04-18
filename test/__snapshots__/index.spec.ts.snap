@@ -1,5 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Toucan beforeSend 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "headers": Object {
+      "X-Foo": "Bar",
+    },
+    "method": "POST",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
 exports[`Toucan captureException 1`] = `
 Object {
   "breadcrumbs": Array [],
@@ -159,5 +182,38 @@ Object {
     "email": "test@gmail.com",
     "id": "testid",
   },
+}
+`;
+
+exports[`Toucan whitelists 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "cookies": Object {
+      "fo": "bar",
+      "foo": "bar",
+    },
+    "data": Object {
+      "bar": "baz",
+      "foo": "bar",
+    },
+    "headers": Object {
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
+      "x-foo": "Foo",
+    },
+    "method": "POST",
+    "query_string": "foo=bar&bar=baz",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
 }
 `;
