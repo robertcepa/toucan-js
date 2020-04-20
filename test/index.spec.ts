@@ -232,4 +232,102 @@ describe("Toucan", () => {
     // Match POST request payload snap
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
   });
+
+  test("whitelists", async () => {
+    const asyncTest = async (event: FetchEvent) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        whitelistedCookies: /^fo/,
+        whitelistedHeaders: ["user-agent", "X-Foo"],
+        whitelistedSearchParams: ["foo", "bar"],
+      });
+
+      toucan.setRequestBody(await event.request.json());
+      toucan.captureMessage("test");
+
+      return new Response("OK", { status: 200 });
+    };
+
+    self.addEventListener("fetch", (event) => {
+      event.respondWith(asyncTest(event));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(
+      self,
+      new Request("https://example.com?foo=bar&bar=baz&baz=bam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Foo": "Foo",
+          "X-Bar": "Bar",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
+          cookie: "foo=bar; fo=bar; bar=baz",
+        },
+        body: JSON.stringify({ foo: "bar", bar: "baz" }),
+      })
+    );
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
+
+  test("beforeSend", async () => {
+    const asyncTest = async (event: FetchEvent) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        whitelistedCookies: /^fo/,
+        whitelistedHeaders: ["user-agent", "X-Foo"],
+        whitelistedSearchParams: ["foo", "bar"],
+        // beforeSend is provided - whitelists above should be ignored.
+        beforeSend: (event) => {
+          delete event.request?.cookies;
+          delete event.request?.query_string;
+          if (event.request) {
+            event.request.headers = {
+              "X-Foo": "Bar",
+            };
+            event.request.data = undefined;
+          }
+          return event;
+        },
+      });
+
+      toucan.setRequestBody(await event.request.json());
+      toucan.captureMessage("test");
+
+      return new Response("OK", { status: 200 });
+    };
+
+    self.addEventListener("fetch", (event) => {
+      event.respondWith(asyncTest(event));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(
+      self,
+      new Request("https://example.com?foo=bar&bar=baz&baz=bam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Foo": "Foo",
+          "X-Bar": "Bar",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
+          cookie: "foo=bar; fo=bar; bar=baz",
+        },
+        body: JSON.stringify({ foo: "bar", bar: "baz" }),
+      })
+    );
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
 });

@@ -8,7 +8,13 @@
 
 # toucan-js
 
-Toucan is reliable [Sentry](https://docs.sentry.io/) client for [Cloudflare Workers](https://developers.cloudflare.com/workers/). Follows [Sentry unified API guidelines](https://docs.sentry.io/development/sdk-dev/unified-api/).
+Toucan is a reliable [Sentry](https://docs.sentry.io/) client for [Cloudflare Workers](https://developers.cloudflare.com/workers/). Follows [Sentry unified API guidelines](https://docs.sentry.io/development/sdk-dev/unified-api/).
+
+## Motivation
+
+In Cloudflare Workers isolate model, it is inadvisable to [set or mutate global state within the event handler](https://developers.cloudflare.com/workers/about/how-it-works). The most of JavaScript SDKs use static methods that mutate global state with request metadata, breadcrumbs, tags... This is reasonable, because they were implemented for environments where concurrency does not inherently exist. However, using these SDKs in Workers leads to race conditions, such as logging breadcrumbs and request metadata of interleaved events.
+
+Toucan was created with Workers concurrent model in mind. Being a JavaScript class instantiated per-event, this kind of race-conditions do not exist, because all request metadata are scoped to a particular fetch event.
 
 ## Usage
 
@@ -77,3 +83,22 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 | whitelistedCookies      | string[] \| RegExp      | Array of whitelisted cookies, or a regular expression used to whitelist cookies of incoming request. If not provided, cookies will not be logged.                   |
 | whitelistedSearchParams | string[] \| RegExp      | Array of whitelisted search params, or a regular expression used to whitelist search params of incoming request. If not provided, search params will not be logged. |
 | beforeSend              | (event: Event) => Event | This function is applied to all events before sending to Sentry. If provided, all whitelists are ignored.                                                           |
+
+## PIIs
+
+Toucan does not send [PII (Personally Identifiable Information)](https://docs.sentry.io/data-management/sensitive-data/) by default.
+
+This includes:
+
+- All request Headers
+- All request Cookies
+- All request search params
+- Request body
+
+You will need to whitelist potentially sensitive data using:
+
+- whitelistedHeaders option (array of headers or Regex)
+- whitelistedCookies option (array of cookies or Regex)
+- whitelistedSearchParams option (array of search params or Regex)
+- toucan.setRequestBody function (stringified JSON)
+- beforeSend option (if you need more flexibility than whitelistedX functions offer)
