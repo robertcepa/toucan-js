@@ -101,4 +101,4 @@ You will need to whitelist potentially sensitive data using:
 - whitelistedCookies option (array of cookies or Regex)
 - whitelistedSearchParams option (array of search params or Regex)
 - toucan.setRequestBody function (stringified JSON)
-- beforeSend option (if you need more flexibility than whitelistedX functions offer)
+- beforeSend option (if you need more flexibility than whitelistedX functions)
