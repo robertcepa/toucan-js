@@ -84,7 +84,7 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 | whitelistedSearchParams | string[] \| RegExp      | Array of whitelisted search params, or a regular expression used to whitelist search params of incoming request. If not provided, search params will not be logged. |
 | beforeSend              | (event: Event) => Event | This function is applied to all events before sending to Sentry. If provided, all whitelists are ignored.                                                           |
 
-## PIIs
+## Sensitive data
 
 Toucan does not send [PII (Personally Identifiable Information)](https://docs.sentry.io/data-management/sensitive-data/) by default.
 
