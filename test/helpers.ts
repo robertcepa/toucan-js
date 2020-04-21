@@ -18,8 +18,8 @@ export const mockFetch = () => {
   });
 };
 
-export const getFetchMockPayload = (fetchMock: FetchMock) => {
-  return JSON.parse(global.fetch.mock.calls[0][1]?.body as any);
+export const getFetchMockPayload = (fetchMock: FetchMock, callNumber = 0) => {
+  return JSON.parse(global.fetch.mock.calls[callNumber][1]?.body as any);
 };
 
 export const mockServiceWorkerEnv = () => {

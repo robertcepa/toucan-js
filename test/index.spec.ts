@@ -78,7 +78,7 @@ describe("Toucan", () => {
     expect(result).toMatchSnapshot();
   });
 
-  test("captureException", async () => {
+  test("captureException: Error", async () => {
     let result: string | undefined = undefined;
     self.addEventListener("fetch", (event) => {
       const toucan = new Toucan({
@@ -102,6 +102,76 @@ describe("Toucan", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     // Match POST request payload snap
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("captureException: Object", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      try {
+        throw { foo: "test", bar: "baz" };
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("captureException: primitive", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      try {
+        throw "test";
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      try {
+        throw true;
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      try {
+        throw 10;
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(3);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch, 0)).toMatchSnapshot();
+    expect(getFetchMockPayload(global.fetch, 1)).toMatchSnapshot();
+    expect(getFetchMockPayload(global.fetch, 2)).toMatchSnapshot();
     // captureException should have returned a generated eventId
     expect(result).toMatchSnapshot();
   });

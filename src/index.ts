@@ -5,6 +5,11 @@
 import { User, Request, Stacktrace } from "@sentry/types";
 import { Options, Event, Breadcrumb, Level } from "./types";
 import { API } from "@sentry/core";
+import {
+  isError,
+  isPlainObject,
+  extractExceptionKeysForMessage,
+} from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
 import { fromError } from "stacktrace-js";
@@ -125,7 +130,7 @@ export default class Toucan {
    * @param exception An exception-like object.
    * @returns The generated eventId.
    */
-  captureException(exception: Error) {
+  captureException(exception: unknown) {
     const event = this.buildEvent({});
 
     this.options.event.waitUntil(this.reportException(event, exception));
@@ -371,12 +376,30 @@ export default class Toucan {
 
   /**
    * Builds Exception as per https://docs.sentry.io/development/sdk-dev/event-payloads/exception/, adds it to the event,
-   * and sends it to Sentry.
+   * and sends it to Sentry. Inspired by https://github.com/getsentry/sentry-javascript/blob/master/packages/node/src/backend.ts.
    *
    * @param event
    * @param error
    */
-  private async reportException(event: Event, error: Error) {
+  private async reportException(event: Event, maybeError: unknown) {
+    let error: Error;
+
+    if (isError(maybeError)) {
+      error = maybeError as Error;
+    } else if (isPlainObject(maybeError)) {
+      // This will allow us to group events based on top-level keys
+      // which is much better than creating new group when any key/value change
+
+      const message = `Non-Error exception captured with keys: ${extractExceptionKeysForMessage(
+        maybeError
+      )}`;
+      error = new Error(message);
+    } else {
+      // This handles when someone does: `throw "something awesome";`
+      // We use synthesized Error here so we can extract a (rough) stack trace.
+      error = new Error(maybeError as string);
+    }
+
     const stacktrace = await this.buildStackTrace(error);
     event.exception = {
       values: [{ type: error.name, value: error.message, stacktrace }],

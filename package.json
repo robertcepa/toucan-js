@@ -25,6 +25,7 @@
   ],
   "dependencies": {
     "@sentry/core": "^5.15.4",
+    "@sentry/utils": "^5.15.4",
     "cookie": "^0.4.0",
     "stacktrace-js": "^2.0.2",
     "uuid": "^7.0.3"

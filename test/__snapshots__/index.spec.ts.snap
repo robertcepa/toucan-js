@@ -23,7 +23,7 @@ Object {
 }
 `;
 
-exports[`Toucan captureException 1`] = `
+exports[`Toucan captureException: Error 1`] = `
 Object {
   "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
@@ -66,7 +66,183 @@ Object {
 }
 `;
 
-exports[`Toucan captureException 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan captureException: Error 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan captureException: Object 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "bar",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "Non-Error exception captured with keys: bar, foo",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan captureException: Object 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan captureException: primitive 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "bar",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan captureException: primitive 2`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "bar",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "true",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan captureException: primitive 3`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "file",
+              "function": "bar",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "10",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan captureException: primitive 4`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
 exports[`Toucan captureMessage 1`] = `
 Object {
