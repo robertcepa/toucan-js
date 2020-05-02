@@ -266,6 +266,53 @@ Object {
 
 exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
+exports[`Toucan setExtra 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "extra": Object {
+    "foo": "bar",
+  },
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan setExtras 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "extra": Object {
+    "bar": "baz",
+    "foo": "bar",
+  },
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
 exports[`Toucan setRequestBody 1`] = `
 Object {
   "breadcrumbs": Array [],

@@ -9,6 +9,7 @@ import {
   isError,
   isPlainObject,
   extractExceptionKeysForMessage,
+  normalizeToSize,
 } from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
@@ -50,6 +51,11 @@ export default class Toucan {
    */
   private tags?: Record<string, string>;
 
+  /**
+   * Sentry extra object.
+   */
+  private extra?: Record<string, string>;
+
   constructor(options: Options) {
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
@@ -64,6 +70,7 @@ export default class Toucan {
     this.request = this.toSentryRequest(options.event.request);
     this.breadcrumbs = [];
     this.tags = undefined;
+    this.extra = undefined;
 
     this.beforeSend = this.beforeSend.bind(this);
 
@@ -85,6 +92,29 @@ export default class Toucan {
         };
       },
     });
+  }
+
+  /**
+   * Set key:value that will be sent as extra data with the event.
+   *
+   * @param key String key of extra
+   * @param value String value of extra
+   */
+  setExtra(key: string, value: string) {
+    if (!this.extra) {
+      this.extra = {};
+    }
+
+    this.extra[key] = value;
+  }
+
+  /**
+   * Set an object that will be merged sent as extra data with the event.
+   *
+   * @param extras Extras context object to merge into current context.
+   */
+  setExtras(extras: Record<string, string>) {
+    this.extra = { ...this.extra, ...extras };
   }
 
   /**
@@ -223,6 +253,7 @@ export default class Toucan {
         : undefined,
       breadcrumbs: this.getBreadcrumbs(),
       tags: this.tags,
+      extra: this.extra,
       ...additionalData,
       request: { ...this.request },
       sdk: {
@@ -393,6 +424,9 @@ export default class Toucan {
       const message = `Non-Error exception captured with keys: ${extractExceptionKeysForMessage(
         maybeError
       )}`;
+
+      this.setExtra("__serialized__", normalizeToSize(maybeError as {}));
+
       error = new Error(message);
     } else {
       // This handles when someone does: `throw "something awesome";`

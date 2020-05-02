@@ -270,6 +270,50 @@ describe("Toucan", () => {
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
   });
 
+  test("setExtra", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      toucan.setExtra("foo", "bar");
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
+
+  test("setExtras", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      toucan.setExtras({ foo: "bar", bar: "baz" });
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
+
   test("setRequestBody", async () => {
     const asyncTest = async (event: FetchEvent) => {
       const toucan = new Toucan({
