@@ -68,6 +68,8 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 - setRequestBody: Records incoming request's body which will be attached to future events.
 - setTag: Set key:value that will be sent as tags data with the event.
 - setTags: Set an object that will be merged sent as tags data with the event.
+- setExtra: Set key:value that will be sent as extra data with the event.
+- setExtras: Set an object that will be merged sent as extra data with the event.
 - setUser: Updates user context information for future events.
 
 ## Options
