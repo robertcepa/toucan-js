@@ -11,9 +11,9 @@ export type Options = {
   release?: SentryOptions["release"];
   beforeSend?: (event: Event) => Event;
   pkg?: Record<string, any>;
-  whitelistedHeaders?: string[] | RegExp;
-  whitelistedCookies?: string[] | RegExp;
-  whitelistedSearchParams?: string[] | RegExp;
+  allowedHeaders?: string[] | RegExp;
+  allowedCookies?: string[] | RegExp;
+  allowedSearchParams?: string[] | RegExp;
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";

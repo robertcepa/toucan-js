@@ -31,8 +31,8 @@ addEventListener("fetch", (event) => {
   const sentry = new Toucan({
     dsn: "dsn...",
     event,
-    whitelistedHeaders: ["user-agent"],
-    whitelistedSearchParams: /(.*)/,
+    allowedHeaders: ["user-agent"],
+    allowedSearchParams: /(.*)/,
   });
 
   sentry.setUser({ id: "1234" });
@@ -74,17 +74,17 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 
 ## Options
 
-| Option                  | Type                    | Description                                                                                                                                                         |
-| ----------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| dsn                     | \*string                | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk).                                                |
-| event                   | \*FetchEvent            | Workers fetch event. Toucan needs this to be able to call [waitUntil](https://developers.cloudflare.com/workers/about/tips/fetch-event-lifecycle/).                 |
-| environment             | string                  | Your application's environment (production/staging/...).                                                                                                            |
-| release                 | string                  | Release tag.                                                                                                                                                        |
-| pkg                     | object                  | Essentially your package.json. Toucan will use it to read project name, version, dependencies, and devDependencies.                                                 |
-| whitelistedHeaders      | string[] \| RegExp      | Array of whitelisted headers, or a regular expression used to whitelist headers of incoming request. If not provided, headers will not be logged.                   |
-| whitelistedCookies      | string[] \| RegExp      | Array of whitelisted cookies, or a regular expression used to whitelist cookies of incoming request. If not provided, cookies will not be logged.                   |
-| whitelistedSearchParams | string[] \| RegExp      | Array of whitelisted search params, or a regular expression used to whitelist search params of incoming request. If not provided, search params will not be logged. |
-| beforeSend              | (event: Event) => Event | This function is applied to all events before sending to Sentry. If provided, all whitelists are ignored.                                                           |
+| Option              | Type                    | Description                                                                                                                                                            |
+| ------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| dsn                 | \*string                | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk).                                                   |
+| event               | \*FetchEvent            | Workers fetch event. Toucan needs this to be able to call [waitUntil](https://developers.cloudflare.com/workers/about/tips/fetch-event-lifecycle/).                    |
+| environment         | string                  | Your application's environment (production/staging/...).                                                                                                               |
+| release             | string                  | Release tag.                                                                                                                                                           |
+| pkg                 | object                  | Essentially your package.json. Toucan will use it to read project name, version, dependencies, and devDependencies.                                                    |
+| allowedHeaders      | string[] \| RegExp      | Array of allowed headers, or a regular expression used to explicitly allow headers of incoming request. If not provided, headers will not be logged.                   |
+| allowedCookies      | string[] \| RegExp      | Array of allowed cookies, or a regular expression used to explicitly allow cookies of incoming request. If not provided, cookies will not be logged.                   |
+| allowedSearchParams | string[] \| RegExp      | Array of allowed search params, or a regular expression used to explicitly allow search params of incoming request. If not provided, search params will not be logged. |
+| beforeSend          | (event: Event) => Event | This function is applied to all events before sending to Sentry. If provided, all allowlists are ignored.                                                              |
 
 ## Sensitive data
 
@@ -97,10 +97,10 @@ This includes:
 - All request search params
 - Request body
 
-You will need to whitelist potentially sensitive data using:
+You will need to explicitly allow potentially sensitive data using:
 
-- whitelistedHeaders option (array of headers or Regex)
-- whitelistedCookies option (array of cookies or Regex)
-- whitelistedSearchParams option (array of search params or Regex)
+- allowedHeaders option (array of headers or Regex)
+- allowedCookies option (array of cookies or Regex)
+- allowedSearchParams option (array of search params or Regex)
 - toucan.setRequestBody function (stringified JSON)
-- beforeSend option (if you need more flexibility than whitelistedX functions)
+- beforeSend option (if you need more flexibility than allowedX functions)
