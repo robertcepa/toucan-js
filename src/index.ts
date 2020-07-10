@@ -307,9 +307,9 @@ export default class Toucan {
    * This function is applied to all events before sending to Sentry.
    *
    * By default it:
-   * 1. Removes all request headers (unless opts.whitelistedHeaders is provided - in that case the whitelist is applied)
-   * 2. Removes all request cookies (unless opts.whitelistedCookies is provided- in that case the whitelist is applied)
-   * 3. Removes all search params (unless opts.whitelistedSearchParams is provided- in that case the whitelist is applied)
+   * 1. Removes all request headers (unless opts.allowedHeaders is provided - in that case the allowlist is applied)
+   * 2. Removes all request cookies (unless opts.allowedCookies is provided- in that case the allowlist is applied)
+   * 3. Removes all search params (unless opts.allowedSearchParams is provided- in that case the allowlist is applied)
    *
    * @param event
    * @returns Event
@@ -319,41 +319,35 @@ export default class Toucan {
 
     if (request) {
       // Let's try to remove sensitive data from incoming Request
-      const whitelistedHeaders = this.options.whitelistedHeaders;
-      const whitelistedCookies = this.options.whitelistedCookies;
-      const whitelistedSearchParams = this.options.whitelistedSearchParams;
+      const allowedHeaders = this.options.allowedHeaders;
+      const allowedCookies = this.options.allowedCookies;
+      const allowedSearchParams = this.options.allowedSearchParams;
 
-      if (whitelistedHeaders) {
-        request.headers = this.applyWhitelist(
-          request.headers,
-          whitelistedHeaders
-        );
+      if (allowedHeaders) {
+        request.headers = this.applyAllowlist(request.headers, allowedHeaders);
       } else {
         delete request.headers;
       }
 
-      if (whitelistedCookies) {
-        request.cookies = this.applyWhitelist(
-          request.cookies,
-          whitelistedCookies
-        );
+      if (allowedCookies) {
+        request.cookies = this.applyAllowlist(request.cookies, allowedCookies);
       } else {
         delete request.cookies;
       }
 
-      if (whitelistedSearchParams) {
+      if (allowedSearchParams) {
         const params = Object.fromEntries(
           new URLSearchParams(request.query_string) as any
         );
-        const whitelistedParams = new URLSearchParams();
+        const allowedParams = new URLSearchParams();
 
-        Object.keys(
-          this.applyWhitelist(params, whitelistedSearchParams)
-        ).forEach((whitelistedKey) => {
-          whitelistedParams.set(whitelistedKey, params[whitelistedKey]);
-        });
+        Object.keys(this.applyAllowlist(params, allowedSearchParams)).forEach(
+          (allowedKey) => {
+            allowedParams.set(allowedKey, params[allowedKey]);
+          }
+        );
 
-        request.query_string = whitelistedParams.toString();
+        request.query_string = allowedParams.toString();
       } else {
         delete request.query_string;
       }
@@ -364,27 +358,27 @@ export default class Toucan {
   }
 
   /**
-   * Helper function that applies 'whitelist' on 'obj' keys.
+   * Helper function that applies 'allowlist' on 'obj' keys.
    *
    * @param obj
-   * @param whitelist
-   * @returns New object with whitelisted keys.
+   * @param allowlist
+   * @returns New object with allowed keys.
    */
-  private applyWhitelist(
+  private applyAllowlist(
     obj: Record<string, any> = {},
-    whitelist: string[] | RegExp
+    allowlist: string[] | RegExp
   ) {
     let predicate: (item: string) => boolean = (item) => false;
 
-    if (whitelist instanceof RegExp) {
-      predicate = (item: string) => whitelist.test(item);
-    } else if (Array.isArray(whitelist)) {
-      const whitelistLowercased = whitelist.map((item) => item.toLowerCase());
+    if (allowlist instanceof RegExp) {
+      predicate = (item: string) => allowlist.test(item);
+    } else if (Array.isArray(allowlist)) {
+      const allowlistLowercased = allowlist.map((item) => item.toLowerCase());
 
-      predicate = (item: string) => whitelistLowercased.includes(item);
+      predicate = (item: string) => allowlistLowercased.includes(item);
     } else {
       console.warn(
-        "Whitelist must be an array of strings, or a regular expression."
+        "allowlist must be an array of strings, or a regular expression."
       );
       return {};
     }
@@ -392,9 +386,9 @@ export default class Toucan {
     return Object.keys(obj)
       .map((key) => key.toLowerCase())
       .filter((key) => predicate(key))
-      .reduce<Record<string, string>>((whitelisted, key) => {
-        whitelisted[key] = obj[key];
-        return whitelisted;
+      .reduce<Record<string, string>>((allowed, key) => {
+        allowed[key] = obj[key];
+        return allowed;
       }, {});
   }
 

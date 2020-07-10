@@ -347,14 +347,14 @@ describe("Toucan", () => {
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
   });
 
-  test("whitelists", async () => {
+  test("allowlists", async () => {
     const asyncTest = async (event: FetchEvent) => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         event,
-        whitelistedCookies: /^fo/,
-        whitelistedHeaders: ["user-agent", "X-Foo"],
-        whitelistedSearchParams: ["foo", "bar"],
+        allowedCookies: /^fo/,
+        allowedHeaders: ["user-agent", "X-Foo"],
+        allowedSearchParams: ["foo", "bar"],
       });
 
       toucan.setRequestBody(await event.request.json());
@@ -395,10 +395,10 @@ describe("Toucan", () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         event,
-        whitelistedCookies: /^fo/,
-        whitelistedHeaders: ["user-agent", "X-Foo"],
-        whitelistedSearchParams: ["foo", "bar"],
-        // beforeSend is provided - whitelists above should be ignored.
+        allowedCookies: /^fo/,
+        allowedHeaders: ["user-agent", "X-Foo"],
+        allowedSearchParams: ["foo", "bar"],
+        // beforeSend is provided - allowlists above should be ignored.
         beforeSend: (event) => {
           delete event.request?.cookies;
           delete event.request?.query_string;
