@@ -211,6 +211,7 @@ export default class Toucan {
   private postEvent(data: Event) {
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
+      "User-Agent": "__name__/__version__",
     };
 
     return fetch(this.url, {
