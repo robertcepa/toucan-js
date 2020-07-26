@@ -2,7 +2,7 @@
  * Sentry client for Cloudflare Workers.
  * Adheres to https://docs.sentry.io/development/sdk-dev/overview/
  */
-import { User, Request, Stacktrace } from "@sentry/types";
+import { User, Request, Stacktrace, StackFrame } from "@sentry/types";
 import { Options, Event, Breadcrumb, Level } from "./types";
 import { API } from "@sentry/core";
 import {
@@ -13,7 +13,7 @@ import {
 } from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
-import { fromError } from "stacktrace-js";
+import { fromError, get } from "stacktrace-js";
 
 export default class Toucan {
   /**
@@ -178,7 +178,7 @@ export default class Toucan {
   captureMessage(message: string, level: Level = "info") {
     const event = this.buildEvent({ level, message });
 
-    this.options.event.waitUntil(this.postEvent(event));
+    this.options.event.waitUntil(this.reportMessage(event));
 
     return event.event_id;
   }
@@ -401,6 +401,20 @@ export default class Toucan {
   }
 
   /**
+   * Builds Message as per https://develop.sentry.dev/sdk/event-payloads/message/, adds it to the event,
+   * and sends it to Sentry. Inspired by https://github.com/getsentry/sentry-javascript/blob/master/packages/node/src/backend.ts.
+   *
+   * @param event
+   */
+  private async reportMessage(event: Event) {
+    const stacktrace = await this.buildStackTrace();
+
+    event.stacktrace = stacktrace;
+
+    return this.postEvent(event);
+  }
+
+  /**
    * Builds Exception as per https://docs.sentry.io/development/sdk-dev/event-payloads/exception/, adds it to the event,
    * and sends it to Sentry. Inspired by https://github.com/getsentry/sentry-javascript/blob/master/packages/node/src/backend.ts.
    *
@@ -433,31 +447,48 @@ export default class Toucan {
     event.exception = {
       values: [{ type: error.name, value: error.message, stacktrace }],
     };
+
     return this.postEvent(event);
   }
 
   /**
    * Builds Stacktrace as per https://docs.sentry.io/development/sdk-dev/event-payloads/stacktrace/
    *
-   * @param error Error object
+   * @param error Error object. If provided, builds Stacktrace from error, else, gets a backtrace from invocation point.
    * @returns Stacktrace
    */
-  private async buildStackTrace(error: Error): Promise<Stacktrace | undefined> {
+  private async buildStackTrace(
+    error?: Error
+  ): Promise<Stacktrace | undefined> {
+    if (this.options.attachStacktrace === false) {
+      return undefined;
+    }
+
     try {
-      const stack = await fromError(error);
+      const stack = error ? await fromError(error) : await get();
+
+      /**
+       * sentry-cli and webpack-sentry-plugin upload the source-maps named by their path with a ~/ prefix.
+       * Lets adhere to this behavior.
+       */
+      const sourceMapUrlPrefix = this.options.sourceMapUrlPrefix ?? "~/";
 
       return {
-        frames: stack.map((frame) => {
-          return {
-            colno: frame.columnNumber,
-            lineno: frame.lineNumber,
-            filename: frame.fileName,
-            function: frame.functionName,
-          };
-        }),
+        frames: stack
+          .map<StackFrame>((frame) => {
+            const filename = frame.fileName ?? "";
+            return {
+              colno: frame.columnNumber,
+              lineno: frame.lineNumber,
+              filename,
+              function: frame.functionName,
+              abs_path: `${sourceMapUrlPrefix}${filename}`,
+            };
+          })
+          .reverse(),
       };
     } catch (e) {
-      return {};
+      return undefined;
     }
   }
 
