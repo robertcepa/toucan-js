@@ -66,15 +66,17 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 0,
-              "filename": "file",
-              "function": "foo",
-              "lineno": 0,
-            },
-            Object {
+              "abs_path": "~/file",
               "colno": 0,
               "filename": "file",
               "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "~/file",
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
               "lineno": 0,
             },
           ],
@@ -111,15 +113,17 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 0,
-              "filename": "file",
-              "function": "foo",
-              "lineno": 0,
-            },
-            Object {
+              "abs_path": "~/file",
               "colno": 0,
               "filename": "file",
               "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "~/file",
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
               "lineno": 0,
             },
           ],
@@ -156,15 +160,17 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 0,
-              "filename": "file",
-              "function": "foo",
-              "lineno": 0,
-            },
-            Object {
+              "abs_path": "~/file",
               "colno": 0,
               "filename": "file",
               "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "~/file",
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
               "lineno": 0,
             },
           ],
@@ -199,15 +205,17 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 0,
-              "filename": "file",
-              "function": "foo",
-              "lineno": 0,
-            },
-            Object {
+              "abs_path": "~/file",
               "colno": 0,
               "filename": "file",
               "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "~/file",
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
               "lineno": 0,
             },
           ],
@@ -242,15 +250,17 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "colno": 0,
-              "filename": "file",
-              "function": "foo",
-              "lineno": 0,
-            },
-            Object {
+              "abs_path": "~/file",
               "colno": 0,
               "filename": "file",
               "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "~/file",
+              "colno": 0,
+              "filename": "file",
+              "function": "foo",
               "lineno": 0,
             },
           ],

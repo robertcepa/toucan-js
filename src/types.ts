@@ -14,6 +14,8 @@ export type Options = {
   allowedHeaders?: string[] | RegExp;
   allowedCookies?: string[] | RegExp;
   allowedSearchParams?: string[] | RegExp;
+  attachStacktrace?: SentryOptions["attachStacktrace"];
+  sourceMapUrlPrefix?: string;
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";
