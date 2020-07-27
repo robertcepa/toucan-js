@@ -85,6 +85,7 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 | allowedCookies      | string[] \| RegExp      | Array of allowed cookies, or a regular expression used to explicitly allow cookies of incoming request. If not provided, cookies will not be logged.                   |
 | allowedSearchParams | string[] \| RegExp      | Array of allowed search params, or a regular expression used to explicitly allow search params of incoming request. If not provided, search params will not be logged. |
 | beforeSend          | (event: Event) => Event | This function is applied to all events before sending to Sentry. If provided, all allowlists are ignored.                                                              |
+| transportOptions        | { dsn: string, headers: Record<string, string> } | Custom headers to be passed to Sentry. DSN is to be defined here on use |
 
 ## Sensitive data
 
