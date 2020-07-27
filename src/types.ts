@@ -5,7 +5,7 @@ import {
 } from "@sentry/types";
 
 export type Options = {
-  dsn: SentryOptions["dsn"];
+  dsn?: SentryOptions["dsn"];
   event: FetchEvent;
   environment?: SentryOptions["environment"];
   release?: SentryOptions["release"];
