@@ -476,7 +476,7 @@ export default class Toucan {
       return {
         frames: stack
           .map<StackFrame>((frame) => {
-            const filename = frame.fileName ?? "";
+            const filename = this.options.stacktraceFileName ?? frame.fileName ?? "";
             return {
               colno: frame.columnNumber,
               lineno: frame.lineNumber,

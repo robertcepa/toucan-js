@@ -16,6 +16,7 @@ export type Options = {
   allowedSearchParams?: string[] | RegExp;
   attachStacktrace?: SentryOptions["attachStacktrace"];
   sourceMapUrlPrefix?: string;
+  stacktraceFileName?: string;
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";
