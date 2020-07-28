@@ -5,7 +5,7 @@ import {
 } from "@sentry/types";
 
 export type Options = {
-  dsn: NonNullable<SentryOptions["dsn"]>;
+  dsn?: SentryOptions["dsn"];
   event: FetchEvent;
   environment?: SentryOptions["environment"];
   release?: SentryOptions["release"];
@@ -16,6 +16,7 @@ export type Options = {
   allowedSearchParams?: string[] | RegExp;
   attachStacktrace?: SentryOptions["attachStacktrace"];
   sourceMapUrlPrefix?: string;
+  transportOptions?: SentryOptions["transportOptions"];
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";

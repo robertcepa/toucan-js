@@ -57,6 +57,27 @@ describe("Toucan", () => {
     results.forEach((result) => expect(result).toBeUndefined());
   });
 
+  test("disabled mode when no dsn is provided", async () => {
+    const results: ReturnType<Toucan["captureMessage"]>[] = [];
+    self.addEventListener("fetch", (event) => {
+      // Empty DNS is a Valid option that signifies disabling the SDK, set disabled = true
+      const toucan = new Toucan({
+        event,
+      });
+      results.push(toucan.captureMessage("test1"));
+      results.push(toucan.captureMessage("test2"));
+      results.push(toucan.captureMessage("test3"));
+      results.push(toucan.captureMessage("test4"));
+    });
+
+    await triggerFetchAndWait(self);
+
+    // No POST requests to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(0);
+    // But Toucan should still function, returning 'undefined' (no eventIds generated)
+    results.forEach((result) => expect(result).toBeUndefined());
+  });
+
   test("captureMessage", async () => {
     let result: string | undefined = undefined;
     self.addEventListener("fetch", (event) => {
@@ -76,6 +97,54 @@ describe("Toucan", () => {
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     // captureMessage should have returned a generated eventId
     expect(result).toMatchSnapshot();
+  });
+
+  test("DSN with transportOptions", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        transportOptions: {
+          dsn: VALID_DSN,
+        },
+        event,
+      });
+      result = toucan.captureMessage("test");
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureMessage should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("pass custom headers in transportOptions", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        transportOptions: {
+          dsn: VALID_DSN,
+          headers: {
+            'X-Custom-Header': '1',
+          },
+        },
+        event,
+      });
+      toucan.captureMessage("test");
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Expect fetch to be called with custom headers
+    const fetchOptions = global.fetch.mock.calls[0][1];
+    const headers = <Record<string, string>>fetchOptions?.headers;
+    expect(headers['X-Custom-Header']).toEqual('1');
   });
 
   test("captureException: Error", async () => {

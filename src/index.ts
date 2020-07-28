@@ -10,6 +10,7 @@ import {
   isPlainObject,
   extractExceptionKeysForMessage,
   normalizeToSize,
+  Dsn,
 } from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
@@ -57,6 +58,15 @@ export default class Toucan {
   private extra?: Record<string, string>;
 
   constructor(options: Options) {
+    if (options.transportOptions) {
+      // options.transportOptions.dsn is either a string or a Dsn object
+      const dsn = options.transportOptions.dsn
+      if (dsn instanceof Dsn) {
+        options.dsn = dsn.toString()
+      } else {
+        options.dsn = <string>dsn
+      }
+    }
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
       this.url = "";
@@ -209,10 +219,16 @@ export default class Toucan {
    * @param data Custom Event data
    */
   private postEvent(data: Event) {
-    const headers: Record<string, string> = {
+    let headers: Record<string, string> = {
       "Content-Type": "application/json",
       "User-Agent": "__name__/__version__",
     };
+    if (this.options?.transportOptions?.headers) {
+      headers = {
+        ...headers,
+        ...this.options.transportOptions.headers,
+      }
+    }
 
     return fetch(this.url, {
       method: "POST",
