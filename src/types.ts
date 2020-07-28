@@ -2,7 +2,13 @@ import {
   Options as SentryOptions,
   Event as SentryEvent,
   Breadcrumb as SentryBreadcrumb,
+  StackFrame,
 } from "@sentry/types";
+
+export type RewriteFrames = {
+  root?: string;
+  iteratee?: (frame: StackFrame) => StackFrame;
+};
 
 export type Options = {
   dsn?: SentryOptions["dsn"];
@@ -15,8 +21,8 @@ export type Options = {
   allowedCookies?: string[] | RegExp;
   allowedSearchParams?: string[] | RegExp;
   attachStacktrace?: SentryOptions["attachStacktrace"];
-  sourceMapUrlPrefix?: string;
   transportOptions?: SentryOptions["transportOptions"];
+  rewriteFrames?: RewriteFrames;
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";
