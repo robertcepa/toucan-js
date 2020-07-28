@@ -55,6 +55,35 @@ Object {
 }
 `;
 
+exports[`Toucan attachStacktrace false 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan attachStacktrace false 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
 exports[`Toucan beforeSend 1`] = `
 Object {
   "breadcrumbs": Array [],
@@ -88,16 +117,14 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "bar",
               "lineno": 0,
             },
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "foo",
               "lineno": 0,
             },
@@ -135,16 +162,14 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "bar",
               "lineno": 0,
             },
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "foo",
               "lineno": 0,
             },
@@ -182,16 +207,14 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "bar",
               "lineno": 0,
             },
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "foo",
               "lineno": 0,
             },
@@ -227,16 +250,14 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "bar",
               "lineno": 0,
             },
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "foo",
               "lineno": 0,
             },
@@ -272,16 +293,14 @@ Object {
         "stacktrace": Object {
           "frames": Array [
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "bar",
               "lineno": 0,
             },
             Object {
-              "abs_path": "~/file",
               "colno": 0,
-              "filename": "file",
+              "filename": "~/file",
               "function": "foo",
               "lineno": 0,
             },
@@ -330,6 +349,98 @@ Object {
 `;
 
 exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan rewriteFrames iteratee 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "abs_path": "/usr/bin//dist/file",
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "/usr/bin//dist/file",
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan rewriteFrames iteratee 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan rewriteFrames root 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan rewriteFrames root 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
 exports[`Toucan setExtra 1`] = `
 Object {

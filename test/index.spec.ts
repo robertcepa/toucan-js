@@ -128,7 +128,7 @@ describe("Toucan", () => {
         transportOptions: {
           dsn: VALID_DSN,
           headers: {
-            'X-Custom-Header': '1',
+            "X-Custom-Header": "1",
           },
         },
         event,
@@ -144,7 +144,7 @@ describe("Toucan", () => {
     // Expect fetch to be called with custom headers
     const fetchOptions = global.fetch.mock.calls[0][1];
     const headers = <Record<string, string>>fetchOptions?.headers;
-    expect(headers['X-Custom-Header']).toEqual('1');
+    expect(headers["X-Custom-Header"]).toEqual("1");
   });
 
   test("captureException: Error", async () => {
@@ -512,5 +512,99 @@ describe("Toucan", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     // Match POST request payload snap
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
+
+  test("attachStacktrace false", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        attachStacktrace: false,
+      });
+
+      try {
+        throw new Error("test");
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("rewriteFrames root", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        rewriteFrames: { root: "/dist/" },
+      });
+
+      try {
+        throw new Error("test");
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
+  });
+
+  test("rewriteFrames iteratee", async () => {
+    let result: string | undefined = undefined;
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        rewriteFrames: {
+          iteratee: (frame) => {
+            frame.filename = `/dist/${frame.filename}`;
+            frame.abs_path = `/usr/bin/${frame.filename}`;
+
+            return frame;
+          },
+        },
+      });
+
+      try {
+        throw new Error("test");
+      } catch (e) {
+        result = toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+    // captureException should have returned a generated eventId
+    expect(result).toMatchSnapshot();
   });
 });

@@ -3,7 +3,7 @@
  * Adheres to https://docs.sentry.io/development/sdk-dev/overview/
  */
 import { User, Request, Stacktrace, StackFrame } from "@sentry/types";
-import { Options, Event, Breadcrumb, Level } from "./types";
+import { Options, Event, Breadcrumb, Level, RewriteFrames } from "./types";
 import { API } from "@sentry/core";
 import {
   isError,
@@ -14,7 +14,7 @@ import {
 } from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
-import { fromError, get } from "stacktrace-js";
+import { fromError } from "stacktrace-js";
 
 export default class Toucan {
   /**
@@ -60,11 +60,11 @@ export default class Toucan {
   constructor(options: Options) {
     if (options.transportOptions) {
       // options.transportOptions.dsn is either a string or a Dsn object
-      const dsn = options.transportOptions.dsn
+      const dsn = options.transportOptions.dsn;
       if (dsn instanceof Dsn) {
-        options.dsn = dsn.toString()
+        options.dsn = dsn.toString();
       } else {
-        options.dsn = <string>dsn
+        options.dsn = <string>dsn;
       }
     }
     if (!options.dsn || options.dsn.length === 0) {
@@ -227,7 +227,7 @@ export default class Toucan {
       headers = {
         ...headers,
         ...this.options.transportOptions.headers,
-      }
+      };
     }
 
     return fetch(this.url, {
@@ -423,10 +423,6 @@ export default class Toucan {
    * @param event
    */
   private async reportMessage(event: Event) {
-    const stacktrace = await this.buildStackTrace();
-
-    event.stacktrace = stacktrace;
-
     return this.postEvent(event);
   }
 
@@ -470,36 +466,45 @@ export default class Toucan {
   /**
    * Builds Stacktrace as per https://docs.sentry.io/development/sdk-dev/event-payloads/stacktrace/
    *
-   * @param error Error object. If provided, builds Stacktrace from error, else, gets a backtrace from invocation point.
+   * @param error Error object.
    * @returns Stacktrace
    */
-  private async buildStackTrace(
-    error?: Error
-  ): Promise<Stacktrace | undefined> {
+  private async buildStackTrace(error: Error): Promise<Stacktrace | undefined> {
     if (this.options.attachStacktrace === false) {
       return undefined;
     }
 
     try {
-      const stack = error ? await fromError(error) : await get();
+      const stack = await fromError(error);
 
       /**
        * sentry-cli and webpack-sentry-plugin upload the source-maps named by their path with a ~/ prefix.
        * Lets adhere to this behavior.
        */
-      const sourceMapUrlPrefix = this.options.sourceMapUrlPrefix ?? "~/";
+      const rewriteFrames: RewriteFrames = this.options.rewriteFrames ?? {
+        root: "~/",
+        iteratee: (frame) => frame,
+      };
 
       return {
         frames: stack
           .map<StackFrame>((frame) => {
             const filename = frame.fileName ?? "";
-            return {
+
+            const stackFrame = {
               colno: frame.columnNumber,
               lineno: frame.lineNumber,
               filename,
               function: frame.functionName,
-              abs_path: `${sourceMapUrlPrefix}${filename}`,
             };
+
+            if (!!rewriteFrames.root) {
+              stackFrame.filename = `${rewriteFrames.root}${stackFrame.filename}`;
+            }
+
+            return !!rewriteFrames.iteratee
+              ? rewriteFrames.iteratee(stackFrame)
+              : stackFrame;
           })
           .reverse(),
       };
