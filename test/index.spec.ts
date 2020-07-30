@@ -11,7 +11,6 @@ import {
   triggerFetchAndWait,
   mockStackTrace,
 } from "./helpers";
-import {} from "@cloudflare/workers-types"; // to get Cloudflare Workers overrides for addEventListener type
 
 const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
 
