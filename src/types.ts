@@ -21,7 +21,9 @@ export type Options = {
   allowedCookies?: string[] | RegExp;
   allowedSearchParams?: string[] | RegExp;
   attachStacktrace?: SentryOptions["attachStacktrace"];
-  transportOptions?: SentryOptions["transportOptions"];
+  transportOptions?: Compute<
+    Pick<NonNullable<SentryOptions["transportOptions"]>, "headers">
+  >;
   rewriteFrames?: RewriteFrames;
 };
 

@@ -99,34 +99,11 @@ describe("Toucan", () => {
     expect(result).toMatchSnapshot();
   });
 
-  test("DSN with transportOptions", async () => {
-    let result: string | undefined = undefined;
-    self.addEventListener("fetch", (event) => {
-      const toucan = new Toucan({
-        transportOptions: {
-          dsn: VALID_DSN,
-        },
-        event,
-      });
-      result = toucan.captureMessage("test");
-      event.respondWith(new Response("OK", { status: 200 }));
-    });
-
-    await triggerFetchAndWait(self);
-
-    // Expect POST request to Sentry
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    // Match POST request payload snap
-    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
-    // captureMessage should have returned a generated eventId
-    expect(result).toMatchSnapshot();
-  });
-
   test("pass custom headers in transportOptions", async () => {
     self.addEventListener("fetch", (event) => {
       const toucan = new Toucan({
+        dsn: VALID_DSN,
         transportOptions: {
-          dsn: VALID_DSN,
           headers: {
             "X-Custom-Header": "1",
           },
