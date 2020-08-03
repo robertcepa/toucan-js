@@ -115,12 +115,13 @@ You will need to explicitly allow potentially sensitive data using:
 Make sure to use the absolute paths on the stack frames and Sentry's artifacts, the default `~/` will not match them properly. Any absolute path will work (i.e., `/`). You will need to use `rewriteFrames` option to add the prefix to the stack frames.
 
 ```ts
-  const toucan = new Toucan({
-    dsn: ...
-    event,
-    rewriteFrames: {
-      root: '/'
-    }
+const toucan = new Toucan({
+  dsn: ...
+  event,
+  rewriteFrames: {
+    root: '/'
+  }
+}
 ```
 
 Changing the Sentry's artifacts URL depends on plugin you use to upload your source maps.
