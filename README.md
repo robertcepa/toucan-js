@@ -76,8 +76,8 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 
 | Option              | Type                                                            | Description                                                                                                                                                                                                                                          |
 | ------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| dsn                 | \*string                                                        | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk).                                                                                                                                 |
 | event               | \*FetchEvent                                                    | Workers fetch event. Toucan needs this to be able to call [waitUntil](https://developers.cloudflare.com/workers/about/tips/fetch-event-lifecycle/).                                                                                                  |
+| dsn                 | string                                                          | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk). If an empty DSN is passed, we treat it as valid option which signifies disabling the SDK.                                       |
 | environment         | string                                                          | Your application's environment (production/staging/...).                                                                                                                                                                                             |
 | release             | string                                                          | Release tag.                                                                                                                                                                                                                                         |
 | pkg                 | object                                                          | Essentially your package.json. Toucan will use it to read project name, version, dependencies, and devDependencies.                                                                                                                                  |
@@ -85,7 +85,7 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 | allowedCookies      | string[] \| RegExp                                              | Array of allowed cookies, or a regular expression used to explicitly allow cookies of incoming request. If not provided, cookies will not be logged.                                                                                                 |
 | allowedSearchParams | string[] \| RegExp                                              | Array of allowed search params, or a regular expression used to explicitly allow search params of incoming request. If not provided, search params will not be logged.                                                                               |
 | beforeSend          | (event: Event) => Event                                         | This function is applied to all events before sending to Sentry. If provided, all allowlists are ignored.                                                                                                                                            |
-| transportOptions    | { dsn: string, headers?: Record<string, string> }               | Custom headers to be passed to Sentry. DSN is to be defined here on use                                                                                                                                                                              |
+| transportOptions    | { headers?: Record<string, string> }                            | Custom headers to be passed to Sentry.                                                                                                                                                                                                               |
 | attachStacktrace    | boolean                                                         | Attaches stacktraces to capture message. Default true.                                                                                                                                                                                               |
 | rewriteFrames       | { root?: string, iteratee?: (frame: StackFrame) => StackFrame } | Allows you to apply a transformation to each frame of the stack trace. `root` path will be appended to the basename of the current frame's url. `iteratee` is a function that takes the frame, applies any transformation on it and returns it back. |
 
@@ -107,3 +107,42 @@ You will need to explicitly allow potentially sensitive data using:
 - allowedSearchParams option (array of search params or Regex)
 - toucan.setRequestBody function (stringified JSON)
 - beforeSend option (if you need more flexibility than allowedX functions)
+
+## Known issues
+
+### Source Maps
+
+Make sure to use the absolute paths on the stack frames and Sentry's artifacts, the default `~/` will not match them properly. Any absolute path will work (i.e., `/`). You will need to use `rewriteFrames` option to add the prefix to the stack frames.
+
+```ts
+  const toucan = new Toucan({
+    dsn: ...
+    event,
+    rewriteFrames: {
+      root: '/'
+    }
+```
+
+Changing the Sentry's artifacts URL depends on plugin you use to upload your source maps.
+
+Example configuration using `@sentry/webpack-plugin`:
+
+```ts
+const SentryWebpackPlugin = require("@sentry/webpack-plugin");
+const pkg = require("./package.json");
+
+module.exports = {
+  entry: "./src/index.ts",
+  target: "webworker",
+  devtool: "source-map",
+  plugins: [
+    new SentryWebpackPlugin({
+      release: `${pkg.name}-${pkg.version}`,
+      include: "./dist",
+      urlPrefix: "/",
+    }),
+  ],
+};
+```
+
+For more information, [see this issue](https://github.com/robertcepa/toucan-js/issues/26).
