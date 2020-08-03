@@ -10,7 +10,6 @@ import {
   isPlainObject,
   extractExceptionKeysForMessage,
   normalizeToSize,
-  Dsn,
 } from "@sentry/utils";
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
@@ -58,15 +57,6 @@ export default class Toucan {
   private extra?: Record<string, string>;
 
   constructor(options: Options) {
-    if (options.transportOptions) {
-      // options.transportOptions.dsn is either a string or a Dsn object
-      const dsn = options.transportOptions.dsn;
-      if (dsn instanceof Dsn) {
-        options.dsn = dsn.toString();
-      } else {
-        options.dsn = <string>dsn;
-      }
-    }
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
       this.url = "";
