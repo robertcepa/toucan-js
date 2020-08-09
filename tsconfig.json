@@ -17,6 +17,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "lib": ["ESNext", "WebWorker"]
+    "lib": ["ESNext", "WebWorker"],
+    "types": ["@cloudflare/workers-types", "jest", "node"]
   }
 }
