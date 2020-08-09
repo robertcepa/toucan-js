@@ -583,4 +583,31 @@ describe("Toucan", () => {
     // captureException should have returned a generated eventId
     expect(result).toMatchSnapshot();
   });
+
+  test("fingerprint", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      toucan.setFingerprint(["{{ default }}", event.request.url]);
+
+      try {
+        throw new Error("test");
+      } catch (e) {
+        toucan.captureException(e);
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
 });

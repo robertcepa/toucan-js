@@ -328,6 +328,53 @@ Object {
 
 exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
+exports[`Toucan fingerprint 1`] = `
+Object {
+  "breadcrumbs": Array [],
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "fingerprint": Array [
+    "{{ default }}",
+    "https://example.com/",
+  ],
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
 exports[`Toucan rewriteFrames iteratee 1`] = `
 Object {
   "breadcrumbs": Array [],
