@@ -71,6 +71,7 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 - setExtra: Set key:value that will be sent as extra data with the event.
 - setExtras: Set an object that will be merged sent as extra data with the event.
 - setUser: Updates user context information for future events.
+- setFingerprint: Overrides the Sentry default grouping.
 
 ## Options
 
