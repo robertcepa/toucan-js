@@ -56,6 +56,11 @@ export default class Toucan {
    */
   private extra?: Record<string, string>;
 
+  /**
+   * Used to override the Sentry default grouping.
+   */
+  private fingerprint?: string[];
+
   constructor(options: Options) {
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
@@ -71,6 +76,7 @@ export default class Toucan {
     this.breadcrumbs = [];
     this.tags = undefined;
     this.extra = undefined;
+    this.fingerprint = undefined;
 
     this.beforeSend = this.beforeSend.bind(this);
 
@@ -138,6 +144,15 @@ export default class Toucan {
    */
   setTags(tags: Record<string, string>) {
     this.tags = { ...this.tags, ...tags };
+  }
+
+  /**
+   * Overrides the Sentry default grouping. See https://docs.sentry.io/data-management/event-grouping/sdk-fingerprinting/
+   *
+   * @param fingerprint Array of strings used to override the Sentry default grouping.
+   */
+  setFingerprint(fingerprint: string[]) {
+    this.fingerprint = fingerprint;
   }
 
   /**
@@ -261,6 +276,7 @@ export default class Toucan {
       breadcrumbs: this.getBreadcrumbs(),
       tags: this.tags,
       extra: this.extra,
+      fingerprint: this.fingerprint,
       ...additionalData,
       request: { ...this.request },
       sdk: {
