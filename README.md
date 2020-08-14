@@ -12,9 +12,9 @@ Toucan is a reliable [Sentry](https://docs.sentry.io/) client for [Cloudflare Wo
 
 ## Motivation
 
-In Cloudflare Workers isolate model, it is inadvisable to [set or mutate global state within the event handler](https://developers.cloudflare.com/workers/about/how-it-works). The most of JavaScript SDKs use static methods that mutate global state with request metadata, breadcrumbs, tags... This is reasonable, because they were implemented for environments where concurrency does not inherently exist. However, using these SDKs in Workers leads to race conditions, such as logging breadcrumbs and request metadata of interleaved events.
+In Cloudflare Workers isolate model, it is inadvisable to [set or mutate global state within the event handler](https://developers.cloudflare.com/workers/about/how-it-works). The most of JavaScript SDKs use static methods that mutate global state with request metadata, breadcrumbs, tags, and other extra properties. This is reasonable, because they were implemented for environments where concurrency does not inherently exist. However, using these SDKs in Workers leads to race conditions, such as logging breadrumbs, request data, and other metadata of interleaved events.
 
-Toucan was created with Workers concurrent model in mind. Being a JavaScript class instantiated per-event, this kind of race-conditions do not exist, because all request metadata are scoped to a particular fetch event.
+Toucan was created with Workers concurrent model in mind. It is a class that is instantiated per-event rather than globally, meaning this kind of race-conditions do not exist, because all request metadata are scoped to a particular fetch event.
 
 ## Usage
 
