@@ -6,6 +6,8 @@ declare module NodeJS {
     >;
     console: {
       warn: jest.Mock;
+      log: jest.Mock;
+      error: jest.Mock;
     };
   }
 }
