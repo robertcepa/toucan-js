@@ -11,20 +11,23 @@ export type RewriteFrames = {
 };
 
 export type Options = {
-  dsn?: SentryOptions["dsn"];
   event: FetchEvent;
-  environment?: SentryOptions["environment"];
-  release?: SentryOptions["release"];
-  beforeSend?: (event: Event) => Event;
-  pkg?: Record<string, any>;
-  allowedHeaders?: string[] | RegExp;
+  dsn?: SentryOptions["dsn"];
   allowedCookies?: string[] | RegExp;
+  allowedHeaders?: string[] | RegExp;
   allowedSearchParams?: string[] | RegExp;
   attachStacktrace?: SentryOptions["attachStacktrace"];
+  beforeSend?: (event: Event) => Event;
+  debug?: SentryOptions["debug"];
+  environment?: SentryOptions["environment"];
+  maxBreadcrumbs?: SentryOptions["maxBreadcrumbs"];
+  pkg?: Record<string, any>;
+  release?: SentryOptions["release"];
+  rewriteFrames?: RewriteFrames;
+  sampleRate?: SentryOptions["sampleRate"];
   transportOptions?: Compute<
     Pick<NonNullable<SentryOptions["transportOptions"]>, "headers">
   >;
-  rewriteFrames?: RewriteFrames;
 };
 
 export type Level = "fatal" | "error" | "warning" | "info" | "debug";

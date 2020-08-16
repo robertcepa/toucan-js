@@ -10,6 +10,8 @@ import {
   resetConsole,
   triggerFetchAndWait,
   mockStackTrace,
+  mockMathRandom,
+  resetMathRandom,
 } from "./helpers";
 
 const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
@@ -243,10 +245,39 @@ describe("Toucan", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     // Match POST request payload snap
     const payload = getFetchMockPayload(global.fetch);
-    // Should have sent only 100 last breadcrums (100 is a limit)
+    // Should have sent only 100 last breadcrums (100 is default)
     expect(payload.breadcrumbs.length).toBe(100);
     expect(payload.breadcrumbs[0].data.index).toBe(100);
     expect(payload.breadcrumbs[99].data.index).toBe(199);
+  });
+
+  test("maxBreadcrumbs", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        maxBreadcrumbs: 20,
+      });
+
+      for (let i = 0; i < 200; i++) {
+        toucan.addBreadcrumb({ message: "test", data: { index: i } });
+      }
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    // Match POST request payload snap
+    const payload = getFetchMockPayload(global.fetch);
+    // Should have sent only 20 last breadcrums
+    expect(payload.breadcrumbs.length).toBe(20);
+    expect(payload.breadcrumbs[0].data.index).toBe(180);
+    expect(payload.breadcrumbs[19].data.index).toBe(199);
   });
 
   test("setUser", async () => {
@@ -609,5 +640,127 @@ describe("Toucan", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     // Match POST request payload snap
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+  });
+
+  test("sampleRate = 0 should send 0% of events", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        sampleRate: 0,
+      });
+
+      for (let i = 0; i < 1000; i++) {
+        toucan.captureMessage("test");
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect 0 POST requests to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(0);
+  });
+
+  test("sampleRate = 1 should send 100% of events", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        sampleRate: 1,
+      });
+
+      for (let i = 0; i < 1000; i++) {
+        toucan.captureMessage("test");
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect 1000 POST requests to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(1000);
+  });
+
+  test("sampleRate = 0.5 should send 50% of events", async () => {
+    // Make Math.random always return 0, 0.9, 0, 0.9 ...
+    mockMathRandom([0, 0.9]);
+
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        sampleRate: 0.5,
+      });
+
+      for (let i = 0; i < 10; i++) {
+        toucan.captureMessage("test");
+      }
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect 1000 POST requests to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(5);
+
+    resetMathRandom();
+  });
+
+  test("debug disabled", async () => {
+    const spy = jest.spyOn(Toucan.prototype as any, "logResponse");
+
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        debug: false,
+      });
+
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect 1000 POST requests to Sentry
+    expect(global.console.log).toHaveBeenCalledTimes(0);
+    expect(spy).toHaveBeenCalledTimes(0);
+
+    resetMathRandom();
+  });
+
+  test("debug enabled", async () => {
+    const spy = jest.spyOn(Toucan.prototype as any, "logResponse");
+
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+        debug: true,
+      });
+
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect 1000 POST requests to Sentry
+    expect(global.console.log).toHaveBeenCalledTimes(4);
+    expect(global.console.log.mock.calls).toMatchSnapshot();
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    resetMathRandom();
   });
 });

@@ -62,15 +62,23 @@ export default class Toucan {
   private fingerprint?: string[];
 
   constructor(options: Options) {
+    this.options = options;
+
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
       this.url = "";
       this.disabled = true;
+
+      this.debug(() => this.log("dsn missing, SDK is disabled"));
     } else {
       this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
       this.disabled = false;
+
+      this.debug(() =>
+        this.log(`dsn parsed, full store endpoint: ${this.url}`)
+      );
     }
-    this.options = options;
+
     this.user = undefined;
     this.request = this.toSentryRequest(options.event.request);
     this.breadcrumbs = [];
@@ -93,7 +101,7 @@ export default class Toucan {
           try {
             return Reflect.get(target, key, receiver).apply(target, args);
           } catch (err) {
-            console.warn(err);
+            this.debug(() => this.error(err));
           }
         };
       },
@@ -173,10 +181,14 @@ export default class Toucan {
    * Captures an exception event and sends it to Sentry.
    *
    * @param exception An exception-like object.
-   * @returns The generated eventId.
+   * @returns The generated eventId, or undefined if event wasn't scheduled.
    */
   captureException(exception: unknown) {
+    this.debug(() => this.log(`calling captureException`));
+
     const event = this.buildEvent({});
+
+    if (!event) return;
 
     this.options.event.waitUntil(this.reportException(event, exception));
 
@@ -188,10 +200,14 @@ export default class Toucan {
    *
    * @param message The message to send to Sentry.
    * @param level Define the level of the message.
-   * @returns The generated eventId.
+   * @returns The generated eventId, or undefined if event wasn't scheduled.
    */
   captureMessage(message: string, level: Level = "info") {
+    this.debug(() => this.log(`calling captureMessage`));
+
     const event = this.buildEvent({ level, message });
+
+    if (!event) return;
 
     this.options.event.waitUntil(this.reportMessage(event));
 
@@ -219,15 +235,18 @@ export default class Toucan {
   }
 
   /**
-   * Builds a Sentry Event and calls waitUntil on the current worker event.
+   * Send data to Sentry.
    *
-   * @param data Custom Event data
+   * @param data Event data
    */
-  private postEvent(data: Event) {
+  private async postEvent(data: Event) {
+    // We are sending User-Agent for backwards compatibility with older Sentry
     let headers: Record<string, string> = {
       "Content-Type": "application/json",
       "User-Agent": "__name__/__version__",
     };
+
+    // Build headers
     if (this.options?.transportOptions?.headers) {
       headers = {
         ...headers,
@@ -235,11 +254,32 @@ export default class Toucan {
       };
     }
 
-    return fetch(this.url, {
+    // Build body string
+    const body = JSON.stringify(data);
+
+    // Log the outgoing request
+    this.debug(() => {
+      this.log(
+        `sending request to Sentry with headers: ${JSON.stringify(
+          headers
+        )} and body: ${body}`
+      );
+    });
+
+    // Send to Sentry and wait for Response
+    const response = await fetch(this.url, {
       method: "POST",
-      body: JSON.stringify(data),
+      body,
       headers,
     });
+
+    // Log the response
+    await this.debug(() => {
+      return this.logResponse(response);
+    });
+
+    // Resolve with response
+    return response;
   }
 
   /**
@@ -248,7 +288,18 @@ export default class Toucan {
    * @param additionalData Additional data added to defaults.
    * @returns Event
    */
-  private buildEvent(additionalData: Event): Event {
+  private buildEvent(additionalData: Event): Event | undefined {
+    const sampleRate = this.options.sampleRate;
+
+    // 1.0 === 100% events are sent
+    // 0.0 === 0% events are sent
+    if (typeof sampleRate === "number" && Math.random() > sampleRate) {
+      this.debug(() =>
+        this.log(`skipping this event (sampleRate === ${sampleRate})`)
+      );
+      return;
+    }
+
     const pkg = this.options.pkg;
 
     // 'release' option takes precedence, if not present - try to derive from package.json
@@ -400,8 +451,10 @@ export default class Toucan {
 
       predicate = (item: string) => allowlistLowercased.includes(item);
     } else {
-      console.warn(
-        "allowlist must be an array of strings, or a regular expression."
+      this.debug(() =>
+        this.warn(
+          "allowlist must be an array of strings, or a regular expression."
+        )
       );
       return {};
     }
@@ -523,12 +576,72 @@ export default class Toucan {
    * Get the breadcrumbs. If the stack size exceeds MAX_BREADCRUMBS, returns the last MAX_BREADCRUMBS breadcrumbs.
    */
   private getBreadcrumbs() {
-    const MAX_BREADCRUMBS = 100;
+    const maxBreadcrumbs = this.options.maxBreadcrumbs ?? 100;
 
-    if (this.breadcrumbs.length > MAX_BREADCRUMBS) {
-      return this.breadcrumbs.slice(this.breadcrumbs.length - MAX_BREADCRUMBS);
+    if (this.breadcrumbs.length > maxBreadcrumbs) {
+      return this.breadcrumbs.slice(this.breadcrumbs.length - maxBreadcrumbs);
     } else {
       return this.breadcrumbs;
+    }
+  }
+
+  /**
+   * Runs a callback if debug === true.
+   * Use this to delay execution of debug logic, to ensure toucan doesn't burn I/O in non-debug mode.
+   *
+   * @param callback
+   */
+  private debug<ReturnType>(callback: () => ReturnType) {
+    if (this.options.debug) {
+      return callback();
+    }
+  }
+
+  private log(message: string) {
+    console.log(`toucan-js: ${message}`);
+  }
+
+  private warn(message: string) {
+    console.warn(`toucan-js: ${message}`);
+  }
+
+  private error(message: string) {
+    console.error(`toucan-js: ${message}`);
+  }
+
+  /**
+   * Reads and logs Response object from Sentry. Uses a clone, not the original, so the body can be used elsewhere.
+   * Do not use without this.debug wrapper.
+   *
+   * @param originalResponse Response
+   */
+  private async logResponse(originalResponse: Response) {
+    // Make a copy of original response so the body can still be read elsewhere
+    const response = originalResponse.clone();
+
+    let responseText = "";
+    // Read response body, set to empty if fails
+    try {
+      responseText = await response.text();
+    } catch (e) {
+      responseText += "";
+    }
+
+    // Parse origin from response.url, but at least give some string if parsing fails.
+    let origin = "Sentry";
+    try {
+      const originUrl = new URL(response.url);
+      origin = originUrl.origin;
+    } catch (e) {
+      origin = response.url ?? "Sentry";
+    }
+
+    const msg = `${origin} responded with [${response.status} ${response.statusText}]: ${responseText}`;
+
+    if (response.ok) {
+      this.log(msg);
+    } else {
+      this.error(msg);
     }
   }
 }

@@ -328,6 +328,23 @@ Object {
 
 exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
+exports[`Toucan debug enabled 1`] = `
+Array [
+  Array [
+    "toucan-js: dsn parsed, full store endpoint: https://testorg.ingest.sentry.io/api/123/store/?sentry_key=123&sentry_version=7",
+  ],
+  Array [
+    "toucan-js: calling captureMessage",
+  ],
+  Array [
+    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"breadcrumbs\\":[],\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
+  ],
+  Array [
+    "toucan-js: http://example.com responded with [200 OK]: OK",
+  ],
+]
+`;
+
 exports[`Toucan fingerprint 1`] = `
 Object {
   "breadcrumbs": Array [],
