@@ -43,18 +43,21 @@ addEventListener("fetch", (event) => {
 async function doStuff(event: FetchEvent, sentry: Toucan) {
   try {
     sentry.addBreadcrumb({
-      message: "About to do some I/O...",
+      message: "About to do something",
       category: "log",
     });
-    // do some I/O
+
+    // ...code that may throw
+
     return new Response("OK", {
       status: 200,
+      statusText: "OK"
     });
   } catch (err) {
     sentry.captureException(err);
-    return new Response("", {
-      status: 200,
-      statusText: "OK",
+    return new Response("Something went wrong", {
+      status: 500,
+      statusText: "Internal Server Error",
     });
   }
 }
