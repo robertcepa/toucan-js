@@ -365,15 +365,28 @@ export default class Toucan {
       }
     }
 
-    const url = new URL(request.url);
-
-    return {
+    const rv: Request = {
       method: request.method,
-      url: `${url.protocol}//${url.hostname}${url.pathname}`,
-      query_string: url.search,
       cookies,
       headers,
     };
+
+    try {
+      const url = new URL(request.url);
+      rv.url = `${url.protocol}//${url.hostname}${url.pathname}`;
+      rv.query_string = url.search;
+    } catch (e) {
+      // `new URL` failed, let's try to split URL the primitive way
+      const qi = request.url.indexOf('?');
+      if (qi < 0) {
+        // no query string
+        rv.url = request.url;
+      } else {
+        rv.url = request.url.substr(0, qi);
+        rv.query_string = request.url.substr(qi+1);
+      }
+    }
+    return rv;
   }
 
   /**
