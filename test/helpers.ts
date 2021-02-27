@@ -120,3 +120,21 @@ export const triggerFetchAndWait = async (
   // missing typings but exists in https://github.com/zackargyle/service-workers/blob/master/packages/service-worker-mock/models/ExtendableEvent.js
   await (self.ExtendableEvent as any).eventsDoneWaiting();
 };
+
+/**
+ * This does 2 things:
+ * 1. Triggers scheduled event and waits for response (event.respondWith promise).
+ * 2. Waits for all waitUntil work to complete. This is useful for testing Toucan because all POST requests to Sentry server are sent via event.waitUntil.
+ *    This means we cannot test fetch mock immediately after getting a response, but we also need to wait for all work in waitUntil promise.
+ * @param self
+ * @param request
+ */
+export const triggerScheduledAndWait = async (
+  self: WorkerGlobalScope & typeof globalThis
+) => {
+  // Triggers scheduled event
+  await self.trigger("scheduled" as any);
+  // Waits for all waitUntil work to complete (event.waitUntil)
+  // missing typings but exists in https://github.com/zackargyle/service-workers/blob/master/packages/service-worker-mock/models/ExtendableEvent.js
+  await (self.ExtendableEvent as any).eventsDoneWaiting();
+};
