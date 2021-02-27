@@ -11,7 +11,7 @@ export type RewriteFrames = {
 };
 
 export type Options = {
-  event: FetchEvent;
+  event: FetchEvent | ScheduledEvent;
   dsn?: SentryOptions["dsn"];
   allowedCookies?: string[] | RegExp;
   allowedHeaders?: string[] | RegExp;

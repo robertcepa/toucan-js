@@ -39,7 +39,7 @@ export default class Toucan {
   /**
    * Sentry request object transformed from incoming event.request.
    */
-  private request: Request;
+  private request: Request | undefined;
 
   /**
    * Sentry breadcrumbs array.
@@ -80,7 +80,10 @@ export default class Toucan {
     }
 
     this.user = undefined;
-    this.request = this.toSentryRequest(options.event.request);
+    this.request =
+      "request" in options.event
+        ? this.toSentryRequest(options.event.request)
+        : undefined;
     this.breadcrumbs = [];
     this.tags = undefined;
     this.extra = undefined;
@@ -230,8 +233,12 @@ export default class Toucan {
 
    * @param body 
    */
-  setRequestBody(body: string) {
-    this.request.data = body;
+  setRequestBody(body: any) {
+    if (this.request) {
+      this.request.data = body;
+    } else {
+      this.request = { data: body };
+    }
   }
 
   /**
@@ -329,7 +336,7 @@ export default class Toucan {
       extra: this.extra,
       fingerprint: this.fingerprint,
       ...additionalData,
-      request: { ...this.request },
+      request: this.request,
       sdk: {
         name: "__name__",
         version: "__version__",
