@@ -51,7 +51,7 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 
     return new Response("OK", {
       status: 200,
-      statusText: "OK"
+      statusText: "OK",
     });
   } catch (err) {
     sentry.captureException(err);
@@ -78,18 +78,18 @@ async function doStuff(event: FetchEvent, sentry: Toucan) {
 
 ## Minimal options
 
-| Option | Type         | Description                                                                                                                                                                                                    |
-| ------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| event  | \*FetchEvent | Workers fetch event. Toucan needs this to be able to call [waitUntil](https://developers.cloudflare.com/workers/about/tips/fetch-event-lifecycle/).                                                            |
-| dsn    | string       | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk). If an empty DSN is passed, we treat it as valid option which signifies disabling the SDK. |
+| Option | Type                           | Description                                                                                                                                                                                                    |
+| ------ | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| event  | \*FetchEvent \| ScheduledEvent | Workers event. Toucan needs this to be able to call [waitUntil](https://developers.cloudflare.com/workers/about/tips/fetch-event-lifecycle/).                                                                  |
+| dsn    | string                         | Sentry [Data Source Name](https://docs.sentry.io/error-reporting/quickstart/?platform=javascript#configure-the-sdk). If an empty DSN is passed, we treat it as valid option which signifies disabling the SDK. |
 
 ## Other options
 
 | Option              | Type                                                            | Description                                                                                                                                                                                                                                          |
 | ------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| allowedCookies      | string[] \| RegExp                                              | Array of allowed cookies, or a regular expression used to explicitly allow cookies of incoming request. If not provided, cookies will not be logged.                                                                                                 |
-| allowedHeaders      | string[] \| RegExp                                              | Array of allowed headers, or a regular expression used to explicitly allow headers of incoming request. If not provided, headers will not be logged.                                                                                                 |
-| allowedSearchParams | string[] \| RegExp                                              | Array of allowed search params, or a regular expression used to explicitly allow search params of incoming request. If not provided, search params will not be logged.                                                                               |
+| allowedCookies      | string[] \| RegExp                                              | Array of allowed cookies, or a regular expression used to explicitly allow cookies of incoming request. If not provided, cookies will not be logged. No effect without request in context.                                                           |
+| allowedHeaders      | string[] \| RegExp                                              | Array of allowed headers, or a regular expression used to explicitly allow headers of incoming request. If not provided, headers will not be logged. No effect without request in context.                                                           |
+| allowedSearchParams | string[] \| RegExp                                              | Array of allowed search params, or a regular expression used to explicitly allow search params of incoming request. If not provided, search params will not be logged. No effect without request in context.                                         |
 | attachStacktrace    | boolean                                                         | Attaches stacktraces to capture message. Default true.                                                                                                                                                                                               |
 | beforeSend          | (event: Event) => Event                                         | This function is applied to all events before sending to Sentry. If provided, all allowlists are ignored.                                                                                                                                            |
 | debug               | boolean                                                         | Turns debug mode on or off. If debug is enabled, toucan-js will attempt to print out useful debugging information.                                                                                                                                   |
