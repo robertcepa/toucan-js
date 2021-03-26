@@ -332,9 +332,9 @@ export default class Toucan {
           }
         : undefined,
       breadcrumbs: this.getBreadcrumbs(),
-      tags: this.tags,
-      extra: this.extra,
-      fingerprint: this.fingerprint,
+      tags: this.tags ? { ...this.tags } : undefined,
+      extra: this.extra ? { ...this.extra } : undefined,
+      fingerprint: this.fingerprint ? [...this.fingerprint] : undefined,
       ...additionalData,
       request: this.request,
       sdk: {
