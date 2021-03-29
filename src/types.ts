@@ -30,7 +30,14 @@ export type Options = {
   >;
 };
 
-export type Level = "fatal" | "error" | "warning" | "info" | "debug";
+export type Level =
+  | "critical"
+  | "fatal"
+  | "error"
+  | "warning"
+  | "info"
+  | "log"
+  | "debug";
 // Overwrite default level type of enum to type of union of string literals
 export type Breadcrumb = Compute<
   Omit<SentryBreadcrumb, "level"> & { level?: Level }

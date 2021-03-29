@@ -2,7 +2,15 @@
  * Sentry client for Cloudflare Workers.
  * Adheres to https://docs.sentry.io/development/sdk-dev/overview/
  */
-import { User, Request, Stacktrace, StackFrame } from "@sentry/types";
+import {
+  User,
+  Request,
+  Stacktrace,
+  StackFrame,
+  Extra,
+  Extras,
+  Primitive,
+} from "@sentry/types";
 import { Options, Event, Breadcrumb, Level, RewriteFrames } from "./types";
 import { API } from "@sentry/core";
 import {
@@ -14,8 +22,26 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
 import { fromError } from "stacktrace-js";
+import { Scope } from "./scope";
 
 export default class Toucan {
+  /**
+   * Default maximum number of breadcrumbs added to an event. Can be overwritten
+   * with {@link Options.maxBreadcrumbs}.
+   */
+  private readonly DEFAULT_BREADCRUMBS = 100;
+
+  /**
+   * Absolute maximum number of breadcrumbs added to an event. The
+   * `maxBreadcrumbs` option cannot be higher than this value.
+   */
+  private readonly MAX_BREADCRUMBS = 100;
+
+  /**
+   * Is a {@link Scope}[]
+   */
+  private scopes: Scope[];
+
   /**
    * If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
    */
@@ -32,36 +58,13 @@ export default class Toucan {
   private url: string;
 
   /**
-   * Sentry user object.
-   */
-  private user?: User;
-
-  /**
    * Sentry request object transformed from incoming event.request.
    */
   private request: Request | undefined;
 
-  /**
-   * Sentry breadcrumbs array.
-   */
-  private breadcrumbs: Breadcrumb[];
-
-  /**
-   * Sentry tags object.
-   */
-  private tags?: Record<string, string>;
-
-  /**
-   * Sentry extra object.
-   */
-  private extra?: Record<string, string>;
-
-  /**
-   * Used to override the Sentry default grouping.
-   */
-  private fingerprint?: string[];
-
   constructor(options: Options) {
+    this.scopes = [new Scope()];
+
     this.options = options;
 
     if (!options.dsn || options.dsn.length === 0) {
@@ -79,15 +82,10 @@ export default class Toucan {
       );
     }
 
-    this.user = undefined;
     this.request =
       "request" in options.event
         ? this.toSentryRequest(options.event.request)
         : undefined;
-    this.breadcrumbs = [];
-    this.tags = undefined;
-    this.extra = undefined;
-    this.fingerprint = undefined;
 
     this.beforeSend = this.beforeSend.bind(this);
 
@@ -115,14 +113,10 @@ export default class Toucan {
    * Set key:value that will be sent as extra data with the event.
    *
    * @param key String key of extra
-   * @param value String value of extra
+   * @param extra Extra value of extra
    */
-  setExtra(key: string, value: string) {
-    if (!this.extra) {
-      this.extra = {};
-    }
-
-    this.extra[key] = value;
+  setExtra(key: string, extra: Extra) {
+    this.getScope().setExtra(key, extra);
   }
 
   /**
@@ -130,22 +124,18 @@ export default class Toucan {
    *
    * @param extras Extras context object to merge into current context.
    */
-  setExtras(extras: Record<string, string>) {
-    this.extra = { ...this.extra, ...extras };
+  setExtras(extras: Extras) {
+    this.getScope().setExtras(extras);
   }
 
   /**
    * Set key:value that will be sent as tags data with the event.
    *
    * @param key String key of tag
-   * @param value String value of tag
+   * @param value Primitive value of tag
    */
-  setTag(key: string, value: string) {
-    if (!this.tags) {
-      this.tags = {};
-    }
-
-    this.tags[key] = value;
+  setTag(key: string, value: Primitive) {
+    this.getScope().setTag(key, value);
   }
 
   /**
@@ -153,8 +143,8 @@ export default class Toucan {
    *
    * @param tags Tags context object to merge into current context.
    */
-  setTags(tags: Record<string, string>) {
-    this.tags = { ...this.tags, ...tags };
+  setTags(tags: { [key: string]: Primitive }) {
+    this.getScope().setTags(tags);
   }
 
   /**
@@ -163,7 +153,7 @@ export default class Toucan {
    * @param fingerprint Array of strings used to override the Sentry default grouping.
    */
   setFingerprint(fingerprint: string[]) {
-    this.fingerprint = fingerprint;
+    this.getScope().setFingerprint(fingerprint);
   }
 
   /**
@@ -173,11 +163,18 @@ export default class Toucan {
    * @param breadcrumb The breadcrum to record.
    */
   addBreadcrumb(breadcrumb: Breadcrumb) {
+    const maxBreadcrumbs =
+      this.options.maxBreadcrumbs ?? this.DEFAULT_BREADCRUMBS;
+
+    const numberOfBreadcrumbs = Math.min(maxBreadcrumbs, this.MAX_BREADCRUMBS);
+
+    if (numberOfBreadcrumbs <= 0) return;
+
     if (!breadcrumb.timestamp) {
       breadcrumb.timestamp = this.timestamp();
     }
 
-    this.breadcrumbs.push(breadcrumb);
+    this.getScope().addBreadcrumb(breadcrumb, numberOfBreadcrumbs);
   }
 
   /**
@@ -223,7 +220,8 @@ export default class Toucan {
    * @param user — User context object to be set in the current context. Pass null to unset the user.
    */
   setUser(user: User | null) {
-    this.user = user ? user : undefined;
+    const scope = this.getScope();
+    if (scope) scope.setUser(user);
   }
 
   /**
@@ -315,6 +313,9 @@ export default class Toucan {
       : pkg
       ? `${pkg.name}-${pkg.version}`
       : undefined;
+
+    const scope = this.getScope();
+
     // per https://docs.sentry.io/development/sdk-dev/event-payloads/#required-attributes
     const payload: Event = {
       event_id: uuidv4().replace(/-/g, ""), // dashes are not allowed
@@ -322,7 +323,6 @@ export default class Toucan {
       platform: "node",
       release,
       environment: this.options.environment,
-      user: this.user,
       timestamp: this.timestamp(),
       level: "error",
       modules: pkg
@@ -331,10 +331,6 @@ export default class Toucan {
             ...pkg.devDependencies,
           }
         : undefined,
-      breadcrumbs: this.getBreadcrumbs(),
-      tags: this.tags,
-      extra: this.extra,
-      fingerprint: this.fingerprint,
       ...additionalData,
       request: this.request,
       sdk: {
@@ -342,6 +338,9 @@ export default class Toucan {
         version: "__version__",
       },
     };
+
+    // Type-casting 'breadcrumb' to any because our level type is a union of literals, as opposed to Level enum.
+    scope.applyToEventSync(payload);
 
     const beforeSend = this.options.beforeSend ?? this.beforeSend;
     return beforeSend(payload);
@@ -580,19 +579,6 @@ export default class Toucan {
   }
 
   /**
-   * Get the breadcrumbs. If the stack size exceeds MAX_BREADCRUMBS, returns the last MAX_BREADCRUMBS breadcrumbs.
-   */
-  private getBreadcrumbs() {
-    const maxBreadcrumbs = this.options.maxBreadcrumbs ?? 100;
-
-    if (this.breadcrumbs.length > maxBreadcrumbs) {
-      return this.breadcrumbs.slice(this.breadcrumbs.length - maxBreadcrumbs);
-    } else {
-      return this.breadcrumbs;
-    }
-  }
-
-  /**
    * Runs a callback if debug === true.
    * Use this to delay execution of debug logic, to ensure toucan doesn't burn I/O in non-debug mode.
    *
@@ -650,5 +636,10 @@ export default class Toucan {
     } else {
       this.error(msg);
     }
+  }
+
+  /** Returns the scope of the top stack. */
+  private getScope() {
+    return this.scopes[this.scopes.length - 1];
   }
 }
