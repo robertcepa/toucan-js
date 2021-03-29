@@ -817,4 +817,58 @@ describe("Toucan", () => {
     // Match POST request payload snap
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
   });
+
+  test("withScope", async () => {
+    self.addEventListener("fetch", (event) => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        event,
+      });
+
+      toucan.setExtra("foo", "bar");
+
+      // Simple case
+      toucan.withScope((scope) => {
+        scope.setExtra("bar", "baz");
+        //expected {"foo": "bar", "bar": "baz"}
+        toucan.captureMessage("test withScope simple");
+      });
+
+      // Nested case
+      toucan.withScope((scope) => {
+        scope.setExtra("bar", "baz");
+        toucan.withScope((scope) => {
+          scope.setExtra("baz", "bam");
+          // expected {"foo": "bar", "bar": "baz", "baz": "bam"}
+          toucan.captureMessage("test withScope nested");
+        });
+        // expected {"foo": "bar", "bar": "baz"}
+        toucan.captureMessage("test withScope nested");
+      });
+
+      // expected {"foo": "bar"}
+      toucan.captureMessage("test");
+
+      event.respondWith(new Response("OK", { status: 200 }));
+    });
+
+    // Trigger fetch event defined above
+    await triggerFetchAndWait(self);
+
+    // Expect POST request to Sentry
+    expect(global.fetch).toHaveBeenCalledTimes(4);
+    expect(getFetchMockPayload(global.fetch, 0)).toMatchObject({
+      extra: { foo: "bar", bar: "baz" },
+    });
+    //expected to contain {"foo": "bar", "bar": "baz", "baz": "bam"}
+    expect(getFetchMockPayload(global.fetch, 1)).toMatchObject({
+      extra: { foo: "bar", bar: "baz", baz: "bam" },
+    });
+    expect(getFetchMockPayload(global.fetch, 2)).toMatchObject({
+      extra: { foo: "bar", bar: "baz" },
+    });
+    expect(getFetchMockPayload(global.fetch, 3)).toMatchObject({
+      extra: { foo: "bar" },
+    });
+  });
 });
