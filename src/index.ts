@@ -220,8 +220,7 @@ export default class Toucan {
    * @param user — User context object to be set in the current context. Pass null to unset the user.
    */
   setUser(user: User | null) {
-    const scope = this.getScope();
-    if (scope) scope.setUser(user);
+    this.getScope().setUser(user);
   }
 
   /**
@@ -236,6 +235,24 @@ export default class Toucan {
       this.request.data = body;
     } else {
       this.request = { data: body };
+    }
+  }
+
+  /**
+   * Creates a new scope with and executes the given operation within. The scope is automatically removed once the operation finishes or throws.
+   * This is essentially a convenience function for:
+   *
+   * @example
+   * pushScope();
+   * callback();
+   * popScope();
+   */
+  withScope(callback: (scope: Scope) => void): void {
+    const scope = this.pushScope();
+    try {
+      callback(scope);
+    } finally {
+      this.popScope();
     }
   }
 
@@ -340,7 +357,7 @@ export default class Toucan {
     };
 
     // Type-casting 'breadcrumb' to any because our level type is a union of literals, as opposed to Level enum.
-    scope.applyToEventSync(payload);
+    scope.applyToEvent(payload);
 
     const beforeSend = this.options.beforeSend ?? this.beforeSend;
     return beforeSend(payload);
@@ -641,5 +658,25 @@ export default class Toucan {
   /** Returns the scope of the top stack. */
   private getScope() {
     return this.scopes[this.scopes.length - 1];
+  }
+
+  /**
+   * Create a new scope to store context information.
+   * The scope will be layered on top of the current one. It is isolated, i.e. all breadcrumbs and context information added to this scope will be removed once the scope ends.  * Be sure to always remove this scope with {@link this.popScope} when the operation finishes or throws.
+   */
+  private pushScope(): Scope {
+    // We want to clone the content of prev scope
+    const scope = Scope.clone(this.getScope());
+    this.scopes.push(scope);
+    return scope;
+  }
+
+  /**
+   * Removes a previously pushed scope from the stack.
+   * This restores the state before the scope was pushed. All breadcrumbs and context information added since the last call to {@link this.pushScope} are discarded.
+   */
+  private popScope(): boolean {
+    if (this.scopes.length <= 1) return false;
+    return !!this.scopes.pop();
   }
 }
