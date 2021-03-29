@@ -28,6 +28,7 @@
     "@sentry/core": "6.2.3",
     "@sentry/utils": "6.2.3",
     "@sentry/types": "6.2.3",
+    "@sentry/hub": "6.2.3",
     "@types/cookie": "0.4.0",
     "@types/uuid": "8.3.0",
     "cookie": "0.4.1",

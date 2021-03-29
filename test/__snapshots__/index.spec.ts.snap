@@ -2,7 +2,6 @@
 
 exports[`Toucan FetchEvent allowlists 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -35,7 +34,6 @@ Object {
 
 exports[`Toucan FetchEvent attachStacktrace false 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -64,7 +62,6 @@ exports[`Toucan FetchEvent attachStacktrace false 2`] = `"651b177fe1cb4ac89e15c1
 
 exports[`Toucan FetchEvent beforeSend 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -87,7 +84,6 @@ Object {
 
 exports[`Toucan FetchEvent captureException: Error 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -132,7 +128,6 @@ exports[`Toucan FetchEvent captureException: Error 2`] = `"651b177fe1cb4ac89e15c
 
 exports[`Toucan FetchEvent captureException: Object 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -177,7 +172,6 @@ exports[`Toucan FetchEvent captureException: Object 2`] = `"651b177fe1cb4ac89e15
 
 exports[`Toucan FetchEvent captureException: primitive 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -220,7 +214,6 @@ Object {
 
 exports[`Toucan FetchEvent captureException: primitive 2`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -263,7 +256,6 @@ Object {
 
 exports[`Toucan FetchEvent captureException: primitive 3`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -308,7 +300,6 @@ exports[`Toucan FetchEvent captureException: primitive 4`] = `"651b177fe1cb4ac89
 
 exports[`Toucan FetchEvent captureMessage 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -337,7 +328,7 @@ Array [
     "toucan-js: calling captureMessage",
   ],
   Array [
-    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"breadcrumbs\\":[],\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
+    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
   ],
   Array [
     "toucan-js: http://example.com responded with [200 OK]: OK",
@@ -347,7 +338,6 @@ Array [
 
 exports[`Toucan FetchEvent fingerprint 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -394,7 +384,6 @@ Object {
 
 exports[`Toucan FetchEvent rewriteFrames iteratee 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -441,7 +430,6 @@ exports[`Toucan FetchEvent rewriteFrames iteratee 2`] = `"651b177fe1cb4ac89e15c1
 
 exports[`Toucan FetchEvent rewriteFrames root 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -486,7 +474,6 @@ exports[`Toucan FetchEvent rewriteFrames root 2`] = `"651b177fe1cb4ac89e15c1ecd2
 
 exports[`Toucan FetchEvent setExtra 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "extra": Object {
     "foo": "bar",
@@ -509,7 +496,6 @@ Object {
 
 exports[`Toucan FetchEvent setExtras 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "extra": Object {
     "bar": "baz",
@@ -533,7 +519,6 @@ Object {
 
 exports[`Toucan FetchEvent setRequestBody 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -557,7 +542,6 @@ Object {
 
 exports[`Toucan FetchEvent setTag 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -580,7 +564,6 @@ Object {
 
 exports[`Toucan FetchEvent setTags 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -604,7 +587,6 @@ Object {
 
 exports[`Toucan FetchEvent setUser 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -628,7 +610,6 @@ Object {
 
 exports[`Toucan ScheduledEvent capture message 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -646,7 +627,6 @@ exports[`Toucan ScheduledEvent capture message 2`] = `"651b177fe1cb4ac89e15c1ecd
 
 exports[`Toucan setRequestBody 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
