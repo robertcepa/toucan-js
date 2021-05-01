@@ -82,10 +82,14 @@ export default class Toucan {
       );
     }
 
-    this.request =
-      "request" in options.event
-        ? this.toSentryRequest(options.event.request)
-        : undefined;
+    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
+    if ("context" in options && options.context.request) {
+      this.request = this.toSentryRequest(options.context.request);
+    } else if ("request" in options && options.request) {
+      this.request = this.toSentryRequest(options.request);
+    } else if ("event" in options && "request" in options.event) {
+      this.request = this.toSentryRequest(options.event.request);
+    }
 
     this.beforeSend = this.beforeSend.bind(this);
 
@@ -190,7 +194,12 @@ export default class Toucan {
 
     if (!event) return;
 
-    this.options.event.waitUntil(this.reportException(event, exception));
+    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
+    if ("context" in this.options) {
+      this.options.context.waitUntil(this.reportException(event, exception));
+    } else {
+      this.options.event.waitUntil(this.reportException(event, exception));
+    }
 
     return event.event_id;
   }
@@ -209,7 +218,11 @@ export default class Toucan {
 
     if (!event) return;
 
-    this.options.event.waitUntil(this.reportMessage(event));
+    if ("context" in this.options) {
+      this.options.context.waitUntil(this.reportMessage(event));
+    } else {
+      this.options.event.waitUntil(this.reportMessage(event));
+    }
 
     return event.event_id;
   }
