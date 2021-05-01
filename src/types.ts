@@ -10,8 +10,21 @@ export type RewriteFrames = {
   iteratee?: (frame: StackFrame) => StackFrame;
 };
 
-export type Options = {
+export type Context = {
+  waitUntil: (promise: Promise<any>) => void;
+  request?: Request;
+};
+
+type WithEvent = {
   event: FetchEvent | ScheduledEvent;
+};
+
+type WithContext = {
+  context: Context;
+  request?: Request;
+};
+
+type OtherOptions = {
   dsn?: SentryOptions["dsn"];
   allowedCookies?: string[] | RegExp;
   allowedHeaders?: string[] | RegExp;
@@ -29,6 +42,8 @@ export type Options = {
     Pick<NonNullable<SentryOptions["transportOptions"]>, "headers">
   >;
 };
+
+export type Options = (WithEvent & OtherOptions) | (WithContext & OtherOptions);
 
 export type Level =
   | "critical"
