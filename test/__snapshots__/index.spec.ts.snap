@@ -382,6 +382,31 @@ Object {
 }
 `;
 
+exports[`Toucan FetchEvent invalid URL does not fail 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "headers": Object {
+      "accept": "*/*",
+    },
+    "method": "GET",
+    "query_string": "query%",
+    "url": "garbage",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent invalid URL does not fail 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
 exports[`Toucan FetchEvent rewriteFrames iteratee 1`] = `
 Object {
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",

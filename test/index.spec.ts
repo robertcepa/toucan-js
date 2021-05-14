@@ -81,6 +81,41 @@ describe("Toucan", () => {
       results.forEach((result) => expect(result).toBeUndefined());
     });
 
+    test("invalid URL does not fail", async () => {
+      // We need to send FetchEvent with invalid URL. We don't want
+      // service-worker-mock to sanitize it for us. This option exists in
+      // library, but is not included in typings, so we need to cast.
+      (self as any).useRawRequestUrl = true;
+
+      let result: string | undefined = undefined;
+
+      expect(
+        ((self as unknown) as Record<string, any>).useRawRequestUrl
+      ).toBeTruthy();
+      self.addEventListener("fetch", (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          beforeSend: (event) => event, // don't censor query string
+        });
+        result = toucan.captureMessage("test");
+        event.respondWith(new Response("OK", { status: 200 }));
+      });
+
+      await triggerFetchAndWait(self, new Request("garbage?query%"));
+
+      const payload = getFetchMockPayload(global.fetch);
+      expect(payload?.request.url).toEqual("garbage");
+      expect(payload?.request.query_string).toEqual("query%");
+
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      // Match POST request payload snap
+      expect(payload).toMatchSnapshot();
+      // captureMessage should have returned a generated eventId
+      expect(result).toMatchSnapshot();
+    });
+
     test("captureMessage", async () => {
       let result: string | undefined = undefined;
       self.addEventListener("fetch", (event) => {
