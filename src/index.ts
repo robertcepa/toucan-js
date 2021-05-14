@@ -2,7 +2,15 @@
  * Sentry client for Cloudflare Workers.
  * Adheres to https://docs.sentry.io/development/sdk-dev/overview/
  */
-import { User, Request, Stacktrace, StackFrame } from "@sentry/types";
+import {
+  User,
+  Request,
+  Stacktrace,
+  StackFrame,
+  Extra,
+  Extras,
+  Primitive,
+} from "@sentry/types";
 import { Options, Event, Breadcrumb, Level, RewriteFrames } from "./types";
 import { API } from "@sentry/core";
 import {
@@ -14,8 +22,26 @@ import {
 import { v4 as uuidv4 } from "uuid";
 import { parse } from "cookie";
 import { fromError } from "stacktrace-js";
+import { Scope } from "./scope";
 
 export default class Toucan {
+  /**
+   * Default maximum number of breadcrumbs added to an event. Can be overwritten
+   * with {@link Options.maxBreadcrumbs}.
+   */
+  private readonly DEFAULT_BREADCRUMBS = 100;
+
+  /**
+   * Absolute maximum number of breadcrumbs added to an event. The
+   * `maxBreadcrumbs` option cannot be higher than this value.
+   */
+  private readonly MAX_BREADCRUMBS = 100;
+
+  /**
+   * Is a {@link Scope}[]
+   */
+  private scopes: Scope[];
+
   /**
    * If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
    */
@@ -32,36 +58,13 @@ export default class Toucan {
   private url: string;
 
   /**
-   * Sentry user object.
-   */
-  private user?: User;
-
-  /**
    * Sentry request object transformed from incoming event.request.
    */
-  private request: Request;
-
-  /**
-   * Sentry breadcrumbs array.
-   */
-  private breadcrumbs: Breadcrumb[];
-
-  /**
-   * Sentry tags object.
-   */
-  private tags?: Record<string, string>;
-
-  /**
-   * Sentry extra object.
-   */
-  private extra?: Record<string, string>;
-
-  /**
-   * Used to override the Sentry default grouping.
-   */
-  private fingerprint?: string[];
+  private request: Request | undefined;
 
   constructor(options: Options) {
+    this.scopes = [new Scope()];
+
     this.options = options;
 
     if (!options.dsn || options.dsn.length === 0) {
@@ -79,12 +82,14 @@ export default class Toucan {
       );
     }
 
-    this.user = undefined;
-    this.request = this.toSentryRequest(options.event.request);
-    this.breadcrumbs = [];
-    this.tags = undefined;
-    this.extra = undefined;
-    this.fingerprint = undefined;
+    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
+    if ("context" in options && options.context.request) {
+      this.request = this.toSentryRequest(options.context.request);
+    } else if ("request" in options && options.request) {
+      this.request = this.toSentryRequest(options.request);
+    } else if ("event" in options && "request" in options.event) {
+      this.request = this.toSentryRequest(options.event.request);
+    }
 
     this.beforeSend = this.beforeSend.bind(this);
 
@@ -112,14 +117,10 @@ export default class Toucan {
    * Set key:value that will be sent as extra data with the event.
    *
    * @param key String key of extra
-   * @param value String value of extra
+   * @param extra Extra value of extra
    */
-  setExtra(key: string, value: string) {
-    if (!this.extra) {
-      this.extra = {};
-    }
-
-    this.extra[key] = value;
+  setExtra(key: string, extra: Extra) {
+    this.getScope().setExtra(key, extra);
   }
 
   /**
@@ -127,22 +128,18 @@ export default class Toucan {
    *
    * @param extras Extras context object to merge into current context.
    */
-  setExtras(extras: Record<string, string>) {
-    this.extra = { ...this.extra, ...extras };
+  setExtras(extras: Extras) {
+    this.getScope().setExtras(extras);
   }
 
   /**
    * Set key:value that will be sent as tags data with the event.
    *
    * @param key String key of tag
-   * @param value String value of tag
+   * @param value Primitive value of tag
    */
-  setTag(key: string, value: string) {
-    if (!this.tags) {
-      this.tags = {};
-    }
-
-    this.tags[key] = value;
+  setTag(key: string, value: Primitive) {
+    this.getScope().setTag(key, value);
   }
 
   /**
@@ -150,8 +147,8 @@ export default class Toucan {
    *
    * @param tags Tags context object to merge into current context.
    */
-  setTags(tags: Record<string, string>) {
-    this.tags = { ...this.tags, ...tags };
+  setTags(tags: { [key: string]: Primitive }) {
+    this.getScope().setTags(tags);
   }
 
   /**
@@ -160,7 +157,7 @@ export default class Toucan {
    * @param fingerprint Array of strings used to override the Sentry default grouping.
    */
   setFingerprint(fingerprint: string[]) {
-    this.fingerprint = fingerprint;
+    this.getScope().setFingerprint(fingerprint);
   }
 
   /**
@@ -170,11 +167,18 @@ export default class Toucan {
    * @param breadcrumb The breadcrum to record.
    */
   addBreadcrumb(breadcrumb: Breadcrumb) {
+    const maxBreadcrumbs =
+      this.options.maxBreadcrumbs ?? this.DEFAULT_BREADCRUMBS;
+
+    const numberOfBreadcrumbs = Math.min(maxBreadcrumbs, this.MAX_BREADCRUMBS);
+
+    if (numberOfBreadcrumbs <= 0) return;
+
     if (!breadcrumb.timestamp) {
       breadcrumb.timestamp = this.timestamp();
     }
 
-    this.breadcrumbs.push(breadcrumb);
+    this.getScope().addBreadcrumb(breadcrumb, numberOfBreadcrumbs);
   }
 
   /**
@@ -190,7 +194,12 @@ export default class Toucan {
 
     if (!event) return;
 
-    this.options.event.waitUntil(this.reportException(event, exception));
+    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
+    if ("context" in this.options) {
+      this.options.context.waitUntil(this.reportException(event, exception));
+    } else {
+      this.options.event.waitUntil(this.reportException(event, exception));
+    }
 
     return event.event_id;
   }
@@ -209,7 +218,11 @@ export default class Toucan {
 
     if (!event) return;
 
-    this.options.event.waitUntil(this.reportMessage(event));
+    if ("context" in this.options) {
+      this.options.context.waitUntil(this.reportMessage(event));
+    } else {
+      this.options.event.waitUntil(this.reportMessage(event));
+    }
 
     return event.event_id;
   }
@@ -220,7 +233,7 @@ export default class Toucan {
    * @param user — User context object to be set in the current context. Pass null to unset the user.
    */
   setUser(user: User | null) {
-    this.user = user ? user : undefined;
+    this.getScope().setUser(user);
   }
 
   /**
@@ -230,8 +243,30 @@ export default class Toucan {
 
    * @param body 
    */
-  setRequestBody(body: string) {
-    this.request.data = body;
+  setRequestBody(body: any) {
+    if (this.request) {
+      this.request.data = body;
+    } else {
+      this.request = { data: body };
+    }
+  }
+
+  /**
+   * Creates a new scope with and executes the given operation within. The scope is automatically removed once the operation finishes or throws.
+   * This is essentially a convenience function for:
+   *
+   * @example
+   * pushScope();
+   * callback();
+   * popScope();
+   */
+  withScope(callback: (scope: Scope) => void): void {
+    const scope = this.pushScope();
+    try {
+      callback(scope);
+    } finally {
+      this.popScope();
+    }
   }
 
   /**
@@ -308,6 +343,9 @@ export default class Toucan {
       : pkg
       ? `${pkg.name}-${pkg.version}`
       : undefined;
+
+    const scope = this.getScope();
+
     // per https://docs.sentry.io/development/sdk-dev/event-payloads/#required-attributes
     const payload: Event = {
       event_id: uuidv4().replace(/-/g, ""), // dashes are not allowed
@@ -315,7 +353,6 @@ export default class Toucan {
       platform: "node",
       release,
       environment: this.options.environment,
-      user: this.user,
       timestamp: this.timestamp(),
       level: "error",
       modules: pkg
@@ -324,17 +361,16 @@ export default class Toucan {
             ...pkg.devDependencies,
           }
         : undefined,
-      breadcrumbs: this.getBreadcrumbs(),
-      tags: this.tags,
-      extra: this.extra,
-      fingerprint: this.fingerprint,
       ...additionalData,
-      request: { ...this.request },
+      request: this.request,
       sdk: {
         name: "__name__",
         version: "__version__",
       },
     };
+
+    // Type-casting 'breadcrumb' to any because our level type is a union of literals, as opposed to Level enum.
+    scope.applyToEvent(payload);
 
     const beforeSend = this.options.beforeSend ?? this.beforeSend;
     return beforeSend(payload);
@@ -586,19 +622,6 @@ export default class Toucan {
   }
 
   /**
-   * Get the breadcrumbs. If the stack size exceeds MAX_BREADCRUMBS, returns the last MAX_BREADCRUMBS breadcrumbs.
-   */
-  private getBreadcrumbs() {
-    const maxBreadcrumbs = this.options.maxBreadcrumbs ?? 100;
-
-    if (this.breadcrumbs.length > maxBreadcrumbs) {
-      return this.breadcrumbs.slice(this.breadcrumbs.length - maxBreadcrumbs);
-    } else {
-      return this.breadcrumbs;
-    }
-  }
-
-  /**
    * Runs a callback if debug === true.
    * Use this to delay execution of debug logic, to ensure toucan doesn't burn I/O in non-debug mode.
    *
@@ -656,5 +679,30 @@ export default class Toucan {
     } else {
       this.error(msg);
     }
+  }
+
+  /** Returns the scope of the top stack. */
+  private getScope() {
+    return this.scopes[this.scopes.length - 1];
+  }
+
+  /**
+   * Create a new scope to store context information.
+   * The scope will be layered on top of the current one. It is isolated, i.e. all breadcrumbs and context information added to this scope will be removed once the scope ends.  * Be sure to always remove this scope with {@link this.popScope} when the operation finishes or throws.
+   */
+  private pushScope(): Scope {
+    // We want to clone the content of prev scope
+    const scope = Scope.clone(this.getScope());
+    this.scopes.push(scope);
+    return scope;
+  }
+
+  /**
+   * Removes a previously pushed scope from the stack.
+   * This restores the state before the scope was pushed. All breadcrumbs and context information added since the last call to {@link this.pushScope} are discarded.
+   */
+  private popScope(): boolean {
+    if (this.scopes.length <= 1) return false;
+    return !!this.scopes.pop();
   }
 }

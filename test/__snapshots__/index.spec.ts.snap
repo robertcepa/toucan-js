@@ -1,8 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Toucan allowlists 1`] = `
+exports[`Toucan FetchEvent allowlists 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -33,9 +32,8 @@ Object {
 }
 `;
 
-exports[`Toucan attachStacktrace false 1`] = `
+exports[`Toucan FetchEvent attachStacktrace false 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -60,11 +58,10 @@ Object {
 }
 `;
 
-exports[`Toucan attachStacktrace false 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent attachStacktrace false 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan beforeSend 1`] = `
+exports[`Toucan FetchEvent beforeSend 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -85,9 +82,8 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: Error 1`] = `
+exports[`Toucan FetchEvent captureException: Error 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -128,11 +124,10 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: Error 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent captureException: Error 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan captureException: Object 1`] = `
+exports[`Toucan FetchEvent captureException: Object 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -173,11 +168,10 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: Object 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent captureException: Object 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan captureException: primitive 1`] = `
+exports[`Toucan FetchEvent captureException: primitive 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -218,9 +212,8 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: primitive 2`] = `
+exports[`Toucan FetchEvent captureException: primitive 2`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -261,9 +254,8 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: primitive 3`] = `
+exports[`Toucan FetchEvent captureException: primitive 3`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -304,11 +296,10 @@ Object {
 }
 `;
 
-exports[`Toucan captureException: primitive 4`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent captureException: primitive 4`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan captureMessage 1`] = `
+exports[`Toucan FetchEvent captureMessage 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -326,9 +317,9 @@ Object {
 }
 `;
 
-exports[`Toucan captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan debug enabled 1`] = `
+exports[`Toucan FetchEvent debug enabled 1`] = `
 Array [
   Array [
     "toucan-js: dsn parsed, full store endpoint: https://testorg.ingest.sentry.io/api/123/store/?sentry_key=123&sentry_version=7",
@@ -337,7 +328,7 @@ Array [
     "toucan-js: calling captureMessage",
   ],
   Array [
-    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"breadcrumbs\\":[],\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
+    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
   ],
   Array [
     "toucan-js: http://example.com responded with [200 OK]: OK",
@@ -345,9 +336,8 @@ Array [
 ]
 `;
 
-exports[`Toucan fingerprint 1`] = `
+exports[`Toucan FetchEvent fingerprint 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -392,9 +382,8 @@ Object {
 }
 `;
 
-exports[`Toucan rewriteFrames iteratee 1`] = `
+exports[`Toucan FetchEvent rewriteFrames iteratee 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -437,11 +426,10 @@ Object {
 }
 `;
 
-exports[`Toucan rewriteFrames iteratee 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent rewriteFrames iteratee 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan rewriteFrames root 1`] = `
+exports[`Toucan FetchEvent rewriteFrames root 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "exception": Object {
     "values": Array [
@@ -482,11 +470,10 @@ Object {
 }
 `;
 
-exports[`Toucan rewriteFrames root 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+exports[`Toucan FetchEvent rewriteFrames root 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
-exports[`Toucan setExtra 1`] = `
+exports[`Toucan FetchEvent setExtra 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "extra": Object {
     "foo": "bar",
@@ -507,9 +494,8 @@ Object {
 }
 `;
 
-exports[`Toucan setExtras 1`] = `
+exports[`Toucan FetchEvent setExtras 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "extra": Object {
     "bar": "baz",
@@ -531,9 +517,8 @@ Object {
 }
 `;
 
-exports[`Toucan setRequestBody 1`] = `
+exports[`Toucan FetchEvent setRequestBody 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -555,9 +540,8 @@ Object {
 }
 `;
 
-exports[`Toucan setTag 1`] = `
+exports[`Toucan FetchEvent setTag 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -578,9 +562,8 @@ Object {
 }
 `;
 
-exports[`Toucan setTags 1`] = `
+exports[`Toucan FetchEvent setTags 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -602,9 +585,8 @@ Object {
 }
 `;
 
-exports[`Toucan setUser 1`] = `
+exports[`Toucan FetchEvent setUser 1`] = `
 Object {
-  "breadcrumbs": Array [],
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
   "level": "info",
   "logger": "EdgeWorker",
@@ -623,5 +605,42 @@ Object {
     "email": "test@gmail.com",
     "id": "testid",
   },
+}
+`;
+
+exports[`Toucan ScheduledEvent capture message 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan ScheduledEvent capture message 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan setRequestBody 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "data": Object {
+      "foo": "bar",
+    },
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
 }
 `;
