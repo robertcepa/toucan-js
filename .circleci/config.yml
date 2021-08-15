@@ -20,6 +20,9 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
+          name: Check Formatting
+          command: yarn prettier --check .
+      - run:
           name: Build
           command: yarn build
       - run:
@@ -30,7 +33,7 @@ jobs:
           paths: .
   publish:
     executor:
-      name: node/default 
+      name: node/default
     steps:
       - attach_workspace:
           at: ~/.
@@ -41,25 +44,25 @@ jobs:
           name: Publish package
           command: npm publish
 workflows:
-    build-test:
-      jobs:
-        - build-and-test:
-            filters:
-              branches:
-                ignore: master
-    publish:
-      jobs:
-        - build-and-test:
-            filters:
-              tags:
-                only: &vPrefixedSemver /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-              branches:
-                ignore: &allBranches /.*/
-        - publish:
-            requires:
-              - build-and-test
-            filters:
-              tags:
-                only: *vPrefixedSemver
-              branches:
-                ignore: *allBranches
+  build-test:
+    jobs:
+      - build-and-test:
+          filters:
+            branches:
+              ignore: master
+  publish:
+    jobs:
+      - build-and-test:
+          filters:
+            tags:
+              only: &vPrefixedSemver /^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+            branches:
+              ignore: &allBranches /.*/
+      - publish:
+          requires:
+            - build-and-test
+          filters:
+            tags:
+              only: *vPrefixedSemver
+            branches:
+              ignore: *allBranches

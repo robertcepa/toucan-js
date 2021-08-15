@@ -25,17 +25,17 @@ npm install --save toucan-js
 `worker.ts`
 
 ```ts
-import Toucan from "toucan-js";
+import Toucan from 'toucan-js';
 
-addEventListener("fetch", (event) => {
+addEventListener('fetch', (event) => {
   const sentry = new Toucan({
-    dsn: "dsn...",
+    dsn: 'dsn...',
     event,
-    allowedHeaders: ["user-agent"],
+    allowedHeaders: ['user-agent'],
     allowedSearchParams: /(.*)/,
   });
 
-  sentry.setUser({ id: "1234" });
+  sentry.setUser({ id: '1234' });
 
   event.respondWith(doStuff(event, sentry));
 });
@@ -43,21 +43,21 @@ addEventListener("fetch", (event) => {
 async function doStuff(event: FetchEvent, sentry: Toucan) {
   try {
     sentry.addBreadcrumb({
-      message: "About to do something",
-      category: "log",
+      message: 'About to do something',
+      category: 'log',
     });
 
     // ...code that may throw
 
-    return new Response("OK", {
+    return new Response('OK', {
       status: 200,
-      statusText: "OK",
+      statusText: 'OK',
     });
   } catch (err) {
     sentry.captureException(err);
-    return new Response("Something went wrong", {
+    return new Response('Something went wrong', {
       status: 500,
-      statusText: "Internal Server Error",
+      statusText: 'Internal Server Error',
     });
   }
 }
@@ -144,18 +144,18 @@ Changing the Sentry's artifacts URL depends on plugin you use to upload your sou
 Example configuration using `@sentry/webpack-plugin`:
 
 ```ts
-const SentryWebpackPlugin = require("@sentry/webpack-plugin");
-const pkg = require("./package.json");
+const SentryWebpackPlugin = require('@sentry/webpack-plugin');
+const pkg = require('./package.json');
 
 module.exports = {
-  entry: "./src/index.ts",
-  target: "webworker",
-  devtool: "source-map",
+  entry: './src/index.ts',
+  target: 'webworker',
+  devtool: 'source-map',
   plugins: [
     new SentryWebpackPlugin({
       release: `${pkg.name}-${pkg.version}`,
-      include: "./dist",
-      urlPrefix: "/",
+      include: './dist',
+      urlPrefix: '/',
     }),
   ],
 };
