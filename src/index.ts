@@ -413,13 +413,13 @@ export default class Toucan {
       rv.query_string = url.search;
     } catch (e) {
       // `new URL` failed, let's try to split URL the primitive way
-      const qi = request.url.indexOf('?');
+      const qi = request.url.indexOf("?");
       if (qi < 0) {
         // no query string
         rv.url = request.url;
       } else {
         rv.url = request.url.substr(0, qi);
-        rv.query_string = request.url.substr(qi+1);
+        rv.query_string = request.url.substr(qi + 1);
       }
     }
     return rv;
@@ -646,15 +646,12 @@ export default class Toucan {
   }
 
   /**
-   * Reads and logs Response object from Sentry. Uses a clone, not the original, so the body can be used elsewhere.
+   * Reads and logs Response object from Sentry. Warning: Reads the Response stream (.text()).
    * Do not use without this.debug wrapper.
    *
-   * @param originalResponse Response
+   * @param response Response
    */
-  private async logResponse(originalResponse: Response) {
-    // Make a copy of original response so the body can still be read elsewhere
-    const response = originalResponse.clone();
-
+  private async logResponse(response: Response) {
     let responseText = "";
     // Read response body, set to empty if fails
     try {
