@@ -3,7 +3,7 @@ import {
   Event as SentryEvent,
   Breadcrumb as SentryBreadcrumb,
   StackFrame,
-} from "@sentry/types";
+} from '@sentry/types';
 
 export type RewriteFrames = {
   root?: string;
@@ -25,40 +25,40 @@ type WithContext = {
 };
 
 type OtherOptions = {
-  dsn?: SentryOptions["dsn"];
+  dsn?: SentryOptions['dsn'];
   allowedCookies?: string[] | RegExp;
   allowedHeaders?: string[] | RegExp;
   allowedSearchParams?: string[] | RegExp;
-  attachStacktrace?: SentryOptions["attachStacktrace"];
+  attachStacktrace?: SentryOptions['attachStacktrace'];
   beforeSend?: (event: Event) => Event;
-  debug?: SentryOptions["debug"];
-  environment?: SentryOptions["environment"];
-  maxBreadcrumbs?: SentryOptions["maxBreadcrumbs"];
+  debug?: SentryOptions['debug'];
+  environment?: SentryOptions['environment'];
+  maxBreadcrumbs?: SentryOptions['maxBreadcrumbs'];
   pkg?: Record<string, any>;
-  release?: SentryOptions["release"];
+  release?: SentryOptions['release'];
   rewriteFrames?: RewriteFrames;
-  sampleRate?: SentryOptions["sampleRate"];
+  sampleRate?: SentryOptions['sampleRate'];
   transportOptions?: Compute<
-    Pick<NonNullable<SentryOptions["transportOptions"]>, "headers">
+    Pick<NonNullable<SentryOptions['transportOptions']>, 'headers'>
   >;
 };
 
 export type Options = (WithEvent & OtherOptions) | (WithContext & OtherOptions);
 
 export type Level =
-  | "critical"
-  | "fatal"
-  | "error"
-  | "warning"
-  | "info"
-  | "log"
-  | "debug";
+  | 'critical'
+  | 'fatal'
+  | 'error'
+  | 'warning'
+  | 'info'
+  | 'log'
+  | 'debug';
 // Overwrite default level type of enum to type of union of string literals
 export type Breadcrumb = Compute<
-  Omit<SentryBreadcrumb, "level"> & { level?: Level }
+  Omit<SentryBreadcrumb, 'level'> & { level?: Level }
 >;
 export type Event = Compute<
-  Omit<SentryEvent, "level" | "breadcrumbs"> & {
+  Omit<SentryEvent, 'level' | 'breadcrumbs'> & {
     level?: Level;
     breadcrumbs?: Breadcrumb[];
   }
