@@ -10,19 +10,19 @@ import {
   Extra,
   Extras,
   Primitive,
-} from "@sentry/types";
-import { Options, Event, Breadcrumb, Level, RewriteFrames } from "./types";
-import { API } from "@sentry/core";
+} from '@sentry/types';
+import { Options, Event, Breadcrumb, Level, RewriteFrames } from './types';
+import { API } from '@sentry/core';
 import {
   isError,
   isPlainObject,
   extractExceptionKeysForMessage,
   normalizeToSize,
-} from "@sentry/utils";
-import { v4 as uuidv4 } from "uuid";
-import { parse } from "cookie";
-import { fromError } from "stacktrace-js";
-import { Scope } from "./scope";
+} from '@sentry/utils';
+import { v4 as uuidv4 } from 'uuid';
+import { parse } from 'cookie';
+import { fromError } from 'stacktrace-js';
+import { Scope } from './scope';
 
 export default class Toucan {
   /**
@@ -69,10 +69,10 @@ export default class Toucan {
 
     if (!options.dsn || options.dsn.length === 0) {
       // If an empty DSN is passed, we should treat it as valid option which signifies disabling the SDK.
-      this.url = "";
+      this.url = '';
       this.disabled = true;
 
-      this.debug(() => this.log("dsn missing, SDK is disabled"));
+      this.debug(() => this.log('dsn missing, SDK is disabled'));
     } else {
       this.url = new API(options.dsn).getStoreEndpointWithUrlEncodedAuth();
       this.disabled = false;
@@ -83,11 +83,11 @@ export default class Toucan {
     }
 
     // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
-    if ("context" in options && options.context.request) {
+    if ('context' in options && options.context.request) {
       this.request = this.toSentryRequest(options.context.request);
-    } else if ("request" in options && options.request) {
+    } else if ('request' in options && options.request) {
       this.request = this.toSentryRequest(options.request);
-    } else if ("event" in options && "request" in options.event) {
+    } else if ('event' in options && 'request' in options.event) {
       this.request = this.toSentryRequest(options.event.request);
     }
 
@@ -195,7 +195,7 @@ export default class Toucan {
     if (!event) return;
 
     // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
-    if ("context" in this.options) {
+    if ('context' in this.options) {
       this.options.context.waitUntil(this.reportException(event, exception));
     } else {
       this.options.event.waitUntil(this.reportException(event, exception));
@@ -211,14 +211,14 @@ export default class Toucan {
    * @param level Define the level of the message.
    * @returns The generated eventId, or undefined if event wasn't scheduled.
    */
-  captureMessage(message: string, level: Level = "info") {
+  captureMessage(message: string, level: Level = 'info') {
     this.debug(() => this.log(`calling captureMessage`));
 
     const event = this.buildEvent({ level, message });
 
     if (!event) return;
 
-    if ("context" in this.options) {
+    if ('context' in this.options) {
       this.options.context.waitUntil(this.reportMessage(event));
     } else {
       this.options.event.waitUntil(this.reportMessage(event));
@@ -277,8 +277,8 @@ export default class Toucan {
   private async postEvent(data: Event) {
     // We are sending User-Agent for backwards compatibility with older Sentry
     let headers: Record<string, string> = {
-      "Content-Type": "application/json",
-      "User-Agent": "__name__/__version__",
+      'Content-Type': 'application/json',
+      'User-Agent': '__name__/__version__',
     };
 
     // Build headers
@@ -303,7 +303,7 @@ export default class Toucan {
 
     // Send to Sentry and wait for Response
     const response = await fetch(this.url, {
-      method: "POST",
+      method: 'POST',
       body,
       headers,
     });
@@ -328,7 +328,7 @@ export default class Toucan {
 
     // 1.0 === 100% events are sent
     // 0.0 === 0% events are sent
-    if (typeof sampleRate === "number" && Math.random() > sampleRate) {
+    if (typeof sampleRate === 'number' && Math.random() > sampleRate) {
       this.debug(() =>
         this.log(`skipping this event (sampleRate === ${sampleRate})`)
       );
@@ -348,13 +348,13 @@ export default class Toucan {
 
     // per https://docs.sentry.io/development/sdk-dev/event-payloads/#required-attributes
     const payload: Event = {
-      event_id: uuidv4().replace(/-/g, ""), // dashes are not allowed
-      logger: "EdgeWorker",
-      platform: "node",
+      event_id: uuidv4().replace(/-/g, ''), // dashes are not allowed
+      logger: 'EdgeWorker',
+      platform: 'node',
       release,
       environment: this.options.environment,
       timestamp: this.timestamp(),
-      level: "error",
+      level: 'error',
       modules: pkg
         ? {
             ...pkg.dependencies,
@@ -364,8 +364,8 @@ export default class Toucan {
       ...additionalData,
       request: this.request,
       sdk: {
-        name: "__name__",
-        version: "__version__",
+        name: '__name__',
+        version: '__version__',
       },
     };
 
@@ -382,9 +382,9 @@ export default class Toucan {
    * @param request FetchEvent Request
    * @returns Sentry Request
    */
-  private toSentryRequest(request: FetchEvent["request"]): Request {
+  private toSentryRequest(request: FetchEvent['request']): Request {
     // Build cookies
-    const cookieString = request.headers.get("cookie");
+    const cookieString = request.headers.get('cookie');
     let cookies: Record<string, string> | undefined = undefined;
     if (cookieString) {
       try {
@@ -396,7 +396,7 @@ export default class Toucan {
 
     // Build headers (omit cookie header, because we built in in the previous step)
     for (const [k, v] of (request.headers as any).entries()) {
-      if (k !== "cookie") {
+      if (k !== 'cookie') {
         headers[k] = v;
       }
     }
@@ -413,7 +413,7 @@ export default class Toucan {
       rv.query_string = url.search;
     } catch (e) {
       // `new URL` failed, let's try to split URL the primitive way
-      const qi = request.url.indexOf("?");
+      const qi = request.url.indexOf('?');
       if (qi < 0) {
         // no query string
         rv.url = request.url;
@@ -502,7 +502,7 @@ export default class Toucan {
     } else {
       this.debug(() =>
         this.warn(
-          "allowlist must be an array of strings, or a regular expression."
+          'allowlist must be an array of strings, or a regular expression.'
         )
       );
       return {};
@@ -554,7 +554,7 @@ export default class Toucan {
         maybeError
       )}`;
 
-      this.setExtra("__serialized__", normalizeToSize(maybeError as {}));
+      this.setExtra('__serialized__', normalizeToSize(maybeError as {}));
 
       error = new Error(message);
     } else {
@@ -590,14 +590,14 @@ export default class Toucan {
        * Lets adhere to this behavior.
        */
       const rewriteFrames: RewriteFrames = this.options.rewriteFrames ?? {
-        root: "~/",
+        root: '~/',
         iteratee: (frame) => frame,
       };
 
       return {
         frames: stack
           .map<StackFrame>((frame) => {
-            const filename = frame.fileName ?? "";
+            const filename = frame.fileName ?? '';
 
             const stackFrame = {
               colno: frame.columnNumber,
@@ -652,21 +652,21 @@ export default class Toucan {
    * @param response Response
    */
   private async logResponse(response: Response) {
-    let responseText = "";
+    let responseText = '';
     // Read response body, set to empty if fails
     try {
       responseText = await response.text();
     } catch (e) {
-      responseText += "";
+      responseText += '';
     }
 
     // Parse origin from response.url, but at least give some string if parsing fails.
-    let origin = "Sentry";
+    let origin = 'Sentry';
     try {
       const originUrl = new URL(response.url);
       origin = originUrl.origin;
     } catch (e) {
-      origin = response.url ?? "Sentry";
+      origin = response.url ?? 'Sentry';
     }
 
     const msg = `${origin} responded with [${response.status} ${response.statusText}]: ${responseText}`;

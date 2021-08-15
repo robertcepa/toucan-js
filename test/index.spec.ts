@@ -1,4 +1,4 @@
-import Toucan from "../src/index";
+import Toucan from '../src/index';
 import {
   getFetchMockPayload,
   mockServiceWorkerEnv,
@@ -13,14 +13,14 @@ import {
   mockStackTrace,
   mockMathRandom,
   resetMathRandom,
-} from "./helpers";
+} from './helpers';
 
-const VALID_DSN = "https://123:456@testorg.ingest.sentry.io/123";
+const VALID_DSN = 'https://123:456@testorg.ingest.sentry.io/123';
 
-jest.mock("uuid");
-jest.mock("stacktrace-js");
+jest.mock('uuid');
+jest.mock('stacktrace-js');
 
-describe("Toucan", () => {
+describe('Toucan', () => {
   beforeEach(() => {
     mockServiceWorkerEnv();
     mockFetch();
@@ -37,19 +37,19 @@ describe("Toucan", () => {
     jest.clearAllMocks();
   });
 
-  describe("FetchEvent", () => {
-    test("disabled mode", async () => {
-      const results: ReturnType<Toucan["captureMessage"]>[] = [];
-      self.addEventListener("fetch", (event) => {
+  describe('FetchEvent', () => {
+    test('disabled mode', async () => {
+      const results: ReturnType<Toucan['captureMessage']>[] = [];
+      self.addEventListener('fetch', (event) => {
         // Empty DNS is a Valid option that signifies disabling the SDK, set disabled = true
         const toucan = new Toucan({
-          dsn: "",
+          dsn: '',
           event,
         });
-        results.push(toucan.captureMessage("test1"));
-        results.push(toucan.captureMessage("test2"));
-        results.push(toucan.captureMessage("test3"));
-        results.push(toucan.captureMessage("test4"));
+        results.push(toucan.captureMessage('test1'));
+        results.push(toucan.captureMessage('test2'));
+        results.push(toucan.captureMessage('test3'));
+        results.push(toucan.captureMessage('test4'));
       });
 
       await triggerFetchAndWait(self);
@@ -60,17 +60,17 @@ describe("Toucan", () => {
       results.forEach((result) => expect(result).toBeUndefined());
     });
 
-    test("disabled mode when no dsn is provided", async () => {
-      const results: ReturnType<Toucan["captureMessage"]>[] = [];
-      self.addEventListener("fetch", (event) => {
+    test('disabled mode when no dsn is provided', async () => {
+      const results: ReturnType<Toucan['captureMessage']>[] = [];
+      self.addEventListener('fetch', (event) => {
         // Empty DNS is a Valid option that signifies disabling the SDK, set disabled = true
         const toucan = new Toucan({
           event,
         });
-        results.push(toucan.captureMessage("test1"));
-        results.push(toucan.captureMessage("test2"));
-        results.push(toucan.captureMessage("test3"));
-        results.push(toucan.captureMessage("test4"));
+        results.push(toucan.captureMessage('test1'));
+        results.push(toucan.captureMessage('test2'));
+        results.push(toucan.captureMessage('test3'));
+        results.push(toucan.captureMessage('test4'));
       });
 
       await triggerFetchAndWait(self);
@@ -81,7 +81,7 @@ describe("Toucan", () => {
       results.forEach((result) => expect(result).toBeUndefined());
     });
 
-    test("invalid URL does not fail", async () => {
+    test('invalid URL does not fail', async () => {
       // We need to send FetchEvent with invalid URL. We don't want
       // service-worker-mock to sanitize it for us. This option exists in
       // library, but is not included in typings, so we need to cast.
@@ -90,23 +90,23 @@ describe("Toucan", () => {
       let result: string | undefined = undefined;
 
       expect(
-        ((self as unknown) as Record<string, any>).useRawRequestUrl
+        (self as unknown as Record<string, any>).useRawRequestUrl
       ).toBeTruthy();
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
           beforeSend: (event) => event, // don't censor query string
         });
-        result = toucan.captureMessage("test");
-        event.respondWith(new Response("OK", { status: 200 }));
+        result = toucan.captureMessage('test');
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
-      await triggerFetchAndWait(self, new Request("garbage?query%"));
+      await triggerFetchAndWait(self, new Request('garbage?query%'));
 
       const payload = getFetchMockPayload(global.fetch);
-      expect(payload?.request.url).toEqual("garbage");
-      expect(payload?.request.query_string).toEqual("query%");
+      expect(payload?.request.url).toEqual('garbage');
+      expect(payload?.request.query_string).toEqual('query%');
 
       // Expect POST request to Sentry
       expect(global.fetch).toHaveBeenCalledTimes(1);
@@ -116,15 +116,15 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("captureMessage", async () => {
+    test('captureMessage', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
-        result = toucan.captureMessage("test");
-        event.respondWith(new Response("OK", { status: 200 }));
+        result = toucan.captureMessage('test');
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       await triggerFetchAndWait(self);
@@ -137,19 +137,19 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("pass custom headers in transportOptions", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('pass custom headers in transportOptions', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           transportOptions: {
             headers: {
-              "X-Custom-Header": "1",
+              'X-Custom-Header': '1',
             },
           },
           event,
         });
-        toucan.captureMessage("test");
-        event.respondWith(new Response("OK", { status: 200 }));
+        toucan.captureMessage('test');
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       await triggerFetchAndWait(self);
@@ -159,24 +159,24 @@ describe("Toucan", () => {
       // Expect fetch to be called with custom headers
       const fetchOptions = global.fetch.mock.calls[0][1];
       const headers = <Record<string, string>>fetchOptions?.headers;
-      expect(headers["X-Custom-Header"]).toEqual("1");
+      expect(headers['X-Custom-Header']).toEqual('1');
     });
 
-    test("captureException: Error", async () => {
+    test('captureException: Error', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
         try {
-          throw new Error("test");
+          throw new Error('test');
         } catch (e) {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -190,21 +190,21 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("captureException: Object", async () => {
+    test('captureException: Object', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
         try {
-          throw { foo: "test", bar: "baz" };
+          throw { foo: 'test', bar: 'baz' };
         } catch (e) {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -218,16 +218,16 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("captureException: primitive", async () => {
+    test('captureException: primitive', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
         try {
-          throw "test";
+          throw 'test';
         } catch (e) {
           result = toucan.captureException(e);
         }
@@ -244,7 +244,7 @@ describe("Toucan", () => {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -260,19 +260,19 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("addBreadcrumb", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('addBreadcrumb', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
         for (let i = 0; i < 200; i++) {
-          toucan.addBreadcrumb({ message: "test", data: { index: i } });
+          toucan.addBreadcrumb({ message: 'test', data: { index: i } });
         }
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -288,8 +288,8 @@ describe("Toucan", () => {
       expect(payload.breadcrumbs[99].data.index).toBe(199);
     });
 
-    test("maxBreadcrumbs", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('maxBreadcrumbs', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -297,11 +297,11 @@ describe("Toucan", () => {
         });
 
         for (let i = 0; i < 200; i++) {
-          toucan.addBreadcrumb({ message: "test", data: { index: i } });
+          toucan.addBreadcrumb({ message: 'test', data: { index: i } });
         }
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -317,17 +317,17 @@ describe("Toucan", () => {
       expect(payload.breadcrumbs[19].data.index).toBe(199);
     });
 
-    test("setUser", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('setUser', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setUser({ id: "testid", email: "test@gmail.com" });
-        toucan.captureMessage("test");
+        toucan.setUser({ id: 'testid', email: 'test@gmail.com' });
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -339,17 +339,17 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("setTag", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('setTag', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setTag("foo", "bar");
-        toucan.captureMessage("test");
+        toucan.setTag('foo', 'bar');
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -361,17 +361,17 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("setTags", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('setTags', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setTags({ foo: "bar", bar: "baz" });
-        toucan.captureMessage("test");
+        toucan.setTags({ foo: 'bar', bar: 'baz' });
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -383,17 +383,17 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("setExtra", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('setExtra', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setExtra("foo", "bar");
-        toucan.captureMessage("test");
+        toucan.setExtra('foo', 'bar');
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -405,17 +405,17 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("setExtras", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('setExtras', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setExtras({ foo: "bar", bar: "baz" });
-        toucan.captureMessage("test");
+        toucan.setExtras({ foo: 'bar', bar: 'baz' });
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -427,7 +427,7 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("setRequestBody", async () => {
+    test('setRequestBody', async () => {
       const asyncTest = async (event: FetchEvent) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
@@ -435,22 +435,22 @@ describe("Toucan", () => {
         });
 
         toucan.setRequestBody(await event.request.json());
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        return new Response("OK", { status: 200 });
+        return new Response('OK', { status: 200 });
       };
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         event.respondWith(asyncTest(event));
       });
 
       // Trigger fetch event defined above
       await triggerFetchAndWait(
         self,
-        new Request("https://example.com", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ foo: "bar", bar: "baz" }),
+        new Request('https://example.com', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
         })
       );
 
@@ -460,40 +460,40 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("allowlists", async () => {
+    test('allowlists', async () => {
       const asyncTest = async (event: FetchEvent) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
           allowedCookies: /^fo/,
-          allowedHeaders: ["user-agent", "X-Foo"],
-          allowedSearchParams: ["foo", "bar"],
+          allowedHeaders: ['user-agent', 'X-Foo'],
+          allowedSearchParams: ['foo', 'bar'],
         });
 
         toucan.setRequestBody(await event.request.json());
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        return new Response("OK", { status: 200 });
+        return new Response('OK', { status: 200 });
       };
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         event.respondWith(asyncTest(event));
       });
 
       // Trigger fetch event defined above
       await triggerFetchAndWait(
         self,
-        new Request("https://example.com?foo=bar&bar=baz&baz=bam", {
-          method: "POST",
+        new Request('https://example.com?foo=bar&bar=baz&baz=bam', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "X-Foo": "Foo",
-            "X-Bar": "Bar",
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
-            cookie: "foo=bar; fo=bar; bar=baz",
+            'Content-Type': 'application/json',
+            'X-Foo': 'Foo',
+            'X-Bar': 'Bar',
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0',
+            cookie: 'foo=bar; fo=bar; bar=baz',
           },
-          body: JSON.stringify({ foo: "bar", bar: "baz" }),
+          body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
         })
       );
 
@@ -503,21 +503,21 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("beforeSend", async () => {
+    test('beforeSend', async () => {
       const asyncTest = async (event: FetchEvent) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
           allowedCookies: /^fo/,
-          allowedHeaders: ["user-agent", "X-Foo"],
-          allowedSearchParams: ["foo", "bar"],
+          allowedHeaders: ['user-agent', 'X-Foo'],
+          allowedSearchParams: ['foo', 'bar'],
           // beforeSend is provided - allowlists above should be ignored.
           beforeSend: (event) => {
             delete event.request?.cookies;
             delete event.request?.query_string;
             if (event.request) {
               event.request.headers = {
-                "X-Foo": "Bar",
+                'X-Foo': 'Bar',
               };
               event.request.data = undefined;
             }
@@ -526,29 +526,29 @@ describe("Toucan", () => {
         });
 
         toucan.setRequestBody(await event.request.json());
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        return new Response("OK", { status: 200 });
+        return new Response('OK', { status: 200 });
       };
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         event.respondWith(asyncTest(event));
       });
 
       // Trigger fetch event defined above
       await triggerFetchAndWait(
         self,
-        new Request("https://example.com?foo=bar&bar=baz&baz=bam", {
-          method: "POST",
+        new Request('https://example.com?foo=bar&bar=baz&baz=bam', {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            "X-Foo": "Foo",
-            "X-Bar": "Bar",
-            "User-Agent":
-              "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
-            cookie: "foo=bar; fo=bar; bar=baz",
+            'Content-Type': 'application/json',
+            'X-Foo': 'Foo',
+            'X-Bar': 'Bar',
+            'User-Agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0',
+            cookie: 'foo=bar; fo=bar; bar=baz',
           },
-          body: JSON.stringify({ foo: "bar", bar: "baz" }),
+          body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
         })
       );
 
@@ -558,9 +558,9 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("attachStacktrace false", async () => {
+    test('attachStacktrace false', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -568,12 +568,12 @@ describe("Toucan", () => {
         });
 
         try {
-          throw new Error("test");
+          throw new Error('test');
         } catch (e) {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -587,22 +587,22 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("rewriteFrames root", async () => {
+    test('rewriteFrames root', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
-          rewriteFrames: { root: "/dist/" },
+          rewriteFrames: { root: '/dist/' },
         });
 
         try {
-          throw new Error("test");
+          throw new Error('test');
         } catch (e) {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -616,9 +616,9 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("rewriteFrames iteratee", async () => {
+    test('rewriteFrames iteratee', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -633,12 +633,12 @@ describe("Toucan", () => {
         });
 
         try {
-          throw new Error("test");
+          throw new Error('test');
         } catch (e) {
           result = toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -652,22 +652,22 @@ describe("Toucan", () => {
       expect(result).toMatchSnapshot();
     });
 
-    test("fingerprint", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('fingerprint', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
 
-        toucan.setFingerprint(["{{ default }}", event.request.url]);
+        toucan.setFingerprint(['{{ default }}', event.request.url]);
 
         try {
-          throw new Error("test");
+          throw new Error('test');
         } catch (e) {
           toucan.captureException(e);
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -679,8 +679,8 @@ describe("Toucan", () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test("sampleRate = 0 should send 0% of events", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('sampleRate = 0 should send 0% of events', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -688,10 +688,10 @@ describe("Toucan", () => {
         });
 
         for (let i = 0; i < 1000; i++) {
-          toucan.captureMessage("test");
+          toucan.captureMessage('test');
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -701,8 +701,8 @@ describe("Toucan", () => {
       expect(global.fetch).toHaveBeenCalledTimes(0);
     });
 
-    test("sampleRate = 1 should send 100% of events", async () => {
-      self.addEventListener("fetch", (event) => {
+    test('sampleRate = 1 should send 100% of events', async () => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -710,10 +710,10 @@ describe("Toucan", () => {
         });
 
         for (let i = 0; i < 1000; i++) {
-          toucan.captureMessage("test");
+          toucan.captureMessage('test');
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -723,11 +723,11 @@ describe("Toucan", () => {
       expect(global.fetch).toHaveBeenCalledTimes(1000);
     });
 
-    test("sampleRate = 0.5 should send 50% of events", async () => {
+    test('sampleRate = 0.5 should send 50% of events', async () => {
       // Make Math.random always return 0, 0.9, 0, 0.9 ...
       mockMathRandom([0, 0.9]);
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
@@ -735,10 +735,10 @@ describe("Toucan", () => {
         });
 
         for (let i = 0; i < 10; i++) {
-          toucan.captureMessage("test");
+          toucan.captureMessage('test');
         }
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -750,19 +750,19 @@ describe("Toucan", () => {
       resetMathRandom();
     });
 
-    test("debug disabled", async () => {
-      const spy = jest.spyOn(Toucan.prototype as any, "logResponse");
+    test('debug disabled', async () => {
+      const spy = jest.spyOn(Toucan.prototype as any, 'logResponse');
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
           debug: false,
         });
 
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -775,19 +775,19 @@ describe("Toucan", () => {
       resetMathRandom();
     });
 
-    test("debug enabled", async () => {
-      const spy = jest.spyOn(Toucan.prototype as any, "logResponse");
+    test('debug enabled', async () => {
+      const spy = jest.spyOn(Toucan.prototype as any, 'logResponse');
 
-      self.addEventListener("fetch", (event) => {
+      self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
           debug: true,
         });
 
-        toucan.captureMessage("test");
+        toucan.captureMessage('test');
 
-        event.respondWith(new Response("OK", { status: 200 }));
+        event.respondWith(new Response('OK', { status: 200 }));
       });
 
       // Trigger fetch event defined above
@@ -802,17 +802,17 @@ describe("Toucan", () => {
     });
   });
 
-  describe("ScheduledEvent", () => {
-    test("capture message", async () => {
+  describe('ScheduledEvent', () => {
+    test('capture message', async () => {
       let result: string | undefined = undefined;
-      self.addEventListener("scheduled", (event) => {
+      self.addEventListener('scheduled', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
         });
         event.waitUntil(
           (async () => {
-            result = toucan.captureMessage("test");
+            result = toucan.captureMessage('test');
           })()
         );
       });
@@ -828,19 +828,19 @@ describe("Toucan", () => {
     });
   });
 
-  test("setRequestBody", async () => {
+  test('setRequestBody', async () => {
     // Incoming request context doesn't exist in ScheduledEvent
     // But in Sentry, 'request' object could also represent an outgoing request
     // So we should allow setRequestBody in ScheduledEvent
-    self.addEventListener("scheduled", (event) => {
+    self.addEventListener('scheduled', (event) => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         event,
       });
       event.waitUntil(
         (async () => {
-          toucan.setRequestBody({ foo: "bar" });
-          toucan.captureMessage("test");
+          toucan.setRequestBody({ foo: 'bar' });
+          toucan.captureMessage('test');
         })()
       );
     });
@@ -853,38 +853,38 @@ describe("Toucan", () => {
     expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
   });
 
-  test("withScope", async () => {
-    self.addEventListener("fetch", (event) => {
+  test('withScope', async () => {
+    self.addEventListener('fetch', (event) => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         event,
       });
 
-      toucan.setExtra("foo", "bar");
+      toucan.setExtra('foo', 'bar');
 
       // Simple case
       toucan.withScope((scope) => {
-        scope.setExtra("bar", "baz");
+        scope.setExtra('bar', 'baz');
         //expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage("test withScope simple");
+        toucan.captureMessage('test withScope simple');
       });
 
       // Nested case
       toucan.withScope((scope) => {
-        scope.setExtra("bar", "baz");
+        scope.setExtra('bar', 'baz');
         toucan.withScope((scope) => {
-          scope.setExtra("baz", "bam");
+          scope.setExtra('baz', 'bam');
           // expected {"foo": "bar", "bar": "baz", "baz": "bam"}
-          toucan.captureMessage("test withScope nested");
+          toucan.captureMessage('test withScope nested');
         });
         // expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage("test withScope nested");
+        toucan.captureMessage('test withScope nested');
       });
 
       // expected {"foo": "bar"}
-      toucan.captureMessage("test");
+      toucan.captureMessage('test');
 
-      event.respondWith(new Response("OK", { status: 200 }));
+      event.respondWith(new Response('OK', { status: 200 }));
     });
 
     // Trigger fetch event defined above
@@ -893,17 +893,17 @@ describe("Toucan", () => {
     // Expect POST request to Sentry
     expect(global.fetch).toHaveBeenCalledTimes(4);
     expect(getFetchMockPayload(global.fetch, 0)).toMatchObject({
-      extra: { foo: "bar", bar: "baz" },
+      extra: { foo: 'bar', bar: 'baz' },
     });
     //expected to contain {"foo": "bar", "bar": "baz", "baz": "bam"}
     expect(getFetchMockPayload(global.fetch, 1)).toMatchObject({
-      extra: { foo: "bar", bar: "baz", baz: "bam" },
+      extra: { foo: 'bar', bar: 'baz', baz: 'bam' },
     });
     expect(getFetchMockPayload(global.fetch, 2)).toMatchObject({
-      extra: { foo: "bar", bar: "baz" },
+      extra: { foo: 'bar', bar: 'baz' },
     });
     expect(getFetchMockPayload(global.fetch, 3)).toMatchObject({
-      extra: { foo: "bar" },
+      extra: { foo: 'bar' },
     });
   });
 });

@@ -1,9 +1,9 @@
 /**
  * Parts of code taken from: https://github.com/getsentry/sentry-javascript/blob/06d6bd87971b22dcaba99b03e1f885158c7dd66f/packages/hub/src/scope.ts
  */
-import { Scope as SentryScope } from "@sentry/hub";
-import { Extra, Extras, Primitive, User } from "@sentry/types";
-import { Breadcrumb, Event } from "./types";
+import { Scope as SentryScope } from '@sentry/hub';
+import { Extra, Extras, Primitive, User } from '@sentry/types';
+import { Breadcrumb, Event } from './types';
 
 class SentryScopeAdapter extends SentryScope {
   /**

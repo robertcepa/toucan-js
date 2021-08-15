@@ -1,20 +1,20 @@
-import typescript from "rollup-plugin-typescript2";
-import replace from "@rollup/plugin-replace";
+import typescript from 'rollup-plugin-typescript2';
+import replace from '@rollup/plugin-replace';
 
-import pkg from "./package.json";
+import pkg from './package.json';
 
 const makeExternalPredicate = (externalArr) => {
   if (externalArr.length === 0) {
     return () => false;
   }
-  const pattern = new RegExp(`^(${externalArr.join("|")})($|/)`);
+  const pattern = new RegExp(`^(${externalArr.join('|')})($|/)`);
   return (id) => pattern.test(id);
 };
 
 export default [
   // CommonJS (for Node) and ES module (for bundlers) build.
   {
-    input: "src/index.ts",
+    input: 'src/index.ts',
     external: makeExternalPredicate([
       ...Object.keys(pkg.dependencies || {}),
       ...Object.keys(pkg.peerDependencies || {}),
@@ -26,17 +26,17 @@ export default [
       }),
       typescript({
         tsconfigOverride: {
-          include: ["./src/**/*"],
+          include: ['./src/**/*'],
           compilerOptions: {
-            rootDir: "src",
-            outDir: "dist",
+            rootDir: 'src',
+            outDir: 'dist',
           },
         },
       }), // so Rollup can convert TypeScript to JavaScript
     ],
     output: [
-      { file: pkg.main, format: "cjs" },
-      { file: pkg.module, format: "es" },
+      { file: pkg.main, format: 'cjs' },
+      { file: pkg.module, format: 'es' },
     ],
   },
 ];

@@ -1,14 +1,14 @@
-import makeServiceWorkerEnv from "service-worker-mock";
-import { v4 as uuidv4 } from "uuid";
-import { fromError } from "stacktrace-js";
+import makeServiceWorkerEnv from 'service-worker-mock';
+import { v4 as uuidv4 } from 'uuid';
+import { fromError } from 'stacktrace-js';
 
 export type FetchMock = ReturnType<typeof makeFetchMock>;
 
 export const makeFetchMock = () =>
   jest.fn(async (...args: Parameters<typeof fetch>) => {
-    return new Response("OK", {
+    return new Response('OK', {
       status: 200,
-      statusText: "OK",
+      statusText: 'OK',
     });
   });
 
@@ -66,7 +66,7 @@ export const resetMathRandom = () => {
 };
 
 export const mockUuid = () => {
-  (uuidv4 as any).mockImplementation(() => "651b177fe1cb4ac89e15c1ecd2cb1d0a");
+  (uuidv4 as any).mockImplementation(() => '651b177fe1cb4ac89e15c1ecd2cb1d0a');
 };
 
 export const mockStackTrace = () => {
@@ -75,14 +75,14 @@ export const mockStackTrace = () => {
       {
         columnNumber: 0,
         lineNumber: 0,
-        fileName: "file",
-        functionName: "foo",
+        fileName: 'file',
+        functionName: 'foo',
       },
       {
         columnNumber: 0,
         lineNumber: 0,
-        fileName: "file",
-        functionName: "bar",
+        fileName: 'file',
+        functionName: 'bar',
       },
     ];
   };
@@ -112,10 +112,10 @@ export const resetConsole = () => {
  */
 export const triggerFetchAndWait = async (
   self: WorkerGlobalScope & typeof globalThis,
-  request = new Request("https://example.com")
+  request = new Request('https://example.com')
 ) => {
   // Waits for fetch response (event.respondWith)
-  await self.trigger("fetch", request);
+  await self.trigger('fetch', request);
   // Waits for all waitUntil work to complete (event.waitUntil)
   // missing typings but exists in https://github.com/zackargyle/service-workers/blob/master/packages/service-worker-mock/models/ExtendableEvent.js
   await (self.ExtendableEvent as any).eventsDoneWaiting();
@@ -133,7 +133,7 @@ export const triggerScheduledAndWait = async (
   self: WorkerGlobalScope & typeof globalThis
 ) => {
   // Triggers scheduled event
-  await self.trigger("scheduled" as any);
+  await self.trigger('scheduled' as any);
   // Waits for all waitUntil work to complete (event.waitUntil)
   // missing typings but exists in https://github.com/zackargyle/service-workers/blob/master/packages/service-worker-mock/models/ExtendableEvent.js
   await (self.ExtendableEvent as any).eventsDoneWaiting();
