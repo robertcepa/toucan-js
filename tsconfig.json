@@ -18,6 +18,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "lib": ["ESNext", "WebWorker"],
-    "types": ["@cloudflare/workers-types", "jest", "node"]
-  }
+    "types": ["@cloudflare/workers-types"],
+    "baseUrl": "."
+  },
+  "include": ["src/**/*"]
 }
