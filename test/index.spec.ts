@@ -883,6 +883,37 @@ describe('Toucan', () => {
       // captureException should have returned a generated eventId
       expect(result).toMatchSnapshot();
     });
+
+    test('captureException works no "context" or "event" (just calls "fetch")', async () => {
+      // Note that this IS NOT A VALID TEST
+      // The only case when you can use 'request' without 'context' or 'event' is a Durable Object
+      // But we do not have Durable Objects test environment yet -- this test only exists to assert fetch being called
+      let result: string | undefined = undefined;
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          request: event.request,
+          dsn: VALID_DSN,
+        });
+
+        try {
+          throw new Error('test');
+        } catch (e) {
+          result = toucan.captureException(e);
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      // Match POST request payload snap
+      expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+      // captureException should have returned a generated eventId
+      expect(result).toMatchSnapshot();
+    });
   });
 
   describe('ScheduledEvent', () => {

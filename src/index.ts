@@ -197,8 +197,11 @@ export default class Toucan {
     // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
     if ('context' in this.options) {
       this.options.context.waitUntil(this.reportException(event, exception));
-    } else {
+    } else if ('event' in this.options) {
       this.options.event.waitUntil(this.reportException(event, exception));
+    } else {
+      // 'waitUntil' not provided -- this is probably called from within a Durable Object
+      this.reportException(event, exception);
     }
 
     return event.event_id;
@@ -220,8 +223,11 @@ export default class Toucan {
 
     if ('context' in this.options) {
       this.options.context.waitUntil(this.reportMessage(event));
-    } else {
+    } else if ('event' in this.options) {
       this.options.event.waitUntil(this.reportMessage(event));
+    } else {
+      // 'waitUntil' not provided -- this is probably called from within a Durable Object
+      this.reportMessage(event);
     }
 
     return event.event_id;
