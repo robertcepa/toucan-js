@@ -800,6 +800,89 @@ describe('Toucan', () => {
 
       resetMathRandom();
     });
+
+    test('withScope', async () => {
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+        });
+
+        toucan.setExtra('foo', 'bar');
+
+        // Simple case
+        toucan.withScope((scope) => {
+          scope.setExtra('bar', 'baz');
+          //expected {"foo": "bar", "bar": "baz"}
+          toucan.captureMessage('test withScope simple');
+        });
+
+        // Nested case
+        toucan.withScope((scope) => {
+          scope.setExtra('bar', 'baz');
+          toucan.withScope((scope) => {
+            scope.setExtra('baz', 'bam');
+            // expected {"foo": "bar", "bar": "baz", "baz": "bam"}
+            toucan.captureMessage('test withScope nested');
+          });
+          // expected {"foo": "bar", "bar": "baz"}
+          toucan.captureMessage('test withScope nested');
+        });
+
+        // expected {"foo": "bar"}
+        toucan.captureMessage('test');
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(4);
+      expect(getFetchMockPayload(global.fetch, 0)).toMatchObject({
+        extra: { foo: 'bar', bar: 'baz' },
+      });
+      //expected to contain {"foo": "bar", "bar": "baz", "baz": "bam"}
+      expect(getFetchMockPayload(global.fetch, 1)).toMatchObject({
+        extra: { foo: 'bar', bar: 'baz', baz: 'bam' },
+      });
+      expect(getFetchMockPayload(global.fetch, 2)).toMatchObject({
+        extra: { foo: 'bar', bar: 'baz' },
+      });
+      expect(getFetchMockPayload(global.fetch, 3)).toMatchObject({
+        extra: { foo: 'bar' },
+      });
+    });
+
+    // When "event" option gets removed in favor of "context" in v2, this test can be deleted, and previous ones updated to use "context"
+    test('captureException works with "context" (instead of "event")', async () => {
+      let result: string | undefined = undefined;
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          context: event,
+        });
+
+        try {
+          throw new Error('test');
+        } catch (e) {
+          result = toucan.captureException(e);
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      // Match POST request payload snap
+      expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+      // captureException should have returned a generated eventId
+      expect(result).toMatchSnapshot();
+    });
   });
 
   describe('ScheduledEvent', () => {
@@ -826,84 +909,30 @@ describe('Toucan', () => {
       // captureMessage should have returned a generated eventId
       expect(result).toMatchSnapshot();
     });
-  });
 
-  test('setRequestBody', async () => {
-    // Incoming request context doesn't exist in ScheduledEvent
-    // But in Sentry, 'request' object could also represent an outgoing request
-    // So we should allow setRequestBody in ScheduledEvent
-    self.addEventListener('scheduled', (event) => {
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        event,
-      });
-      event.waitUntil(
-        (async () => {
-          toucan.setRequestBody({ foo: 'bar' });
-          toucan.captureMessage('test');
-        })()
-      );
-    });
-
-    await triggerScheduledAndWait(self);
-
-    // Expect POST request to Sentry
-    expect(global.fetch).toHaveBeenCalledTimes(1);
-    // Match POST request payload snap
-    expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
-  });
-
-  test('withScope', async () => {
-    self.addEventListener('fetch', (event) => {
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        event,
-      });
-
-      toucan.setExtra('foo', 'bar');
-
-      // Simple case
-      toucan.withScope((scope) => {
-        scope.setExtra('bar', 'baz');
-        //expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage('test withScope simple');
-      });
-
-      // Nested case
-      toucan.withScope((scope) => {
-        scope.setExtra('bar', 'baz');
-        toucan.withScope((scope) => {
-          scope.setExtra('baz', 'bam');
-          // expected {"foo": "bar", "bar": "baz", "baz": "bam"}
-          toucan.captureMessage('test withScope nested');
+    test('setRequestBody', async () => {
+      // Incoming request context doesn't exist in ScheduledEvent
+      // But in Sentry, 'request' object could also represent an outgoing request
+      // So we should allow setRequestBody in ScheduledEvent
+      self.addEventListener('scheduled', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
         });
-        // expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage('test withScope nested');
+        event.waitUntil(
+          (async () => {
+            toucan.setRequestBody({ foo: 'bar' });
+            toucan.captureMessage('test');
+          })()
+        );
       });
 
-      // expected {"foo": "bar"}
-      toucan.captureMessage('test');
+      await triggerScheduledAndWait(self);
 
-      event.respondWith(new Response('OK', { status: 200 }));
-    });
-
-    // Trigger fetch event defined above
-    await triggerFetchAndWait(self);
-
-    // Expect POST request to Sentry
-    expect(global.fetch).toHaveBeenCalledTimes(4);
-    expect(getFetchMockPayload(global.fetch, 0)).toMatchObject({
-      extra: { foo: 'bar', bar: 'baz' },
-    });
-    //expected to contain {"foo": "bar", "bar": "baz", "baz": "bam"}
-    expect(getFetchMockPayload(global.fetch, 1)).toMatchObject({
-      extra: { foo: 'bar', bar: 'baz', baz: 'bam' },
-    });
-    expect(getFetchMockPayload(global.fetch, 2)).toMatchObject({
-      extra: { foo: 'bar', bar: 'baz' },
-    });
-    expect(getFetchMockPayload(global.fetch, 3)).toMatchObject({
-      extra: { foo: 'bar' },
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      // Match POST request payload snap
+      expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
   });
 });
