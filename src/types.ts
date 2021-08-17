@@ -24,6 +24,11 @@ type WithContext = {
   request?: Request;
 };
 
+// for Durable Objects
+type WithRequest = {
+  request: Request;
+};
+
 type OtherOptions = {
   dsn?: SentryOptions['dsn'];
   allowedCookies?: string[] | RegExp;
@@ -43,7 +48,10 @@ type OtherOptions = {
   >;
 };
 
-export type Options = (WithEvent & OtherOptions) | (WithContext & OtherOptions);
+export type Options =
+  | (WithEvent & OtherOptions)
+  | (WithContext & OtherOptions)
+  | (WithRequest & OtherOptions);
 
 export type Level =
   | 'critical'
