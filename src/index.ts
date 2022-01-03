@@ -561,6 +561,7 @@ export default class Toucan {
       )}`;
 
       this.setExtra('__serialized__', normalizeToSize(maybeError as {}));
+      this.getScope().applyToEvent(event);
 
       error = new Error(message);
     } else {
