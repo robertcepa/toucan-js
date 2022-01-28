@@ -709,3 +709,5 @@ export default class Toucan {
     return !!this.scopes.pop();
   }
 }
+
+export type { Breadcrumb, Level, Options };
