@@ -84,7 +84,7 @@ export default {
   async fetch(request: Request, env: Env, context: Context) {
     const sentry = new Toucan({
       dsn: 'dsn...',
-      context: env, // Includes 'waitUntil', which is essential for Sentry logs to be delivered. Modules workers do not include 'request' in context -- you'll need to set it separately.
+      context, // Includes 'waitUntil', which is essential for Sentry logs to be delivered. Modules workers do not include 'request' in context -- you'll need to set it separately.
       request, // request is not included in 'context', so we set it here.
       allowedHeaders: ['user-agent'],
       allowedSearchParams: /(.*)/,
@@ -108,7 +108,7 @@ export default {
   async scheduled(controller: Controller, env: Env, context: Context) {
     const sentry = new Toucan({
       dsn: 'dsn...',
-      context: env, // Includes 'waitUntil', which is essential for Sentry logs to be delivered. Note that there's no request in 'scheduled' events context.
+      context, // Includes 'waitUntil', which is essential for Sentry logs to be delivered. Note that there's no request in 'scheduled' events context.
     });
 
     event.waitUntil(async () => {
