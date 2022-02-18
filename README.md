@@ -111,7 +111,7 @@ export default {
       context, // Includes 'waitUntil', which is essential for Sentry logs to be delivered. Note that there's no request in 'scheduled' events context.
     });
 
-    event.waitUntil(async () => {
+    context.waitUntil(async () => {
       try {
         // Your code
       } catch (err) {
