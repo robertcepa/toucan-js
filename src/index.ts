@@ -23,6 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'cookie';
 import { fromError } from 'stacktrace-js';
 import { Scope } from './scope';
+import { hasTracingEnabled, isValidSampleRate } from './utils';
 
 export default class Toucan {
   /**
@@ -330,15 +331,36 @@ export default class Toucan {
    * @returns Event
    */
   private buildEvent(additionalData: Event): Event | undefined {
-    const sampleRate = this.options.sampleRate;
+    if (hasTracingEnabled(this.options)) {
+      // 1.0 === 100% events are sent
+      // 0.0 === 0% events are sent
+      const sampleRate =
+        typeof this.options.tracesSampler === 'function'
+          ? this.options.tracesSampler({ request: this.request })
+          : typeof this.options.tracesSampleRate === 'number'
+          ? this.options.tracesSampleRate
+          : typeof this.options.sampleRate === 'number'
+          ? this.options.sampleRate
+          : null;
 
-    // 1.0 === 100% events are sent
-    // 0.0 === 0% events are sent
-    if (typeof sampleRate === 'number' && Math.random() > sampleRate) {
-      this.debug(() =>
-        this.log(`skipping this event (sampleRate === ${sampleRate})`)
-      );
-      return;
+      // Invalid sampling values result in skipped events, for parity with other Sentry SDKs.
+      // However, don't skip if
+      if (!isValidSampleRate(sampleRate)) {
+        this.debug(() =>
+          this.log(`skipping this event because of invalid sample rate.`)
+        );
+        return;
+      }
+
+      // Now we roll the dice. Math.random() is inclusive of 0, but not 1, so we need >= here.
+      // This is because When sampleRate is 0 and Math.random() returns 0, we must skip the event.
+      // When sampleRate is 1, the event will always be sent, because Math.random() cannot return 1.
+      if (Math.random() >= Number(sampleRate)) {
+        this.debug(() =>
+          this.log(`skipping this event (sampling rate ${Number(sampleRate)})`)
+        );
+        return;
+      }
     }
 
     const pkg = this.options.pkg;
@@ -400,7 +422,7 @@ export default class Toucan {
 
     const headers: Record<string, string> = {};
 
-    // Build headers (omit cookie header, because we built in in the previous step)
+    // Build headers (omit cookie header, because we used it in the previous step)
     for (const [k, v] of (request.headers as any).entries()) {
       if (k !== 'cookie') {
         headers[k] = v;

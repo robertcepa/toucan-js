@@ -3,6 +3,7 @@ import {
   Event as SentryEvent,
   Breadcrumb as SentryBreadcrumb,
   StackFrame,
+  SamplingContext as SentrySamplingContext,
 } from '@sentry/types';
 
 export type RewriteFrames = {
@@ -29,6 +30,12 @@ type WithRequest = {
   request: Request;
 };
 
+// Other options from original SamplingContext are noop in CF Workers
+// This is basically what NodeJS SDK allows (https://github.com/getsentry/sentry-javascript/blob/334b09750a4bc7b697c259b08c55e05f5fcbb0d1/packages/node/src/handlers.ts#L76)
+type SamplingContext = {
+  request?: SentrySamplingContext['request'];
+};
+
 type OtherOptions = {
   dsn?: SentryOptions['dsn'];
   allowedCookies?: string[] | RegExp;
@@ -42,12 +49,20 @@ type OtherOptions = {
   pkg?: Record<string, any>;
   release?: SentryOptions['release'];
   rewriteFrames?: RewriteFrames;
+  /**
+   * @deprecated Use tracesSampleRate.
+   */
   sampleRate?: SentryOptions['sampleRate'];
+  tracesSampleRate?: SentryOptions['tracesSampleRate'];
+  tracesSampler?: (samplingContext: SamplingContext) => number | boolean;
   transportOptions?: Compute<
     Pick<NonNullable<SentryOptions['transportOptions']>, 'headers'>
   >;
 };
 
+/**
+ * @prpperty sampleRate gahga
+ */
 export type Options =
   | (WithEvent & OtherOptions)
   | (WithContext & OtherOptions)

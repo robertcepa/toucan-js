@@ -679,12 +679,12 @@ describe('Toucan', () => {
       expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
     });
 
-    test('sampleRate = 0 should send 0% of events', async () => {
+    test('tracesSampleRate = 0 should send 0% of events', async () => {
       self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
-          sampleRate: 0,
+          tracesSampleRate: 0,
         });
 
         for (let i = 0; i < 1000; i++) {
@@ -701,12 +701,12 @@ describe('Toucan', () => {
       expect(global.fetch).toHaveBeenCalledTimes(0);
     });
 
-    test('sampleRate = 1 should send 100% of events', async () => {
+    test('tracesSampleRate = 1 should send 100% of events', async () => {
       self.addEventListener('fetch', (event) => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
-          sampleRate: 1,
+          tracesSampleRate: 1,
         });
 
         for (let i = 0; i < 1000; i++) {
@@ -723,7 +723,7 @@ describe('Toucan', () => {
       expect(global.fetch).toHaveBeenCalledTimes(1000);
     });
 
-    test('sampleRate = 0.5 should send 50% of events', async () => {
+    test('tracesSampleRate = 0.5 should send 50% of events', async () => {
       // Make Math.random always return 0, 0.9, 0, 0.9 ...
       mockMathRandom([0, 0.9]);
 
@@ -731,7 +731,7 @@ describe('Toucan', () => {
         const toucan = new Toucan({
           dsn: VALID_DSN,
           event,
-          sampleRate: 0.5,
+          tracesSampleRate: 0.5,
         });
 
         for (let i = 0; i < 10; i++) {
@@ -744,8 +744,199 @@ describe('Toucan', () => {
       // Trigger fetch event defined above
       await triggerFetchAndWait(self);
 
-      // Expect 1000 POST requests to Sentry
+      // Expect 5 POST requests to Sentry
       expect(global.fetch).toHaveBeenCalledTimes(5);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampleRate set to invalid value results in skipped event', async () => {
+      mockMathRandom([0, 0.9]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          allowedHeaders: ['origin'],
+          // @ts-expect-error Testing invalid runtime value for JavaScript
+          tracesSampleRate: 'hello',
+        });
+
+        for (let i = 0; i < 10; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect 0 POST requests to Sentry due to invalid tracesSampleRate
+      expect(global.fetch).toHaveBeenCalledTimes(0);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampler evaluates to true, should send all events', async () => {
+      // Make Math.random always return 0 to ensure pessimistic randomness
+      mockMathRandom([0.999]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          tracesSampler: (samplingContext) => true,
+        });
+
+        for (let i = 0; i < 10; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect 10 POST requests to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(10);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampler evaluates to false, should skip all events', async () => {
+      // Make Math.random always return 1 to ensure pessimistic randomness
+      mockMathRandom([0]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          tracesSampler: (samplingContext) => false,
+        });
+
+        for (let i = 0; i < 10; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect 0 POST requests to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(0);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampler evaluates to 0.5, should send 50% of events', async () => {
+      mockMathRandom([0, 0.9]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          tracesSampler: (samplingContext) => 0.5,
+        });
+
+        for (let i = 0; i < 1000; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect 0 POST requests to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(500);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampler uses properly built samplingContext. Should send 50% of events for requests from https://eyeball.com origin, else skips all events', async () => {
+      mockMathRandom([0, 0.9]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          allowedHeaders: ['origin'],
+          tracesSampler: (samplingContext) => {
+            if (
+              samplingContext.request?.headers?.['origin'] ===
+              'https://eyeball.com'
+            ) {
+              return 0.5;
+            } else {
+              return false;
+            }
+          },
+        });
+
+        for (let i = 0; i < 10; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(
+        self,
+        new Request('https://worker-route.com/', {
+          headers: { origin: 'https://eyeball.com' },
+        })
+      );
+
+      // Expect 5 POST requests to Sentry, because origin matches (50% sampling)
+      expect(global.fetch).toHaveBeenCalledTimes(5);
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(
+        self,
+        new Request('https://worker-route.com/', {
+          headers: { origin: 'https://eyeball2.com' },
+        })
+      );
+
+      // Expect no new requests to Sentry, because origin changed (0% sampling)
+      //expect(global.fetch).toHaveBeenCalledTimes(5);
+      expect(global.fetch).toHaveBeenCalledTimes(5);
+
+      resetMathRandom();
+    });
+
+    test('tracesSampler returning invalid value results in skipped event', async () => {
+      mockMathRandom([0, 0.9]);
+
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+          allowedHeaders: ['origin'],
+          // @ts-expect-error Testing invalid runtime value for JavaScript
+          tracesSampler: (samplingContext) => {
+            return 'hello';
+          },
+        });
+
+        for (let i = 0; i < 10; i++) {
+          toucan.captureMessage('test');
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect 0 POST requests to Sentry due to invalid tracesSampler
+      expect(global.fetch).toHaveBeenCalledTimes(0);
 
       resetMathRandom();
     });
