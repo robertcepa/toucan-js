@@ -60,9 +60,6 @@ type OtherOptions = {
   >;
 };
 
-/**
- * @prpperty sampleRate gahga
- */
 export type Options =
   | (WithEvent & OtherOptions)
   | (WithContext & OtherOptions)
@@ -76,10 +73,12 @@ export type Level =
   | 'info'
   | 'log'
   | 'debug';
+
 // Overwrite default level type of enum to type of union of string literals
 export type Breadcrumb = Compute<
   Omit<SentryBreadcrumb, 'level'> & { level?: Level }
 >;
+
 export type Event = Compute<
   Omit<SentryEvent, 'level' | 'breadcrumbs'> & {
     level?: Level;
