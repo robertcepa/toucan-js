@@ -19,7 +19,6 @@ import {
   extractExceptionKeysForMessage,
   normalizeToSize,
 } from '@sentry/utils';
-import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'cookie';
 import { fromError } from 'stacktrace-js';
 import { Scope } from './scope';
@@ -376,7 +375,7 @@ export default class Toucan {
 
     // per https://docs.sentry.io/development/sdk-dev/event-payloads/#required-attributes
     const payload: Event = {
-      event_id: uuidv4().replace(/-/g, ''), // dashes are not allowed
+      event_id: crypto.randomUUID().replace(/-/g, ''), // dashes are not allowed
       logger: 'EdgeWorker',
       platform: 'node',
       release,
