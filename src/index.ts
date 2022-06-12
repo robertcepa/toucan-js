@@ -11,7 +11,7 @@ import {
   Extras,
   Primitive,
 } from '@sentry/types';
-import { Options, Event, Breadcrumb, Level, RewriteFrames } from './types';
+import { Options, OtherOptions, Event, Breadcrumb, Level, RewriteFrames } from './types';
 import { API } from '@sentry/core';
 import {
   isError,
@@ -731,4 +731,4 @@ export default class Toucan {
   }
 }
 
-export type { Breadcrumb, Level, Options };
+export type { Breadcrumb, Level, Options, OtherOptions };

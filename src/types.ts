@@ -36,7 +36,7 @@ type SamplingContext = {
   request?: SentrySamplingContext['request'];
 };
 
-type OtherOptions = {
+export type OtherOptions = {
   dsn?: SentryOptions['dsn'];
   allowedCookies?: string[] | RegExp;
   allowedHeaders?: string[] | RegExp;
