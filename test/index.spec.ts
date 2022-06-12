@@ -17,7 +17,6 @@ import {
 
 const VALID_DSN = 'https://123:456@testorg.ingest.sentry.io/123';
 
-jest.mock('uuid');
 jest.mock('stacktrace-js');
 
 describe('Toucan', () => {

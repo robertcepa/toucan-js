@@ -1,5 +1,4 @@
 import makeServiceWorkerEnv from 'service-worker-mock';
-import { v4 as uuidv4 } from 'uuid';
 import { fromError } from 'stacktrace-js';
 
 export type FetchMock = ReturnType<typeof makeFetchMock>;
@@ -66,7 +65,9 @@ export const resetMathRandom = () => {
 };
 
 export const mockUuid = () => {
-  (uuidv4 as any).mockImplementation(() => '651b177fe1cb4ac89e15c1ecd2cb1d0a');
+  (global.crypto as any) = {
+    randomUUID: () => '651b177fe1cb4ac89e15c1ecd2cb1d0a',
+  };
 };
 
 export const mockStackTrace = () => {

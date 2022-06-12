@@ -30,10 +30,8 @@
     "@sentry/types": "6.19.6",
     "@sentry/hub": "6.19.6",
     "@types/cookie": "0.5.0",
-    "@types/uuid": "8.3.4",
     "cookie": "0.5.0",
-    "stacktrace-js": "2.0.2",
-    "uuid": "8.3.2"
+    "stacktrace-js": "2.0.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "2.2.2",
