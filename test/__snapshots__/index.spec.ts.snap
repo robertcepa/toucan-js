@@ -214,6 +214,70 @@ Object {
 
 exports[`Toucan FetchEvent captureException: Error 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
 
+exports[`Toucan FetchEvent captureException: Error with cause 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "original error",
+      },
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "outer error with cause",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: Error with cause 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
 exports[`Toucan FetchEvent captureException: Object 1`] = `
 Object {
   "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
