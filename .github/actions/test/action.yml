@@ -1,0 +1,15 @@
+name: Test
+description: 'Setup and test'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        registry-url: 'https://registry.npmjs.org'
+        node-version: 16
+        cache: 'yarn'
+    - run: yarn
+      shell: bash
+    - run: yarn test
+      shell: bash
