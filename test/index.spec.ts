@@ -189,6 +189,38 @@ describe('Toucan', () => {
       expect(result).toMatchSnapshot();
     });
 
+    test('captureException: Error with cause', async () => {
+      let result: string | undefined = undefined;
+      self.addEventListener('fetch', (event) => {
+        const toucan = new Toucan({
+          dsn: VALID_DSN,
+          event,
+        });
+
+        try {
+          try {
+            throw new Error('original error');
+          } catch (cause) {
+            throw new Error('outer error with cause', { cause });
+          }
+        } catch (e) {
+          result = toucan.captureException(e);
+        }
+
+        event.respondWith(new Response('OK', { status: 200 }));
+      });
+
+      // Trigger fetch event defined above
+      await triggerFetchAndWait(self);
+
+      // Expect POST request to Sentry
+      expect(global.fetch).toHaveBeenCalledTimes(1);
+      // Match POST request payload snap
+      expect(getFetchMockPayload(global.fetch)).toMatchSnapshot();
+      // captureException should have returned a generated eventId
+      expect(result).toMatchSnapshot();
+    });
+
     test('captureException: Object', async () => {
       let result: string | undefined = undefined;
       self.addEventListener('fetch', (event) => {
