@@ -1,0 +1,823 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Toucan FetchEvent allowlists 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "cookies": Object {
+      "fo": "bar",
+      "foo": "bar",
+    },
+    "data": Object {
+      "bar": "baz",
+      "foo": "bar",
+    },
+    "headers": Object {
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0",
+      "x-foo": "Foo",
+    },
+    "method": "POST",
+    "query_string": "foo=bar&bar=baz",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent attachStacktrace false 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent attachStacktrace false 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent beforeSend 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "headers": Object {
+      "X-Foo": "Bar",
+    },
+    "method": "POST",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException works no "context" or "event" (just calls "fetch") 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException works no "context" or "event" (just calls "fetch") 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureException works with "context" (instead of "event") 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException works with "context" (instead of "event") 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureException: Error 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: Error 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureException: Error with cause 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "original error",
+      },
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "outer error with cause",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: Error with cause 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureException: Object 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "Non-Error exception captured with keys: bar, foo",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: Object 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureException: primitive 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: primitive 2`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "true",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: primitive 3`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "10",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureException: primitive 4`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent captureMessage 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent captureMessage 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent debug enabled 1`] = `
+Array [
+  Array [
+    "toucan-js: dsn parsed, full store endpoint: https://testorg.ingest.sentry.io/api/123/store/?sentry_key=123&sentry_version=7",
+  ],
+  Array [
+    "toucan-js: calling captureMessage",
+  ],
+  Array [
+    "toucan-js: sending request to Sentry with headers: {\\"Content-Type\\":\\"application/json\\",\\"User-Agent\\":\\"__name__/__version__\\"} and body: {\\"event_id\\":\\"651b177fe1cb4ac89e15c1ecd2cb1d0a\\",\\"logger\\":\\"EdgeWorker\\",\\"platform\\":\\"node\\",\\"timestamp\\":1586752837.868,\\"level\\":\\"info\\",\\"message\\":\\"test\\",\\"request\\":{\\"method\\":\\"GET\\",\\"url\\":\\"https://example.com/\\"},\\"sdk\\":{\\"name\\":\\"__name__\\",\\"version\\":\\"__version__\\"}}",
+  ],
+  Array [
+    "toucan-js: http://example.com responded with [200 OK]: OK",
+  ],
+]
+`;
+
+exports[`Toucan FetchEvent fingerprint 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "~/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "fingerprint": Array [
+    "{{ default }}",
+    "https://example.com/",
+  ],
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent invalid URL does not fail 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "headers": Object {
+      "accept": "*/*",
+    },
+    "method": "GET",
+    "query_string": "query%",
+    "url": "garbage",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent invalid URL does not fail 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent rewriteFrames iteratee 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "abs_path": "/usr/bin//dist/file",
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "abs_path": "/usr/bin//dist/file",
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent rewriteFrames iteratee 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent rewriteFrames root 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "exception": Object {
+    "values": Array [
+      Object {
+        "stacktrace": Object {
+          "frames": Array [
+            Object {
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "bar",
+              "lineno": 0,
+            },
+            Object {
+              "colno": 0,
+              "filename": "/dist/file",
+              "function": "foo",
+              "lineno": 0,
+            },
+          ],
+        },
+        "type": "Error",
+        "value": "test",
+      },
+    ],
+  },
+  "level": "error",
+  "logger": "EdgeWorker",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent rewriteFrames root 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan FetchEvent setExtra 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "extra": Object {
+    "foo": "bar",
+  },
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent setExtras 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "extra": Object {
+    "bar": "baz",
+    "foo": "bar",
+  },
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent setRequestBody 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "data": Object {
+      "bar": "baz",
+      "foo": "bar",
+    },
+    "method": "POST",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent setTag 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "tags": Object {
+    "foo": "bar",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent setTags 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "tags": Object {
+    "bar": "baz",
+    "foo": "bar",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan FetchEvent setUser 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "method": "GET",
+    "url": "https://example.com/",
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+  "user": Object {
+    "email": "test@gmail.com",
+    "id": "testid",
+  },
+}
+`;
+
+exports[`Toucan ScheduledEvent capture message 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
+
+exports[`Toucan ScheduledEvent capture message 2`] = `"651b177fe1cb4ac89e15c1ecd2cb1d0a"`;
+
+exports[`Toucan ScheduledEvent setRequestBody 1`] = `
+Object {
+  "event_id": "651b177fe1cb4ac89e15c1ecd2cb1d0a",
+  "level": "info",
+  "logger": "EdgeWorker",
+  "message": "test",
+  "platform": "node",
+  "request": Object {
+    "data": Object {
+      "foo": "bar",
+    },
+  },
+  "sdk": Object {
+    "name": "__name__",
+    "version": "__version__",
+  },
+  "timestamp": 1586752837.868,
+}
+`;
