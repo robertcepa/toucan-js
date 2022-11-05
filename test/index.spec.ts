@@ -1,4 +1,3 @@
-//import { Miniflare } from 'miniflare';
 import Toucan from '../src/index';
 
 const VALID_DSN = 'https://123:456@testorg.ingest.sentry.io/123';
@@ -65,36 +64,6 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(0);
     });
 
-    test('invalid URL does not fail', async () => {
-      const context = new ExecutionContext();
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        request: { url: 'garbage?query%', headers: new Headers() } as Request,
-        beforeSend: (event) => event, // don't censor query string
-      });
-
-      toucan.captureMessage('test');
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(1);
-      console.log(await (waitUntilResults[0] as Response).json());
-
-      /** 
-      expect(payload?.request.url).toEqual('garbage');
-      expect(payload?.request.query_string).toEqual('query%');
-
-      // Expect POST request to Sentry
-      expect(global.fetch).toHaveBeenCalledTimes(1);
-      // Match POST request payload snap
-      expect(payload).toMatchSnapshot();
-      // captureMessage should have returned a generated eventId
-      expect(result).toMatchSnapshot();
-      */
-    });
-
     test('captureMessage', async () => {
       const context = new ExecutionContext();
 
@@ -109,40 +78,6 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(1);
       expect(await (waitUntilResults[0] as Response).json()).toMatchSnapshot();
-    });
-  });
-
-  describe('Service Worker format', () => {
-    describe('fetch event', () => {
-      test('example', () => {
-        expect(true).toBe(true);
-      });
-    });
-
-    describe('scheduled event', () => {
-      test('example', () => {
-        expect(true).toBe(true);
-      });
-    });
-  });
-
-  describe('Module Worker format', () => {
-    describe('fetch event', () => {
-      test('example', () => {
-        expect(true).toBe(true);
-      });
-    });
-
-    describe('scheduled event', () => {
-      test('example', () => {
-        expect(true).toBe(true);
-      });
-    });
-  });
-
-  describe('Durable Objects', () => {
-    test('example', () => {
-      expect(true).toBe(true);
     });
   });
 });
