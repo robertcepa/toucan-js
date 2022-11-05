@@ -11,14 +11,7 @@ import {
   Extras,
   Primitive,
 } from '@sentry/types';
-import {
-  Options,
-  OtherOptions,
-  Event,
-  Breadcrumb,
-  Level,
-  RewriteFrames,
-} from './types';
+import { Options, Event, Breadcrumb, Level, RewriteFrames } from './types';
 import { API } from '@sentry/core';
 import {
   isError,
@@ -27,7 +20,7 @@ import {
   normalizeToSize,
 } from '@sentry/utils';
 import { parse } from 'cookie';
-import { fromError } from 'stacktrace-js';
+import StackTrace from 'stacktrace-js';
 import { Scope } from './scope';
 import { hasTracingEnabled, isValidSampleRate } from './utils';
 
@@ -89,13 +82,10 @@ export default class Toucan {
       );
     }
 
-    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
-    if ('context' in options && options.context.request) {
+    if (options.context?.request) {
       this.request = this.toSentryRequest(options.context.request);
-    } else if ('request' in options && options.request) {
+    } else if (options.request) {
       this.request = this.toSentryRequest(options.request);
-    } else if ('event' in options && 'request' in options.event) {
-      this.request = this.toSentryRequest(options.event.request);
     }
 
     this.beforeSend = this.beforeSend.bind(this);
@@ -201,11 +191,8 @@ export default class Toucan {
 
     if (!event) return;
 
-    // This is to maintain backwards compatibility for 'event' option. When we remove it, all this complex logic can go away.
-    if ('context' in this.options) {
+    if (this.options.context) {
       this.options.context.waitUntil(this.reportException(event, exception));
-    } else if ('event' in this.options) {
-      this.options.event.waitUntil(this.reportException(event, exception));
     } else {
       // 'waitUntil' not provided -- this is probably called from within a Durable Object
       this.reportException(event, exception);
@@ -228,10 +215,8 @@ export default class Toucan {
 
     if (!event) return;
 
-    if ('context' in this.options) {
+    if (this.options.context) {
       this.options.context.waitUntil(this.reportMessage(event));
-    } else if ('event' in this.options) {
-      this.options.event.waitUntil(this.reportMessage(event));
     } else {
       // 'waitUntil' not provided -- this is probably called from within a Durable Object
       this.reportMessage(event);
@@ -345,8 +330,6 @@ export default class Toucan {
           ? this.options.tracesSampler({ request: this.request })
           : typeof this.options.tracesSampleRate === 'number'
           ? this.options.tracesSampleRate
-          : typeof this.options.sampleRate === 'number'
-          ? this.options.sampleRate
           : null;
 
       // Invalid sampling values result in skipped events, for parity with other Sentry SDKs.
@@ -628,7 +611,7 @@ export default class Toucan {
     }
 
     try {
-      const stack = await fromError(error);
+      const stack = await StackTrace.fromError(error);
 
       /**
        * sentry-cli and webpack-sentry-plugin upload the source-maps named by their path with a ~/ prefix.
@@ -749,4 +732,4 @@ export default class Toucan {
   }
 }
 
-export type { Breadcrumb, Level, Options, OtherOptions };
+export type { Breadcrumb, Level, Options };

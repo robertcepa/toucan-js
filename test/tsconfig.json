@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "types": ["@cloudflare/workers-types", "jest", "node"]
+    "types": ["@cloudflare/workers-types", "jest"]
   },
   "include": ["**/*"]
 }
