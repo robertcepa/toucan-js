@@ -22,5 +22,5 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Build & Test
+      - name: Build & Test & Lint
         run: yarn turbo run build test lint
