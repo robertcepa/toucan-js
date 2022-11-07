@@ -1,0 +1,17 @@
+{
+  "name": "jest-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "ts-jest": "29.0.3"
+  },
+  "peerDependencies": {
+    "jest": "29.2.1",
+    "miniflare": "2.11.0",
+    "jest-environment-miniflare": "2.10.0"
+  }
+}

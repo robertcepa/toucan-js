@@ -27,7 +27,7 @@ function createExceptionBodyMatcher(
     type: string;
     filenameMatcher?: jest.Expect['any'];
     abs_pathMatcher?: jest.Expect['any'];
-  }[]
+  }[],
 ) {
   return {
     ...MESSAGE_REQUEST_BODY_MATCHER,
@@ -49,7 +49,7 @@ function createExceptionBodyMatcher(
             type,
             value,
           });
-        })
+        }),
       ),
     }),
   };
@@ -277,7 +277,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
       expect(await requests[0].json()).toMatchSnapshot(
-        MESSAGE_REQUEST_BODY_MATCHER
+        MESSAGE_REQUEST_BODY_MATCHER,
       );
     });
   });
@@ -334,7 +334,7 @@ describe('Toucan', () => {
             value: 'Unexpected token a in JSON at position 0',
             type: 'SyntaxError',
           },
-        ])
+        ]),
       );
     });
 
@@ -362,7 +362,7 @@ describe('Toucan', () => {
         createExceptionBodyMatcher([
           { value: 'original error', type: 'Error' },
           { value: 'outer error with cause', type: 'Error' },
-        ])
+        ]),
       );
     });
 
@@ -388,7 +388,7 @@ describe('Toucan', () => {
             value: 'Non-Error exception captured with keys: bar, foo',
             type: 'Error',
           },
-        ])
+        ]),
       );
     });
 
@@ -426,7 +426,7 @@ describe('Toucan', () => {
             value: 'test',
             type: 'Error',
           },
-        ])
+        ]),
       );
       expect(await requests[1].json()).toMatchSnapshot(
         createExceptionBodyMatcher([
@@ -434,7 +434,7 @@ describe('Toucan', () => {
             value: 'true',
             type: 'Error',
           },
-        ])
+        ]),
       );
 
       expect(await requests[2].json()).toMatchSnapshot(
@@ -443,7 +443,7 @@ describe('Toucan', () => {
             value: '10',
             type: 'Error',
           },
-        ])
+        ]),
       );
     });
   });
@@ -682,7 +682,7 @@ describe('Toucan', () => {
             cookie: 'foo=bar; fo=bar; bar=baz',
           },
           body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
-        }
+        },
       );
 
       const toucan = new Toucan({
@@ -730,7 +730,7 @@ describe('Toucan', () => {
             cookie: 'foo=bar; fo=bar; bar=baz',
           },
           body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
-        }
+        },
       );
 
       const toucan = new Toucan({
