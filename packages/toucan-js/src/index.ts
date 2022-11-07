@@ -78,7 +78,7 @@ export default class Toucan {
       this.disabled = false;
 
       this.debug(() =>
-        this.log(`dsn parsed, full store endpoint: ${this.url}`)
+        this.log(`dsn parsed, full store endpoint: ${this.url}`),
       );
     }
 
@@ -294,8 +294,8 @@ export default class Toucan {
     this.debug(() => {
       this.log(
         `sending request to Sentry with headers: ${JSON.stringify(
-          headers
-        )} and body: ${body}`
+          headers,
+        )} and body: ${body}`,
       );
     });
 
@@ -336,7 +336,7 @@ export default class Toucan {
       // However, don't skip if
       if (!isValidSampleRate(sampleRate)) {
         this.debug(() =>
-          this.log(`skipping this event because of invalid sample rate.`)
+          this.log(`skipping this event because of invalid sample rate.`),
         );
         return;
       }
@@ -346,7 +346,7 @@ export default class Toucan {
       // When sampleRate is 1, the event will always be sent, because Math.random() cannot return 1.
       if (Math.random() >= Number(sampleRate)) {
         this.debug(() =>
-          this.log(`skipping this event (sampling rate ${Number(sampleRate)})`)
+          this.log(`skipping this event (sampling rate ${Number(sampleRate)})`),
         );
         return;
       }
@@ -477,14 +477,14 @@ export default class Toucan {
 
       if (allowedSearchParams) {
         const params = Object.fromEntries(
-          new URLSearchParams(request.query_string) as any
+          new URLSearchParams(request.query_string) as any,
         );
         const allowedParams = new URLSearchParams();
 
         Object.keys(this.applyAllowlist(params, allowedSearchParams)).forEach(
           (allowedKey) => {
             allowedParams.set(allowedKey, params[allowedKey]);
-          }
+          },
         );
 
         request.query_string = allowedParams.toString();
@@ -506,9 +506,9 @@ export default class Toucan {
    */
   private applyAllowlist(
     obj: Record<string, any> = {},
-    allowlist: string[] | RegExp
+    allowlist: string[] | RegExp,
   ) {
-    let predicate: (item: string) => boolean = (item) => false;
+    let predicate: (item: string) => boolean = () => false;
 
     if (allowlist instanceof RegExp) {
       predicate = (item: string) => allowlist.test(item);
@@ -519,8 +519,8 @@ export default class Toucan {
     } else {
       this.debug(() =>
         this.warn(
-          'allowlist must be an array of strings, or a regular expression.'
-        )
+          'allowlist must be an array of strings, or a regular expression.',
+        ),
       );
       return {};
     }
@@ -560,7 +560,7 @@ export default class Toucan {
    */
   private async reportException(
     event: Event,
-    maybeError: unknown
+    maybeError: unknown,
   ): Promise<Response> {
     let error: Error;
 
@@ -571,7 +571,7 @@ export default class Toucan {
       // which is much better than creating new group when any key/value change
 
       const message = `Non-Error exception captured with keys: ${extractExceptionKeysForMessage(
-        maybeError
+        maybeError,
       )}`;
 
       this.setExtra('__serialized__', normalizeToSize(maybeError as {}));
@@ -661,15 +661,15 @@ export default class Toucan {
     }
   }
 
-  private log(message: string) {
+  private log(message: unknown) {
     console.log(`toucan-js: ${message}`);
   }
 
-  private warn(message: string) {
+  private warn(message: unknown) {
     console.warn(`toucan-js: ${message}`);
   }
 
-  private error(message: string) {
+  private error(message: unknown) {
     console.error(`toucan-js: ${message}`);
   }
 

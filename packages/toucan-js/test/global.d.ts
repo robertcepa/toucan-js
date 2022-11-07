@@ -21,20 +21,20 @@ declare global {
   }
   function getMiniflareBindings<Bindings = Context>(): Bindings;
   function getMiniflareDurableObjectStorage(
-    id: DurableObjectId
+    id: DurableObjectId,
   ): Promise<DurableObjectStorage>;
   function getMiniflareDurableObjectState(
-    id: DurableObjectId
+    id: DurableObjectId,
   ): Promise<DurableObjectState>;
   function runWithMiniflareDurableObjectGates<T>(
     state: DurableObjectState,
-    closure: () => Awaitable<T>
+    closure: () => Awaitable<T>,
   ): Promise<T>;
   function getMiniflareFetchMock(): MockAgent;
   function getMiniflareWaitUntil<WaitUntil extends any[] = unknown[]>(
-    event: FetchEvent | ScheduledEvent | ExecutionContext
+    event: FetchEvent | ScheduledEvent | ExecutionContext,
   ): Promise<WaitUntil>;
   function flushMiniflareDurableObjectAlarms(
-    ids: DurableObjectId[]
+    ids: DurableObjectId[],
   ): Promise<void>;
 }
