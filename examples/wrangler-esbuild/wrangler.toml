@@ -1,0 +1,10 @@
+name = "wrangler-esbuild"
+main = "dist/index.js"
+compatibility_date = "2022-11-11"
+no_bundle = true
+
+[vars]
+SENTRY_DSN = ""
+
+[build]
+command = "node esbuild.config.js"

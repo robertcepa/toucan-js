@@ -1,5 +1,5 @@
 {
-  "name": "tsconfig",
+  "name": "config-typescript",
   "version": "0.0.0",
   "private": true,
   "license": "MIT",
@@ -8,5 +8,8 @@
   },
   "dependencies": {
     "@cloudflare/workers-types": "3.18.0"
+  },
+  "scripts": {
+    "lint": "eslint"
   }
 }

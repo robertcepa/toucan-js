@@ -1,0 +1,6 @@
+name = "wrangler-basic"
+main = "src/index.ts"
+compatibility_date = "2022-11-11"
+
+[vars]
+SENTRY_DSN = ""

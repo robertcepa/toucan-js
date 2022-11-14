@@ -1,5 +1,5 @@
-import Toucan, { Options } from '../src/index';
-import { jest as jestGlobal } from '@jest/globals';
+import type { Event, EventProcessor, Integration } from '@sentry/types';
+import { Toucan } from 'toucan-js';
 import {
   mockConsole,
   mockMathRandom,
@@ -9,13 +9,44 @@ import {
 
 const VALID_DSN = 'https://123:456@testorg.ingest.sentry.io/123';
 
+// This is the default buffer size
+const DEFAULT_BUFFER_SIZE = 30;
+
+const DEFAULT_INTEGRATIONS = ['RequestData', 'LinkedErrors'];
+
 /**
  * We don't care about exact values of pseudorandomized and time-related properties, as long as they match the type we accept them.
  */
-const MESSAGE_REQUEST_BODY_MATCHER = {
+const GENERIC_EVENT_BODY_MATCHER = {
   event_id: expect.any(String),
   timestamp: expect.any(Number),
+  sdk: expect.objectContaining({
+    integrations: DEFAULT_INTEGRATIONS,
+    name: 'toucan-js',
+    version: expect.any(String),
+    packages: expect.arrayContaining([
+      expect.objectContaining({
+        name: 'npm:toucan-js',
+        version: expect.any(String),
+      }),
+    ]),
+  }),
 } as const;
+
+const PARSED_ENVELOPE_MATCHER = [
+  expect.objectContaining({
+    event_id: expect.any(String),
+    sdk: expect.objectContaining({
+      name: 'toucan-js',
+      version: expect.any(String),
+    }),
+    sent_at: expect.any(String),
+  }),
+  expect.objectContaining({
+    type: 'event',
+  }),
+  expect.objectContaining(GENERIC_EVENT_BODY_MATCHER),
+];
 
 /**
  * Additionally for exceptions, we don't care about the actual values in stacktraces because they can change as we update this file.
@@ -23,33 +54,58 @@ const MESSAGE_REQUEST_BODY_MATCHER = {
  */
 function createExceptionBodyMatcher(
   errors: {
-    value: string;
-    type: string;
+    value: string | number | boolean;
+    type?: string;
     filenameMatcher?: jest.Expect['any'];
     abs_pathMatcher?: jest.Expect['any'];
+    synthetic?: boolean;
+    mechanism?: boolean;
   }[],
 ) {
   return {
-    ...MESSAGE_REQUEST_BODY_MATCHER,
+    ...GENERIC_EVENT_BODY_MATCHER,
     exception: expect.objectContaining({
       values: expect.arrayContaining(
-        errors.map(({ value, type, filenameMatcher, abs_pathMatcher }) => {
-          return expect.objectContaining({
-            stacktrace: expect.objectContaining({
-              frames: expect.arrayContaining([
-                expect.objectContaining({
-                  colno: expect.any(Number),
-                  filename: filenameMatcher ?? expect.any(String),
-                  function: expect.any(String),
-                  lineno: expect.any(Number),
-                  ...(abs_pathMatcher ? { abs_path: abs_pathMatcher } : {}),
-                }),
-              ]),
-            }),
-            type,
-            value,
-          });
-        }),
+        errors.map(
+          (
+            {
+              value,
+              type,
+              filenameMatcher,
+              abs_pathMatcher,
+              synthetic,
+              mechanism = true,
+            },
+            index,
+          ) => {
+            return expect.objectContaining({
+              ...(errors.length - 1 === index && mechanism
+                ? {
+                    mechanism: expect.objectContaining({
+                      handled: true,
+                      type: 'generic',
+                      ...(synthetic ? { synthetic: true } : {}),
+                    }),
+                  }
+                : {}),
+              stacktrace: expect.objectContaining({
+                frames: expect.arrayContaining([
+                  expect.objectContaining({
+                    colno: expect.any(Number),
+                    filename: filenameMatcher ?? expect.any(String),
+                    function: expect.any(String),
+                    in_app: expect.any(Boolean),
+                    module: expect.any(String),
+                    lineno: expect.any(Number),
+                    abs_path: abs_pathMatcher ?? expect.any(String),
+                  }),
+                ]),
+              }),
+              ...(type !== undefined ? { type } : {}),
+              value,
+            });
+          },
+        ),
       ),
     }),
   };
@@ -58,6 +114,8 @@ function createExceptionBodyMatcher(
 type MockRequestInfo = {
   text: () => Promise<string>;
   json: () => Promise<Record<string, any>>;
+  parseEnvelope: () => Promise<Record<string, any>[]>; // All items in Envelope (https://develop.sentry.dev/sdk/envelopes/)
+  envelopePayload: () => Promise<Record<string, any>>; // Last item in Envelope (https://develop.sentry.dev/sdk/envelopes/)
   headers: Record<string, string>;
   method: string;
   origin: string;
@@ -82,23 +140,42 @@ describe('Toucan', () => {
     origin
       .intercept({
         method: () => true,
-        path: () => true,
+        path: (path) => path.includes('/envelope/'),
       })
       .reply(200, (opts) => {
         // Hack around https://github.com/nodejs/undici/issues/1756
         // Once fixed, we can simply return opts.body and read it from mock Response body
 
+        let bodyText: string | undefined;
+
         const text = async () => {
+          if (bodyText) return bodyText;
+
           const buffers = [];
           for await (const data of opts.body) {
             buffers.push(data);
           }
-          return Buffer.concat(buffers).toString('utf8');
+          bodyText = Buffer.concat(buffers).toString('utf8');
+
+          return bodyText;
+        };
+
+        const parseEnvelope = async () => {
+          return (await text())
+            .split('\n')
+            .map((jsonLine) => JSON.parse(jsonLine));
         };
 
         requests.push({
           text,
-          json: async () => JSON.parse(await text()),
+          json: async () => {
+            return JSON.parse(await text());
+          },
+          parseEnvelope,
+          envelopePayload: async () => {
+            const envelope = await parseEnvelope();
+            return envelope[envelope.length - 1];
+          },
           headers: opts.headers as Record<string, string>,
           method: opts.method,
           origin: opts.origin,
@@ -121,7 +198,7 @@ describe('Toucan', () => {
     resetConsole();
   });
 
-  describe('general options', () => {
+  describe('general', () => {
     test('disabled mode', async () => {
       const toucan = new Toucan({
         dsn: '',
@@ -159,7 +236,9 @@ describe('Toucan', () => {
         dsn: VALID_DSN,
         context,
         request: { url: 'garbage?query%', headers: new Headers() } as Request,
-        beforeSend: (event) => event, // don't censor query string
+        requestDataOptions: {
+          allowedSearchParams: new RegExp('.*'), // don't censor query string
+        },
       });
 
       toucan.captureMessage('test');
@@ -169,12 +248,9 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
-      expect(requestBody.request.url).toEqual('garbage');
-      expect(requestBody.request.query_string).toEqual('query%');
-
-      expect(requestBody).toMatchSnapshot(MESSAGE_REQUEST_BODY_MATCHER);
+      expect(requestBody).toMatchSnapshot(GENERIC_EVENT_BODY_MATCHER);
     });
 
     test('pass custom headers in transportOptions', async () => {
@@ -197,39 +273,18 @@ describe('Toucan', () => {
       expect(requests[0].headers['x-custom-header']).toEqual('1');
     });
 
-    test('debug disabled', async () => {
-      const spy = jestGlobal.spyOn(Toucan.prototype as any, 'logResponse');
-
+    test('unhandled exception in SDK options does not explode the worker', async () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        debug: false,
+        beforeSend: (event) => {
+          // intentionally do something unintentional
+          JSON.parse('not json');
+          return event;
+        },
       });
 
-      toucan.captureMessage('test');
-
-      await getMiniflareWaitUntil(context);
-
-      expect(console.log).toHaveBeenCalledTimes(0);
-      expect(spy).toHaveBeenCalledTimes(0);
-    });
-
-    test('debug enabled', async () => {
-      const spy = jestGlobal.spyOn(Toucan.prototype as any, 'logResponse');
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        debug: true,
-      });
-
-      toucan.captureMessage('test');
-
-      await getMiniflareWaitUntil(context);
-
-      // Expect 1000 POST requests to Sentry
-      expect(console.log).toHaveBeenCalledTimes(4);
-      expect(spy).toHaveBeenCalledTimes(1);
+      expect(() => toucan.captureMessage('test')).not.toThrowError();
     });
   });
 
@@ -276,9 +331,12 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
-      expect(await requests[0].json()).toMatchSnapshot(
-        MESSAGE_REQUEST_BODY_MATCHER,
-      );
+
+      // Must store in {result: Matcher} because Matchers don't work with arrays
+      // https://github.com/facebook/jest/issues/9079
+      expect({ result: await requests[0].parseEnvelope() }).toMatchSnapshot({
+        result: expect.arrayContaining(PARSED_ENVELOPE_MATCHER),
+      });
     });
   });
 
@@ -328,7 +386,7 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
-      expect(await requests[0].json()).toMatchSnapshot(
+      expect(await requests[0].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           {
             value: 'Unexpected token a in JSON at position 0',
@@ -358,7 +416,7 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
-      expect(await requests[0].json()).toMatchSnapshot(
+      expect(await requests[0].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           { value: 'original error', type: 'Error' },
           { value: 'outer error with cause', type: 'Error' },
@@ -382,11 +440,12 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
-      expect(await requests[0].json()).toMatchSnapshot(
+      expect(await requests[0].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           {
             value: 'Non-Error exception captured with keys: bar, foo',
             type: 'Error',
+            synthetic: true,
           },
         ]),
       );
@@ -420,28 +479,31 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(3);
       expect(requests.length).toBe(3);
-      expect(await requests[0].json()).toMatchSnapshot(
+      expect(await requests[0].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           {
             value: 'test',
             type: 'Error',
+            synthetic: true,
           },
         ]),
       );
-      expect(await requests[1].json()).toMatchSnapshot(
+      expect(await requests[1].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           {
-            value: 'true',
+            value: true,
             type: 'Error',
+            synthetic: true,
           },
         ]),
       );
 
-      expect(await requests[2].json()).toMatchSnapshot(
+      expect(await requests[2].envelopePayload()).toMatchSnapshot(
         createExceptionBodyMatcher([
           {
-            value: '10',
+            value: 10,
             type: 'Error',
+            synthetic: true,
           },
         ]),
       );
@@ -465,7 +527,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       // Should have sent only 100 last breadcrums (100 is default)
       expect(requestBody.breadcrumbs.length).toBe(100);
@@ -490,7 +552,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       // Should have sent only 20 last breadcrums
       expect(requestBody.breadcrumbs.length).toBe(20);
@@ -514,7 +576,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.user).toEqual({
         id: 'testid',
@@ -538,7 +600,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.tags).toEqual({
         foo: 'bar',
@@ -559,7 +621,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.tags).toEqual({ foo: 'bar', bar: 'baz' });
     });
@@ -580,7 +642,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.extra).toEqual({
         foo: 'bar',
@@ -601,7 +663,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.extra).toEqual({ foo: 'bar', bar: 'baz' });
     });
@@ -627,7 +689,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.request).toEqual({
         method: 'POST',
@@ -637,6 +699,7 @@ describe('Toucan', () => {
       expect(requestBody.request.data).toBeUndefined();
       expect(requestBody.request.headers).toBeUndefined();
       expect(requestBody.request.query_string).toBeUndefined();
+      expect(requestBody.user).toBeUndefined();
     });
 
     test('request body captured after setRequestBody call', async () => {
@@ -659,7 +722,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.request).toEqual({
         data: { foo: 'bar' },
@@ -680,6 +743,7 @@ describe('Toucan', () => {
             'User-Agent':
               'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0',
             cookie: 'foo=bar; fo=bar; bar=baz',
+            'CF-Connecting-Ip': '255.255.255.255',
           },
           body: JSON.stringify({ foo: 'bar', bar: 'baz' }),
         },
@@ -689,9 +753,12 @@ describe('Toucan', () => {
         dsn: VALID_DSN,
         context,
         request,
-        allowedCookies: /^fo/,
-        allowedHeaders: ['user-agent', 'X-Foo'],
-        allowedSearchParams: ['foo', 'bar'],
+        requestDataOptions: {
+          allowedCookies: /^fo/,
+          allowedHeaders: ['user-agent', 'X-Foo'],
+          allowedSearchParams: ['foo', 'bar'],
+          allowedIps: true,
+        },
       });
 
       toucan.captureMessage('test');
@@ -701,7 +768,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.request).toEqual({
         cookies: { fo: 'bar', foo: 'bar' },
@@ -714,6 +781,7 @@ describe('Toucan', () => {
         query_string: 'foo=bar&bar=baz',
         url: 'https://example.com/',
       });
+      expect(requestBody.user).toEqual({ ip_address: '255.255.255.255' });
     });
 
     test('beforeSend runs after allowlists and setRequestBody', async () => {
@@ -736,9 +804,12 @@ describe('Toucan', () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        allowedCookies: /^fo/,
-        allowedHeaders: ['user-agent', 'X-Foo'],
-        allowedSearchParams: ['foo', 'bar'],
+        request,
+        requestDataOptions: {
+          allowedCookies: /^fo/,
+          allowedHeaders: ['user-agent', 'X-Foo'],
+          allowedSearchParams: ['foo', 'bar'],
+        },
         // beforeSend is provided - allowlists above should be ignored.
         beforeSend: (event) => {
           delete event.request?.cookies;
@@ -761,114 +832,43 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.request).toEqual({
         headers: {
           'X-Foo': 'Bar',
         },
+        method: 'POST',
+        url: 'https://example.com/',
       });
     });
   });
 
-  describe('stack traces', () => {
-    test('attachStacktrace = false prevents sending stack traces', async () => {
+  describe('stacktraces', () => {
+    test('attachStacktrace = true sends stacktrace with captureMessage', async () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        attachStacktrace: false,
+        attachStacktrace: true,
       });
 
-      try {
-        throw new Error('test');
-      } catch (e) {
-        toucan.captureException(e);
-      }
+      toucan.captureMessage('message with stacktrace');
 
       const waitUntilResults = await getMiniflareWaitUntil(context);
 
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
-      expect(requestBody.exception).toEqual({
-        values: [
+      const requestBody = await requests[0].envelopePayload();
+
+      expect(requestBody).toMatchSnapshot(
+        createExceptionBodyMatcher([
           {
-            type: 'Error',
-            value: 'test',
+            value: 'message with stacktrace',
+            mechanism: false,
           },
-        ],
-      });
-    });
-
-    test('rewriteFrames add root to filenames in stacktrace', async () => {
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        rewriteFrames: { root: '/my-custom-root' },
-      });
-
-      try {
-        throw new Error('test');
-      } catch (e) {
-        toucan.captureException(e);
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(1);
-      expect(requests.length).toBe(1);
-
-      const requestBody = await requests[0].json();
-
-      const matcher = createExceptionBodyMatcher([
-        {
-          value: 'test',
-          type: 'Error',
-          filenameMatcher: expect.stringContaining('/my-custom-root'),
-        },
-      ]);
-
-      expect(requestBody.exception).toEqual(matcher.exception);
-    });
-
-    test('rewriteFrames customize frames with iteratee', async () => {
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        rewriteFrames: {
-          iteratee: (frame) => {
-            frame.filename = `/dist/${frame.filename}`;
-            frame.abs_path = `/usr/bin/${frame.filename}`;
-
-            return frame;
-          },
-        },
-      });
-
-      try {
-        throw new Error('test');
-      } catch (e) {
-        toucan.captureException(e);
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(1);
-      expect(requests.length).toBe(1);
-
-      const requestBody = await requests[0].json();
-
-      const matcher = createExceptionBodyMatcher([
-        {
-          value: 'test',
-          type: 'Error',
-          filenameMatcher: expect.stringContaining('/dist'),
-          abs_pathMatcher: expect.stringContaining('/usr/bin'),
-        },
-      ]);
-
-      expect(requestBody.exception).toEqual(matcher.exception);
+        ]),
+      );
     });
   });
 
@@ -879,8 +879,9 @@ describe('Toucan', () => {
         context,
       });
 
-      toucan.setFingerprint(['{{ default }}', 'https://example.com']);
-
+      toucan.configureScope((scope) =>
+        scope.setFingerprint(['{{ default }}', 'https://example.com']),
+      );
       toucan.captureMessage('test');
 
       const waitUntilResults = await getMiniflareWaitUntil(context);
@@ -888,7 +889,7 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(1);
       expect(requests.length).toBe(1);
 
-      const requestBody = await requests[0].json();
+      const requestBody = await requests[0].envelopePayload();
 
       expect(requestBody.fingerprint).toEqual([
         '{{ default }}',
@@ -898,11 +899,11 @@ describe('Toucan', () => {
   });
 
   describe('sampling', () => {
-    test('tracesSampleRate = 0 should send 0% of events', async () => {
+    test('sampleRate = 0 should send 0% of events', async () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        tracesSampleRate: 0,
+        sampleRate: 0,
       });
 
       for (let i = 0; i < 1000; i++) {
@@ -915,31 +916,31 @@ describe('Toucan', () => {
       expect(requests.length).toBe(0);
     });
 
-    test('tracesSampleRate = 1 should send 100% of events', async () => {
+    test('sampleRate = 1 should send 100% of events', async () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        tracesSampleRate: 1,
+        sampleRate: 1,
       });
 
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < DEFAULT_BUFFER_SIZE; i++) {
         toucan.captureMessage('test');
       }
 
       const waitUntilResults = await getMiniflareWaitUntil(context);
 
-      expect(waitUntilResults.length).toBe(1000);
-      expect(requests.length).toBe(1000);
+      expect(waitUntilResults.length).toBe(DEFAULT_BUFFER_SIZE);
+      expect(requests.length).toBe(DEFAULT_BUFFER_SIZE);
     });
 
-    test('tracesSampleRate = 0.5 should send 50% of events', async () => {
+    test('sampleRate = 0.5 should send 50% of events', async () => {
       // Make Math.random always return 0, 0.9, 0, 0.9 ...
       mockMathRandom([0, 0.9]);
 
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        tracesSampleRate: 0.5,
+        sampleRate: 0.5,
       });
 
       for (let i = 0; i < 10; i++) {
@@ -954,36 +955,14 @@ describe('Toucan', () => {
       resetMathRandom();
     });
 
-    test('tracesSampleRate set to invalid value results in skipped event', async () => {
+    test('sampleRate set to invalid value does not explode the SDK', async () => {
       mockMathRandom([0, 0.9]);
 
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
         // @ts-expect-error Testing invalid runtime value
-        tracesSampleRate: 'hello',
-      });
-
-      for (let i = 0; i < 10; i++) {
-        toucan.captureMessage('test');
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(0);
-      expect(requests.length).toBe(0);
-
-      resetMathRandom();
-    });
-
-    test('tracesSampler evaluates to true, should send all events', async () => {
-      // Make Math.random always return 0.999 to increase likelihood of event getting sampled
-      mockMathRandom([0.99]);
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        tracesSampler: () => true,
+        sampleRate: 'hello',
       });
 
       for (let i = 0; i < 10; i++) {
@@ -994,133 +973,6 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(10);
       expect(requests.length).toBe(10);
-
-      resetMathRandom();
-    });
-
-    test('tracesSampler evaluates to false, should skip all events', async () => {
-      // Make Math.random always return 0 to eliminate likelihood of event getting sampled
-      mockMathRandom([0]);
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        tracesSampler: () => false,
-      });
-
-      for (let i = 0; i < 10; i++) {
-        toucan.captureMessage('test');
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(0);
-      expect(requests.length).toBe(0);
-
-      resetMathRandom();
-    });
-
-    test('tracesSampler evaluates to 0.5, should send 50% of events', async () => {
-      mockMathRandom([0, 0.9]);
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        tracesSampler: () => 0.5,
-      });
-
-      for (let i = 0; i < 1000; i++) {
-        toucan.captureMessage('test');
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(500);
-      expect(requests.length).toBe(500);
-
-      resetMathRandom();
-    });
-
-    test('tracesSampler uses properly built samplingContext. Should send 50% of events for requests from https://eyeball.com origin, else skips all events', async () => {
-      mockMathRandom([0, 0.9]);
-
-      const options: Options = {
-        dsn: VALID_DSN,
-        allowedHeaders: ['origin'],
-        tracesSampler: (samplingContext) => {
-          console.log(samplingContext);
-          if (
-            samplingContext.request?.headers?.['origin'] ===
-            'https://eyeball.com'
-          ) {
-            return 0.5;
-          } else {
-            return false;
-          }
-        },
-      };
-
-      const ec1 = new ExecutionContext();
-      const toucan1 = new Toucan({
-        ...options,
-        context: ec1,
-        request: new Request('https://worker-route.com/', {
-          headers: { origin: 'https://eyeball.com' },
-        }),
-      });
-
-      for (let i = 0; i < 10; i++) {
-        toucan1.captureMessage('test');
-      }
-
-      const waitUntilResults1 = await getMiniflareWaitUntil(ec1);
-
-      // Expect 5 POST requests to Sentry, because origin matches (50% sampling)
-      expect(waitUntilResults1.length).toBe(5);
-      expect(requests.length).toBe(5);
-
-      const ec2 = new ExecutionContext();
-      const toucan2 = new Toucan({
-        ...options,
-        context: ec2,
-        request: new Request('https://worker-route.com/', {
-          headers: { origin: 'https://eyeball2.com' },
-        }),
-      });
-
-      for (let i = 0; i < 10; i++) {
-        toucan2.captureMessage('test');
-      }
-
-      const waitUntilResults2 = await getMiniflareWaitUntil(ec2);
-
-      // Expect no new requests to Sentry, because origin changed (0% sampling)
-      expect(waitUntilResults2.length).toBe(0);
-      expect(requests.length).toBe(5);
-
-      resetMathRandom();
-    });
-
-    test('tracesSampler returning invalid value results in skipped event', async () => {
-      mockMathRandom([0, 0.9]);
-
-      const toucan = new Toucan({
-        dsn: VALID_DSN,
-        context,
-        // @ts-expect-error Testing invalid runtime value for JavaScript
-        tracesSampler: (samplingContext) => {
-          return 'hello';
-        },
-      });
-
-      for (let i = 0; i < 10; i++) {
-        toucan.captureMessage('test');
-      }
-
-      const waitUntilResults = await getMiniflareWaitUntil(context);
-
-      expect(waitUntilResults.length).toBe(0);
-      expect(requests.length).toBe(0);
 
       resetMathRandom();
     });
@@ -1162,18 +1014,136 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(4);
       expect(requests.length).toBe(4);
 
-      expect(await requests[0].json()).toMatchObject({
+      expect(await requests[0].envelopePayload()).toMatchObject({
         extra: { foo: 'bar', bar: 'baz' },
       });
-      expect(await requests[1].json()).toMatchObject({
+      expect(await requests[1].envelopePayload()).toMatchObject({
         extra: { foo: 'bar', bar: 'baz', baz: 'bam' },
       });
-      expect(await requests[2].json()).toMatchObject({
+      expect(await requests[2].envelopePayload()).toMatchObject({
         extra: { foo: 'bar', bar: 'baz' },
       });
-      expect(await requests[3].json()).toMatchObject({
+      expect(await requests[3].envelopePayload()).toMatchObject({
         extra: { foo: 'bar' },
       });
+    });
+  });
+
+  describe('integrations', () => {
+    class MessageScrubber implements Integration {
+      public static id = 'MessageScrubber';
+
+      public readonly name: string = MessageScrubber.id;
+
+      private scrubMessage: string;
+
+      public constructor(scrubMessage: string) {
+        this.scrubMessage = scrubMessage;
+      }
+
+      public setupOnce(
+        addGlobalEventProcessor: (eventProcessor: EventProcessor) => void,
+        getCurrentHub: () => Toucan,
+      ): void {
+        const client = getCurrentHub().getClient();
+
+        if (!client) {
+          return;
+        }
+
+        addGlobalEventProcessor((event: Event) => {
+          const self = getCurrentHub().getIntegration(MessageScrubber);
+
+          if (!self) {
+            return event;
+          }
+
+          event.message = this.scrubMessage;
+
+          return event;
+        });
+      }
+    }
+
+    test('empty custom integrations do not delete default integrations', async () => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        context,
+        integrations: [],
+      });
+
+      toucan.captureMessage('test');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(1);
+      expect(requests.length).toBe(1);
+
+      const requestBody = await requests[0].envelopePayload();
+
+      expect(requestBody.sdk.integrations).toEqual(DEFAULT_INTEGRATIONS);
+    });
+
+    test('custom integrations merge with default integrations', async () => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        context,
+        integrations: [new MessageScrubber('[redacted]')],
+      });
+
+      toucan.captureMessage('test');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(1);
+      expect(requests.length).toBe(1);
+
+      const requestBody = await requests[0].envelopePayload();
+
+      expect(requestBody.sdk.integrations).toEqual([
+        ...DEFAULT_INTEGRATIONS,
+        'MessageScrubber',
+      ]);
+      expect(requestBody.message).toBe('[redacted]');
+    });
+
+    test('integrations do not use globals', async () => {
+      const toucan1 = new Toucan({
+        dsn: VALID_DSN,
+        context,
+        integrations: [new MessageScrubber('[redacted-1]')],
+      });
+
+      toucan1.captureMessage('test');
+
+      const toucan2 = new Toucan({
+        dsn: VALID_DSN,
+        context,
+        integrations: [new MessageScrubber('[redacted-2]')],
+      });
+
+      toucan2.captureMessage('test');
+
+      toucan1.captureMessage('test');
+      toucan2.captureMessage('test');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(4);
+      expect(requests.length).toBe(4);
+
+      expect((await requests[0].envelopePayload()).message).toBe(
+        '[redacted-1]',
+      );
+      expect((await requests[1].envelopePayload()).message).toBe(
+        '[redacted-2]',
+      );
+      expect((await requests[2].envelopePayload()).message).toBe(
+        '[redacted-1]',
+      );
+      expect((await requests[3].envelopePayload()).message).toBe(
+        '[redacted-2]',
+      );
     });
   });
 });

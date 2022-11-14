@@ -1,0 +1,5 @@
+{
+  "extends": "config-typescript/workers-app.json",
+  "include": ["."],
+  "exclude": ["dist", "node_modules"]
+}

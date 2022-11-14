@@ -1,7 +1,7 @@
-import typescript from 'rollup-plugin-typescript2';
-import replace from '@rollup/plugin-replace';
+const replace = require('@rollup/plugin-replace');
+const typescript = require('rollup-plugin-typescript2');
 
-import pkg from './package.json';
+const pkg = require('./package.json');
 
 const makeExternalPredicate = (externalArr) => {
   if (externalArr.length === 0) {
@@ -11,7 +11,7 @@ const makeExternalPredicate = (externalArr) => {
   return (id) => pattern.test(id);
 };
 
-export default [
+module.exports = [
   // CommonJS (for Node) and ES module (for bundlers) build.
   {
     input: 'src/index.ts',

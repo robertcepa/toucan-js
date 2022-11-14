@@ -1,0 +1,23 @@
+{
+  "name": "wrangler-webpack",
+  "version": "1.0.0",
+  "dependencies": {
+    "toucan-js": "^2.7.0"
+  },
+  "devDependencies": {
+    "wrangler": "2.5.0",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.0",
+    "@sentry/webpack-plugin": "^1.20.0",
+    "ts-loader": "^9.4.2",
+    "config-typescript": "*",
+    "eslint-config-base": "*"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev --experimental-local",
+    "deploy": "wrangler publish",
+    "build": "wrangler publish --dry-run",
+    "lint": "eslint src"
+  }
+}

@@ -1,0 +1,10 @@
+name = "wrangler-vite"
+main = "dist/index.mjs"
+compatibility_date = "2022-11-11"
+no_bundle = true
+
+[vars]
+SENTRY_DSN = ""
+
+[build]
+command = "yarn vite build"

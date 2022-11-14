@@ -14,10 +14,11 @@
     "release": "turbo run build test lint && yarn changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.22.0",
-    "prettier": "2.7.1",
-    "turbo": "latest",
-    "typescript": "4.8.4"
+    "@changesets/cli": "^2.25.2",
+    "prettier": "^2.8.0",
+    "prettier-plugin-organize-imports": "^3.2.0",
+    "turbo": "^1.6.3",
+    "typescript": "4.9.3"
   },
   "engines": {
     "node": ">=16.18"

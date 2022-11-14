@@ -2,6 +2,7 @@
 
 exports[`Toucan captureException Error with cause 1`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
@@ -9,10 +10,13 @@ exports[`Toucan captureException Error with cause 1`] = `
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
@@ -20,13 +24,20 @@ exports[`Toucan captureException Error with cause 1`] = `
         "value": "original error",
       },
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
@@ -35,12 +46,20 @@ exports[`Toucan captureException Error with cause 1`] = `
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -48,17 +67,26 @@ exports[`Toucan captureException Error with cause 1`] = `
 
 exports[`Toucan captureException captureException: primitive 1`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "synthetic": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
@@ -67,12 +95,20 @@ exports[`Toucan captureException captureException: primitive 1`] = `
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -80,31 +116,48 @@ exports[`Toucan captureException captureException: primitive 1`] = `
 
 exports[`Toucan captureException captureException: primitive 2`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "synthetic": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
         "type": "Error",
-        "value": "true",
+        "value": true,
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -112,31 +165,48 @@ exports[`Toucan captureException captureException: primitive 2`] = `
 
 exports[`Toucan captureException captureException: primitive 3`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "synthetic": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
         "type": "Error",
-        "value": "10",
+        "value": 10,
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -144,17 +214,26 @@ exports[`Toucan captureException captureException: primitive 3`] = `
 
 exports[`Toucan captureException object 1`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "synthetic": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
@@ -163,12 +242,26 @@ exports[`Toucan captureException object 1`] = `
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "extra": {
+    "__serialized__": {
+      "bar": "baz",
+      "foo": "test",
+    },
+  },
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -176,17 +269,25 @@ exports[`Toucan captureException object 1`] = `
 
 exports[`Toucan captureException runtime thrown Error 1`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
     "values": ArrayContaining [
       ObjectContaining {
+        "mechanism": ObjectContaining {
+          "handled": true,
+          "type": "generic",
+        },
         "stacktrace": ObjectContaining {
           "frames": ArrayContaining [
             ObjectContaining {
+              "abs_path": Any<String>,
               "colno": Any<Number>,
               "filename": Any<String>,
               "function": Any<String>,
+              "in_app": Any<Boolean>,
               "lineno": Any<Number>,
+              "module": Any<String>,
             },
           ],
         },
@@ -195,12 +296,20 @@ exports[`Toucan captureException runtime thrown Error 1`] = `
       },
     ],
   },
-  "level": "error",
-  "logger": "EdgeWorker",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
@@ -208,34 +317,105 @@ exports[`Toucan captureException runtime thrown Error 1`] = `
 
 exports[`Toucan captureMessage sends correct body to Sentry 1`] = `
 {
+  "result": ArrayContaining [
+    ObjectContaining {
+      "event_id": Any<String>,
+      "sdk": ObjectContaining {
+        "name": "toucan-js",
+        "version": Any<String>,
+      },
+      "sent_at": Any<String>,
+    },
+    ObjectContaining {
+      "type": "event",
+    },
+    ObjectContaining {
+      "event_id": Any<String>,
+      "sdk": ObjectContaining {
+        "integrations": [
+          "RequestData",
+          "LinkedErrors",
+        ],
+        "name": "toucan-js",
+        "packages": ArrayContaining [
+          ObjectContaining {
+            "name": "npm:toucan-js",
+            "version": Any<String>,
+          },
+        ],
+        "version": Any<String>,
+      },
+      "timestamp": Any<Number>,
+    },
+  ],
+}
+`;
+
+exports[`Toucan general invalid URL does not fail 1`] = `
+{
+  "environment": "production",
   "event_id": Any<String>,
   "level": "info",
-  "logger": "EdgeWorker",
   "message": "test",
-  "platform": "node",
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }
 `;
 
-exports[`Toucan general options invalid URL does not fail 1`] = `
+exports[`Toucan stacktraces attachStacktrace = true sends stacktrace with captureMessage 1`] = `
 {
+  "environment": "production",
   "event_id": Any<String>,
-  "level": "info",
-  "logger": "EdgeWorker",
-  "message": "test",
-  "platform": "node",
-  "request": {
-    "headers": {},
-    "query_string": "query%",
-    "url": "garbage",
+  "exception": ObjectContaining {
+    "values": ArrayContaining [
+      ObjectContaining {
+        "stacktrace": ObjectContaining {
+          "frames": ArrayContaining [
+            ObjectContaining {
+              "abs_path": Any<String>,
+              "colno": Any<Number>,
+              "filename": Any<String>,
+              "function": Any<String>,
+              "in_app": Any<Boolean>,
+              "lineno": Any<Number>,
+              "module": Any<String>,
+            },
+          ],
+        },
+        "value": "message with stacktrace",
+      },
+    ],
   },
-  "sdk": {
-    "name": "__name__",
-    "version": "__version__",
+  "level": "info",
+  "message": "message with stacktrace",
+  "platform": "javascript",
+  "sdk": ObjectContaining {
+    "integrations": [
+      "RequestData",
+      "LinkedErrors",
+    ],
+    "name": "toucan-js",
+    "packages": ArrayContaining [
+      ObjectContaining {
+        "name": "npm:toucan-js",
+        "version": Any<String>,
+      },
+    ],
+    "version": Any<String>,
   },
   "timestamp": Any<Number>,
 }

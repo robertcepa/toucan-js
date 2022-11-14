@@ -1,5 +1,5 @@
 {
-  "extends": "tsconfig/workers-library.json",
+  "extends": "config-typescript/workers-library.json",
   "include": ["."],
   "exclude": ["dist", "node_modules"]
 }

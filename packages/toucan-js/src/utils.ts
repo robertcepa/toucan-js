@@ -1,32 +1,53 @@
-import { Options } from './types';
+import type { Mechanism } from '@sentry/types';
+import { GLOBAL_OBJ } from '@sentry/utils';
 
-/**
- * Checks the given sample rate to make sure it is valid type and value (a boolean, or a number between 0 and 1).
- */
-export function isValidSampleRate(rate: unknown): rate is number | boolean {
-  // we need to check NaN explicitly because it's of type 'number' and therefore wouldn't get caught by this typecheck
-  if (
-    !((typeof rate === 'number' && !isNaN(rate)) || typeof rate === 'boolean')
-  ) {
-    return false;
-  }
+export function isObject(value: unknown): value is object {
+  return typeof value === 'object' && value !== null;
+}
 
-  // in case sampleRate is a boolean, it will get automatically cast to 1 if it's true and 0 if it's false
-  if (rate < 0 || rate > 1) {
-    return false;
-  }
-  return true;
+export function isMechanism(value: unknown): value is Mechanism {
+  return (
+    isObject(value) &&
+    'handled' in value &&
+    typeof value.handled === 'boolean' &&
+    'type' in value &&
+    typeof value.type === 'string'
+  );
+}
+
+export function containsMechanism(
+  value: unknown,
+): value is { mechanism: Mechanism } {
+  return (
+    isObject(value) && 'mechanism' in value && isMechanism(value['mechanism'])
+  );
 }
 
 /**
- * Determines if tracing is currently enabled.
- *
- * Tracing is enabled when at least one of `tracesSampleRate` and `tracesSampler` is defined in the SDK config.
+ * Tries to find release in a global
  */
-export function hasTracingEnabled(options: Options): boolean {
-  return (
-    'sampleRate' in options ||
-    'tracesSampleRate' in options ||
-    'tracesSampler' in options
-  );
+export function getSentryRelease(): string | undefined {
+  // Most of the plugins from https://docs.sentry.io/platforms/javascript/sourcemaps/uploading/ inject SENTRY_RELEASE global to the bundle
+  if (GLOBAL_OBJ.SENTRY_RELEASE && GLOBAL_OBJ.SENTRY_RELEASE.id) {
+    return GLOBAL_OBJ.SENTRY_RELEASE.id;
+  }
+}
+
+/**
+ * Creates an entry on existing object and returns it, or creates a new object with the entry if it doesn't exist.
+ *
+ * @param target
+ * @param entry
+ * @returns Object with new entry.
+ */
+export function setOnOptional<
+  Target extends { [key: string | number | symbol]: unknown },
+  Key extends keyof Target,
+>(target: Target | undefined, entry: [Key, Target[Key]]): Target {
+  if (target !== undefined) {
+    target[entry[0]] = entry[1];
+    return target;
+  } else {
+    return { [entry[0]]: entry[1] } as Target;
+  }
 }
