@@ -1,0 +1,21 @@
+{
+  "name": "wrangler-vite",
+  "version": "1.0.0",
+  "dependencies": {
+    "toucan-js": "^2.7.0"
+  },
+  "devDependencies": {
+    "wrangler": "2.5.0",
+    "config-typescript": "*",
+    "eslint-config-base": "*",
+    "vite": "^3.2.5",
+    "@sentry/vite-plugin": "^0.2.3"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev --experimental-local",
+    "deploy": "wrangler publish",
+    "build": "wrangler publish --dry-run",
+    "lint": "eslint src"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "wrangler-basic",
+  "version": "1.0.0",
+  "dependencies": {
+    "toucan-js": "^2.7.0"
+  },
+  "devDependencies": {
+    "wrangler": "2.5.0",
+    "config-typescript": "*",
+    "eslint-config-base": "*",
+    "@sentry/cli": "^2.9.0"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev --experimental-local",
+    "deploy": "wrangler publish && yarn create-sentry-release",
+    "build": "wrangler publish --dry-run --outdir=dist",
+    "create-sentry-release": "yarn sentry-cli releases new \"1.0.0\" --finalize && yarn sentry-cli releases files \"1.0.0\" upload-sourcemaps ./dist",
+    "lint": "eslint src"
+  }
+}

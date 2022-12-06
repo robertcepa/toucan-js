@@ -2,7 +2,7 @@
  * Taken from https://github.com/cloudflare/miniflare/blob/64e1b263371805d649afb22142e119bfaf473ba3/packages/shared-test-environment/src/globals.ts as a workaround for https://github.com/cloudflare/miniflare/issues/338
  */
 
-import { FetchEvent, ScheduledEvent, kWaitUntil } from '@miniflare/core';
+import { FetchEvent, kWaitUntil, ScheduledEvent } from '@miniflare/core';
 import {
   DurableObjectId,
   DurableObjectState,

@@ -1,0 +1,24 @@
+{
+  "name": "wrangler-rollup",
+  "version": "1.0.0",
+  "dependencies": {
+    "toucan-js": "^2.7.0"
+  },
+  "devDependencies": {
+    "wrangler": "2.5.0",
+    "config-typescript": "*",
+    "eslint-config-base": "*",
+    "rollup": "^3.5.1",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@sentry/rollup-plugin": "^0.2.3"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev --experimental-local",
+    "deploy": "wrangler publish && yarn create-sentry-release",
+    "build": "wrangler publish --dry-run",
+    "create-sentry-release": "yarn sentry-cli releases new \"1.0.0\" --finalize && yarn sentry-cli releases files \"1.0.0\" upload-sourcemaps ./dist",
+    "lint": "eslint src"
+  }
+}
