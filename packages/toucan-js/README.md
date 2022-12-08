@@ -28,7 +28,7 @@ This SDK provides all options and methods of [Hub](https://github.com/getsentry/
 
 ### Additional methods
 
-- `setRequestBody`: Attaches request body to future events.
+- `Toucan.setRequestBody(body: unknown): void`: Attaches request body to future events. `body` can be anything serializable.
 
 ## Integrations
 
