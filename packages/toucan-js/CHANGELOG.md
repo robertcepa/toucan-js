@@ -1,5 +1,11 @@
 # toucan-js
 
+## 3.1.0
+
+### Minor Changes
+
+- 5f6cea5: Update Sentry dependencies to 7.28.1
+
 ## 3.0.0
 
 ### Major Changes
