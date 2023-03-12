@@ -7,7 +7,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "ts-jest": "29.0.3"
+    "ts-jest": "29.0.5"
   },
   "peerDependencies": {
     "jest": "29.3.1",
