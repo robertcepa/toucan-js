@@ -7,7 +7,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@cloudflare/workers-types": "3.18.0"
+    "@cloudflare/workers-types": "3.19.0"
   },
   "scripts": {
     "lint": "eslint"
