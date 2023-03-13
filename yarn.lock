@@ -714,6 +714,11 @@
   resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-3.19.0.tgz#f3791b80b23f7cf0072f2e67e98aa37801204b6c"
   integrity sha512-0FRcsz7Ea3jT+gc5gKPIYciykm1bbAaTpygdzpCwGt0RL+V83zWnYN30NWDW4rIHj/FHtz+MIuBKS61C8l7AzQ==
 
+"@cloudflare/workers-types@^4.20221111.1":
+  version "4.20230307.0"
+  resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20230307.0.tgz#58a20fe167a5c48e20edba8e1fbfe4231bcfa223"
+  integrity sha512-Go968aDDcqONHQcUdgIiPRkPdT4QTzD0ecHJsI1u7ZiHPMOoZn+Dy7hYsdUJ5ldX9wTZDrICBM1rDKTRaDUitg==
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.npmjs.org/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz"
@@ -1360,23 +1365,24 @@
     "@miniflare/shared" "2.12.1"
     cron-schedule "^3.0.4"
 
-"@miniflare/shared-test-environment@2.10.0":
-  version "2.10.0"
-  resolved "https://registry.npmjs.org/@miniflare/shared-test-environment/-/shared-test-environment-2.10.0.tgz"
-  integrity sha512-xMTfvkSRSPL6a3/5VYM30AElI6dahp6gYzugzMOCvIBLbEXm4lPQSwba+0Cswj6weT1/rMuvhM9xfsSvpEK8qg==
+"@miniflare/shared-test-environment@2.12.1":
+  version "2.12.1"
+  resolved "https://registry.yarnpkg.com/@miniflare/shared-test-environment/-/shared-test-environment-2.12.1.tgz#d84e48c3238aa2e13b953ee0aac0df34abcf4348"
+  integrity sha512-9ZxtvzxK7jBNdzAOYhvjjvTk7tXgJyJNZF7HVvFlNuJ/bZXs3siiu2C5u2XqFc0YW+zWSwY+YxYEwa+xIOprSw==
   dependencies:
-    "@miniflare/cache" "2.10.0"
-    "@miniflare/core" "2.10.0"
-    "@miniflare/d1" "2.10.0"
-    "@miniflare/durable-objects" "2.10.0"
-    "@miniflare/html-rewriter" "2.10.0"
-    "@miniflare/kv" "2.10.0"
-    "@miniflare/queues" "2.10.0"
-    "@miniflare/r2" "2.10.0"
-    "@miniflare/shared" "2.10.0"
-    "@miniflare/sites" "2.10.0"
-    "@miniflare/storage-memory" "2.10.0"
-    "@miniflare/web-sockets" "2.10.0"
+    "@cloudflare/workers-types" "^4.20221111.1"
+    "@miniflare/cache" "2.12.1"
+    "@miniflare/core" "2.12.1"
+    "@miniflare/d1" "2.12.1"
+    "@miniflare/durable-objects" "2.12.1"
+    "@miniflare/html-rewriter" "2.12.1"
+    "@miniflare/kv" "2.12.1"
+    "@miniflare/queues" "2.12.1"
+    "@miniflare/r2" "2.12.1"
+    "@miniflare/shared" "2.12.1"
+    "@miniflare/sites" "2.12.1"
+    "@miniflare/storage-memory" "2.12.1"
+    "@miniflare/web-sockets" "2.12.1"
 
 "@miniflare/shared@2.10.0":
   version "2.10.0"
@@ -4403,18 +4409,18 @@ jest-each@^29.2.1:
     jest-util "^29.2.1"
     pretty-format "^29.2.1"
 
-jest-environment-miniflare@2.10.0:
-  version "2.10.0"
-  resolved "https://registry.npmjs.org/jest-environment-miniflare/-/jest-environment-miniflare-2.10.0.tgz"
-  integrity sha512-dfmLo0fQ5IjbfSL3o6gM7PeAUl8qv/oNBXkTTJOvY5a80+zj1jdGrO+suizMSJPjHk2Oe2V3aGgYUBHIEHh+YA==
+jest-environment-miniflare@2.12.1:
+  version "2.12.1"
+  resolved "https://registry.yarnpkg.com/jest-environment-miniflare/-/jest-environment-miniflare-2.12.1.tgz#9c16c6f8c2e895a4f5947ac595deed1e7857aba8"
+  integrity sha512-y/jFslHS7+i618nj8hRRRutLbY7T2lSZ1FKDK6iYVjtegWk7n9SKqa6edjiqjhiBjy7jOKS/4u/898RE+UCpZA==
   dependencies:
     "@jest/environment" ">=27"
     "@jest/fake-timers" ">=27"
     "@jest/types" ">=27"
-    "@miniflare/queues" "2.10.0"
-    "@miniflare/runner-vm" "2.10.0"
-    "@miniflare/shared" "2.10.0"
-    "@miniflare/shared-test-environment" "2.10.0"
+    "@miniflare/queues" "2.12.1"
+    "@miniflare/runner-vm" "2.12.1"
+    "@miniflare/shared" "2.12.1"
+    "@miniflare/shared-test-environment" "2.12.1"
     jest-mock ">=27"
     jest-util ">=27"
 
