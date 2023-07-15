@@ -5,13 +5,13 @@
     "toucan-js": "^3.0.0"
   },
   "devDependencies": {
-    "wrangler": "2.5.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@sentry/rollup-plugin": "^0.2.3",
     "config-typescript": "*",
     "eslint-config-base": "*",
     "rollup": "^3.5.1",
     "rollup-plugin-typescript2": "^0.34.1",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@sentry/rollup-plugin": "^0.2.3"
+    "wrangler": "2.5.0"
   },
   "private": true,
   "scripts": {
