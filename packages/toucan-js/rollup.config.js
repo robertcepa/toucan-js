@@ -23,6 +23,7 @@ module.exports = [
       replace({
         __name__: pkg.name,
         __version__: pkg.version,
+        preventAssignment: true,
       }),
       typescript({
         tsconfigOverride: {
