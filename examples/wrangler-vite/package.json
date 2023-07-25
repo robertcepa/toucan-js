@@ -5,11 +5,11 @@
     "toucan-js": "^3.0.0"
   },
   "devDependencies": {
-    "wrangler": "2.5.0",
+    "@sentry/vite-plugin": "^0.2.3",
     "config-typescript": "*",
     "eslint-config-base": "*",
     "vite": "^3.2.5",
-    "@sentry/vite-plugin": "^0.2.3"
+    "wrangler": "2.5.0"
   },
   "private": true,
   "scripts": {

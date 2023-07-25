@@ -5,11 +5,11 @@
     "toucan-js": "^3.0.0"
   },
   "devDependencies": {
-    "wrangler": "2.5.0",
+    "@sentry/esbuild-plugin": "^0.2.3",
     "config-typescript": "*",
-    "eslint-config-base": "*",
     "esbuild": "^0.15.16",
-    "@sentry/esbuild-plugin": "^0.2.3"
+    "eslint-config-base": "*",
+    "wrangler": "2.5.0"
   },
   "private": true,
   "scripts": {

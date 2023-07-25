@@ -5,10 +5,10 @@
     "toucan-js": "^3.0.0"
   },
   "devDependencies": {
-    "wrangler": "2.5.0",
+    "@sentry/cli": "^2.9.0",
     "config-typescript": "*",
     "eslint-config-base": "*",
-    "@sentry/cli": "^2.9.0"
+    "wrangler": "2.5.0"
   },
   "private": true,
   "scripts": {
