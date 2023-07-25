@@ -34,7 +34,7 @@
     "@sentry/types": "7.43.0"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "24.0.1",
+    "@rollup/plugin-commonjs": "24.1.0",
     "@rollup/plugin-node-resolve": "15.0.1",
     "@rollup/plugin-replace": "5.0.2",
     "rollup": "3.19.1",
