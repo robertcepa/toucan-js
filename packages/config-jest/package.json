@@ -11,7 +11,7 @@
   },
   "peerDependencies": {
     "jest": "29.5.0",
-    "miniflare": "2.12.1",
+    "miniflare": "2.14.0",
     "jest-environment-miniflare": "2.11.0"
   },
   "scripts": {
