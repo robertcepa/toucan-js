@@ -12,7 +12,7 @@
   "peerDependencies": {
     "jest": "29.6.1",
     "miniflare": "2.14.0",
-    "jest-environment-miniflare": "2.11.0"
+    "jest-environment-miniflare": "2.14.0"
   },
   "scripts": {
     "lint": "eslint"
