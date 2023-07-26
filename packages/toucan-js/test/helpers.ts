@@ -4,6 +4,10 @@ const realMathRandom = Math.random;
 let mathRandomReturnValues: number[] = [];
 let mathRandomReturnValuesCurrentIndex = -1;
 
+export const mockFetch = () => {
+  return jest.fn(async () => new Response());
+};
+
 export const mockMathRandom = (returnValues: number[]) => {
   if (returnValues.length === 0)
     jest.fn(() => {

@@ -26,6 +26,17 @@ This SDK provides all options and methods of [Hub](https://github.com/getsentry/
 | request            | Request            | If set, the SDK will send information about incoming requests to Sentry. By default, only the request method and request origin + pathname are sent. If you want to include more data, you need to use `requestDataOptions` option.                                                                                                                                                                                                                                                                                      |
 | requestDataOptions | RequestDataOptions | Object containing allowlist for specific parts of request. Refer to sensitive data section below.                                                                                                                                                                                                                                                                                                                                                                                                                        |
 
+### Constructor options overrides
+
+#### Transport options
+
+On top of base `transportOptions` you can pass additional configuration:
+
+| Option  | Type                   | Description                                                                                                                                                                                    |
+| ------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| headers | Record<string, string> | Custom headers passed to fetch.                                                                                                                                                                |
+| fetcher | typeof fetch           | Custom fetch function. This can be useful for tests or when the global `fetch` used by `toucan-js` doesn't satisfy your use-cases. Note that custom fetcher must conform to `fetch` interface. |
+
 ### Additional methods
 
 - `Toucan.setEnabled(enabled: boolean): void`: Can be used to disable and again enable the SDK later in your code.
