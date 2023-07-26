@@ -21,8 +21,8 @@ const GENERIC_EVENT_BODY_MATCHER = {
   contexts: expect.objectContaining({
     trace: expect.objectContaining({
       span_id: expect.any(String),
-      trace_id: expect.any(String)
-    })
+      trace_id: expect.any(String),
+    }),
   }),
   event_id: expect.any(String),
   timestamp: expect.any(Number),
@@ -235,6 +235,36 @@ describe('Toucan', () => {
 
       expect(waitUntilResults.length).toBe(0);
       expect(requests.length).toBe(0);
+    });
+
+    test('disable / enable', async () => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        context,
+      });
+
+      // Sent
+      toucan.captureMessage('test 1');
+
+      toucan.setEnabled(false);
+
+      // Not sent
+      toucan.captureMessage('test 2');
+      toucan.captureMessage('test 3');
+      toucan.captureMessage('test 4');
+      toucan.captureException(new Error());
+      toucan.captureException(new Error());
+      toucan.captureException(new Error());
+
+      toucan.setEnabled(true);
+
+      // Sent
+      toucan.captureMessage('test 5');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(2);
+      expect(requests.length).toBe(2);
     });
 
     test('invalid URL does not fail', async () => {

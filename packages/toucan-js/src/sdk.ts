@@ -61,4 +61,13 @@ export class Toucan extends Hub {
   setRequestBody(body: unknown) {
     this.getClient<ToucanClient>()?.setRequestBody(body);
   }
+
+  /**
+   * Enable/disable the SDK.
+   *
+   * @param enabled
+   */
+  setEnabled(enabled: boolean): void {
+    this.getClient<ToucanClient>()?.setEnabled(enabled);
+  }
 }
