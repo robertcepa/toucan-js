@@ -2,6 +2,12 @@
 
 exports[`Toucan captureException Error with cause 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -67,6 +73,12 @@ exports[`Toucan captureException Error with cause 1`] = `
 
 exports[`Toucan captureException captureException: primitive 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -116,6 +128,12 @@ exports[`Toucan captureException captureException: primitive 1`] = `
 
 exports[`Toucan captureException captureException: primitive 2`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -165,6 +183,12 @@ exports[`Toucan captureException captureException: primitive 2`] = `
 
 exports[`Toucan captureException captureException: primitive 3`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -214,6 +238,12 @@ exports[`Toucan captureException captureException: primitive 3`] = `
 
 exports[`Toucan captureException object 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -269,6 +299,12 @@ exports[`Toucan captureException object 1`] = `
 
 exports[`Toucan captureException runtime thrown Error 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
@@ -330,6 +366,12 @@ exports[`Toucan captureMessage sends correct body to Sentry 1`] = `
       "type": "event",
     },
     ObjectContaining {
+      "contexts": ObjectContaining {
+        "trace": ObjectContaining {
+          "span_id": Any<String>,
+          "trace_id": Any<String>,
+        },
+      },
       "event_id": Any<String>,
       "sdk": ObjectContaining {
         "integrations": [
@@ -353,6 +395,12 @@ exports[`Toucan captureMessage sends correct body to Sentry 1`] = `
 
 exports[`Toucan general invalid URL does not fail 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "level": "info",
@@ -378,6 +426,12 @@ exports[`Toucan general invalid URL does not fail 1`] = `
 
 exports[`Toucan stacktraces attachStacktrace = true sends stacktrace with captureMessage 1`] = `
 {
+  "contexts": ObjectContaining {
+    "trace": ObjectContaining {
+      "span_id": Any<String>,
+      "trace_id": Any<String>,
+    },
+  },
   "environment": "production",
   "event_id": Any<String>,
   "exception": ObjectContaining {
