@@ -18,6 +18,12 @@ const DEFAULT_INTEGRATIONS = ['RequestData', 'LinkedErrors'];
  * We don't care about exact values of pseudorandomized and time-related properties, as long as they match the type we accept them.
  */
 const GENERIC_EVENT_BODY_MATCHER = {
+  contexts: expect.objectContaining({
+    trace: expect.objectContaining({
+      span_id: expect.any(String),
+      trace_id: expect.any(String)
+    })
+  }),
   event_id: expect.any(String),
   timestamp: expect.any(Number),
   sdk: expect.objectContaining({
