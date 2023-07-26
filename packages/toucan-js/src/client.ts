@@ -127,4 +127,13 @@ export class ToucanClient extends BaseClient<ToucanClientOptions> {
   public setRequestBody(body: unknown) {
     this.getOptions().requestData = body;
   }
+
+  /**
+   * Enable/disable the SDK.
+   *
+   * @param enabled
+   */
+  public setEnabled(enabled: boolean): void {
+    this.getOptions().enabled = enabled;
+  }
 }

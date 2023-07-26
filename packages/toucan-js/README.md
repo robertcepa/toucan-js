@@ -28,6 +28,7 @@ This SDK provides all options and methods of [Hub](https://github.com/getsentry/
 
 ### Additional methods
 
+- `Toucan.setEnabled(enabled: boolean): void`: Can be used to disable and again enable the SDK later in your code.
 - `Toucan.setRequestBody(body: unknown): void`: Attaches request body to future events. `body` can be anything serializable.
 
 ## Integrations
