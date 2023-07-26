@@ -15,7 +15,8 @@ export function makeFetchTransport(options: FetchTransportOptions): Transport {
     body,
   }: TransportRequest): PromiseLike<TransportMakeRequestResponse> {
     try {
-      const request = fetch(options.url, {
+      const fetchFn = options.fetcher ?? fetch;
+      const request = fetchFn(options.url, {
         method: 'POST',
         headers: options.headers,
         body,

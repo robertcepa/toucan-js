@@ -2,6 +2,7 @@ import type { Event, EventProcessor, Integration } from '@sentry/types';
 import { Toucan } from 'toucan-js';
 import {
   mockConsole,
+  mockFetch,
   mockMathRandom,
   resetConsole,
   resetMathRandom,
@@ -307,6 +308,24 @@ describe('Toucan', () => {
       expect(requests.length).toBe(1);
 
       expect(requests[0].headers['x-custom-header']).toEqual('1');
+    });
+
+    test('custom fetcher', async () => {
+      const fetcher = mockFetch();
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        transportOptions: {
+          fetcher,
+        },
+        context,
+      });
+      toucan.captureMessage('test');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(1);
+      expect(requests.length).toBe(0);
+      expect(fetcher.mock.calls.length).toBe(1);
     });
 
     test('unhandled exception in SDK options does not explode the worker', async () => {
