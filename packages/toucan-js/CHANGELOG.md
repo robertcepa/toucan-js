@@ -1,5 +1,24 @@
 # toucan-js
 
+## 3.2.0
+
+### Minor Changes
+
+- 58abdc4: You can now wrap fetch by passing fetcher to transportOptions.
+- 87e50c9: Add setEnabled method
+- 66f08ca: The following integrations are now re-exported from `toucan-js` for type compatibility: `Dedupe`, `ExtraErrorData`, `RewriteFrames`, `SessionTiming`, `Transaction`.
+
+### Patch Changes
+
+- ec953a9: Update sentry-javascript monorepo to v7.43.0
+- df4eeea: Update sentry-javascript monorepo to v7.42.0
+- 86c2be8: Update dependency miniflare to v2.12.1
+- 17b22f1: Update dependency rollup to v3.19.1
+- cde3c15: Update dependency @rollup/plugin-commonjs to v24
+- ac869b6: Update dependency @rollup/plugin-commonjs to v23.0.7
+- d697e6f: Update dependency ts-jest to v29.0.5
+- c478f14: Update dependency @rollup/plugin-replace to v5.0.2
+
 ## 3.1.0
 
 ### Minor Changes
