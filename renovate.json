@@ -1,4 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"]
+  "extends": ["config:recommended"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dependencies",
+      "schedule": ["after 10:00pm on monday", "before 04:00am on tuesday"]
+    },
+    {
+      "matchPackagePatterns": ["^@sentry/.*"],
+      "groupName": "sentry dependencies",
+      "schedule": ["at any time"]
+    }
+  ]
 }
