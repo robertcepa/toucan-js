@@ -38,7 +38,7 @@ You can use custom integrations to enhance `toucan-js` as you would any other Se
 - not enhance or wrap global runtime methods (such as `console.log`).
 - not use runtime APIs that aren't available in Cloudflare Workers (NodeJS runtime functions, `window` object, etc...).
 
-Supported integrations from [@sentry/integrations](https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations):
+Supported integrations from [@sentry/integrations](https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations) are re-exported from `toucan-js`:
 
 - [Dedupe](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/dedupe.ts)
 - [ExtraErrorData](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/extraerrordata.ts)
