@@ -29,9 +29,9 @@
     "serverless"
   ],
   "dependencies": {
-    "@sentry/core": "7.43.0",
-    "@sentry/utils": "7.43.0",
-    "@sentry/types": "7.43.0"
+    "@sentry/core": "7.60.0",
+    "@sentry/utils": "7.60.0",
+    "@sentry/types": "7.60.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "25.0.3",
