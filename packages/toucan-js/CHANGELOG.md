@@ -1,5 +1,11 @@
 # toucan-js
 
+## 3.2.3
+
+### Patch Changes
+
+- c7c0b64: Update sentry dependencies to v7.65.0
+
 ## 3.2.2
 
 ### Patch Changes
