@@ -565,6 +565,80 @@ describe('Toucan', () => {
     });
   });
 
+  describe('captureCheckIn', () => {
+    test(`is sent`, async () => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        context,
+      });
+
+      const checkInId = toucan.captureCheckIn({
+        monitorSlug: 'my_job',
+        status: 'in_progress',
+      });
+
+      toucan.captureCheckIn({
+        checkInId: checkInId,
+        monitorSlug: 'my_job',
+        status: 'error',
+      });
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(2);
+      expect(requests.length).toBe(2);
+
+      const requestBody = await requests[0].envelopePayload();
+
+      expect(requestBody).toEqual({
+        check_in_id: checkInId,
+        monitor_slug: 'my_job',
+        status: 'in_progress',
+      });
+
+      const requestBody2 = await requests[1].envelopePayload();
+
+      expect(requestBody2).toEqual({
+        check_in_id: checkInId,
+        monitor_slug: 'my_job',
+        status: 'error',
+      });
+
+      expect(requestBody.check_in_id).toBe(requestBody2.check_in_id);
+    });
+
+    test(`is linked to errors`, async () => {
+      const toucan = new Toucan({
+        dsn: VALID_DSN,
+        context,
+      });
+
+      const checkInId = toucan.captureCheckIn({
+        monitorSlug: 'my_job',
+        status: 'in_progress',
+      });
+
+      toucan.captureMessage('test');
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(2);
+      expect(requests.length).toBe(2);
+
+      const checkInRequestBody = await requests[0].envelopePayload();
+
+      expect(checkInRequestBody).toEqual({
+        check_in_id: checkInId,
+        monitor_slug: 'my_job',
+        status: 'in_progress',
+      });
+
+      const errorRequestBody = await requests[1].envelopePayload();
+
+      expect(errorRequestBody.contexts.monitor).toEqual({ slug: 'my_job' });
+    });
+  });
+
   describe('addBreadcrumb', () => {
     test('captures last 100 breadcrumbs by default', async () => {
       const toucan = new Toucan({

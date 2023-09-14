@@ -1,5 +1,5 @@
 import type { Scope } from '@sentry/core';
-import { BaseClient } from '@sentry/core';
+import { ServerRuntimeClient } from '@sentry/core';
 import type { Event, EventHint, SeverityLevel } from '@sentry/types';
 import { resolvedSyncPromise } from '@sentry/utils';
 import { eventFromMessage, eventFromUnknownInput } from './eventBuilder';
@@ -11,7 +11,7 @@ import { setOnOptional } from './utils';
 /**
  * The Cloudflare Workers SDK Client.
  */
-export class ToucanClient extends BaseClient<ToucanClientOptions> {
+export class ToucanClient extends ServerRuntimeClient<ToucanClientOptions> {
   /**
    * Some functions need to access the Hub (Toucan instance) this client is bound to,
    * but calling 'getCurrentHub()' is unsafe because it uses globals.
