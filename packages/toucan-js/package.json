@@ -1,7 +1,7 @@
 {
   "name": "toucan-js",
   "sideEffects": false,
-  "version": "3.2.3",
+  "version": "3.3.0",
   "description": "Cloudflare Workers client for Sentry",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

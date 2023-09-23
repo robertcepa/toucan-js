@@ -1,5 +1,15 @@
 # toucan-js
 
+## 3.3.0
+
+### Minor Changes
+
+- 948583b: Add support for Cron check-ins
+
+### Patch Changes
+
+- 65ba3f4: Update sentry dependencies to v7.70.0
+
 ## 3.2.3
 
 ### Patch Changes
