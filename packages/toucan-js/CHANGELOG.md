@@ -1,5 +1,12 @@
 # toucan-js
 
+## 3.3.1
+
+### Patch Changes
+
+- 9a23541: Update sentry dependencies to v7.76.0
+- 8d7b40f: fix: query parameter with camelCase key becomes undefined
+
 ## 3.3.0
 
 ### Minor Changes
