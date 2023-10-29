@@ -249,14 +249,14 @@ function applyAllowlistToObject(target: Target, allowlist: Allowlist): Target {
   } else if (Array.isArray(allowlist)) {
     const allowlistLowercased = allowlist.map((item) => item.toLowerCase());
 
-    predicate = (item: string) => allowlistLowercased.includes(item);
+    predicate = (item: string) =>
+      allowlistLowercased.includes(item.toLowerCase());
   } else {
     return {};
   }
 
   return Object.keys(target)
-    .map((key) => key.toLowerCase())
-    .filter((key) => predicate(key))
+    .filter(predicate)
     .reduce<Target>((allowed, key) => {
       allowed[key] = target[key];
       return allowed;
