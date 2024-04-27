@@ -1,5 +1,11 @@
 # toucan-js
 
+## 3.4.0
+
+### Minor Changes
+
+- 2c75016: Update sentry dependencies to 7.112.2
+
 ## 3.3.1
 
 ### Patch Changes
