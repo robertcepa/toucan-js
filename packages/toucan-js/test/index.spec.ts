@@ -1,4 +1,5 @@
-import type { Event, EventProcessor, Integration } from '@sentry/types';
+import type { Event } from '@sentry/types';
+import { defineIntegration } from '@sentry/core';
 import { Toucan } from 'toucan-js';
 import {
   mockConsole,
@@ -1008,9 +1009,7 @@ describe('Toucan', () => {
         context,
       });
 
-      toucan.configureScope((scope) =>
-        scope.setFingerprint(['{{ default }}', 'https://example.com']),
-      );
+      toucan.setFingerprint(['{{ default }}', 'https://example.com']);
       toucan.captureMessage('test');
 
       const waitUntilResults = await getMiniflareWaitUntil(context);
@@ -1120,19 +1119,19 @@ describe('Toucan', () => {
       toucan.withScope((scope) => {
         scope.setExtra('bar', 'baz');
         //expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage('test withScope simple');
+        scope.captureMessage('test withScope simple');
       });
 
       // Nested case
       toucan.withScope((scope) => {
         scope.setExtra('bar', 'baz');
-        toucan.withScope((scope) => {
+        scope.withScope((scope) => {
           scope.setExtra('baz', 'bam');
           // expected {"foo": "bar", "bar": "baz", "baz": "bam"}
-          toucan.captureMessage('test withScope nested');
+          scope.captureMessage('test withScope nested');
         });
         // expected {"foo": "bar", "bar": "baz"}
-        toucan.captureMessage('test withScope nested');
+        scope.captureMessage('test withScope nested');
       });
 
       // expected {"foo": "bar"}
@@ -1143,56 +1142,38 @@ describe('Toucan', () => {
       expect(waitUntilResults.length).toBe(4);
       expect(requests.length).toBe(4);
 
-      expect(await requests[0].envelopePayload()).toMatchObject({
-        extra: { foo: 'bar', bar: 'baz' },
+      expect((await requests[0].envelopePayload()).extra).toStrictEqual({
+        foo: 'bar',
+        bar: 'baz',
       });
-      expect(await requests[1].envelopePayload()).toMatchObject({
-        extra: { foo: 'bar', bar: 'baz', baz: 'bam' },
+      expect((await requests[1].envelopePayload()).extra).toStrictEqual({
+        foo: 'bar',
+        bar: 'baz',
+        baz: 'bam',
       });
-      expect(await requests[2].envelopePayload()).toMatchObject({
-        extra: { foo: 'bar', bar: 'baz' },
+      expect((await requests[2].envelopePayload()).extra).toStrictEqual({
+        foo: 'bar',
+        bar: 'baz',
       });
-      expect(await requests[3].envelopePayload()).toMatchObject({
-        extra: { foo: 'bar' },
+      expect((await requests[3].envelopePayload()).extra).toStrictEqual({
+        foo: 'bar',
       });
     });
   });
 
   describe('integrations', () => {
-    class MessageScrubber implements Integration {
-      public static id = 'MessageScrubber';
+    const messageScrubberIntegration = defineIntegration(
+      (scrubMessage: string) => {
+        return {
+          name: 'MessageScrubber',
+          processEvent: (event: Event) => {
+            event.message = scrubMessage;
 
-      public readonly name: string = MessageScrubber.id;
-
-      private scrubMessage: string;
-
-      public constructor(scrubMessage: string) {
-        this.scrubMessage = scrubMessage;
-      }
-
-      public setupOnce(
-        addGlobalEventProcessor: (eventProcessor: EventProcessor) => void,
-        getCurrentHub: () => Toucan,
-      ): void {
-        const client = getCurrentHub().getClient();
-
-        if (!client) {
-          return;
-        }
-
-        addGlobalEventProcessor((event: Event) => {
-          const self = getCurrentHub().getIntegration(MessageScrubber);
-
-          if (!self) {
             return event;
-          }
-
-          event.message = this.scrubMessage;
-
-          return event;
-        });
-      }
-    }
+          },
+        };
+      },
+    );
 
     test('empty custom integrations do not delete default integrations', async () => {
       const toucan = new Toucan({
@@ -1217,7 +1198,7 @@ describe('Toucan', () => {
       const toucan = new Toucan({
         dsn: VALID_DSN,
         context,
-        integrations: [new MessageScrubber('[redacted]')],
+        integrations: [messageScrubberIntegration('[redacted]')],
       });
 
       toucan.captureMessage('test');
@@ -1240,7 +1221,7 @@ describe('Toucan', () => {
       const toucan1 = new Toucan({
         dsn: VALID_DSN,
         context,
-        integrations: [new MessageScrubber('[redacted-1]')],
+        integrations: [messageScrubberIntegration('[redacted-1]')],
       });
 
       toucan1.captureMessage('test');
@@ -1248,7 +1229,7 @@ describe('Toucan', () => {
       const toucan2 = new Toucan({
         dsn: VALID_DSN,
         context,
-        integrations: [new MessageScrubber('[redacted-2]')],
+        integrations: [messageScrubberIntegration('[redacted-2]')],
       });
 
       toucan2.captureMessage('test');

@@ -13,11 +13,13 @@ import { setOnOptional } from './utils';
  */
 export class ToucanClient extends ServerRuntimeClient<ToucanClientOptions> {
   /**
-   * Some functions need to access the Hub (Toucan instance) this client is bound to,
+   * Some functions need to access the scope (Toucan instance) this client is bound to,
    * but calling 'getCurrentHub()' is unsafe because it uses globals.
    * So we store a reference to the Hub after binding to it and provide it to methods that need it.
    */
   #sdk: Toucan | null = null;
+
+  #integrationsInitialized: boolean = false;
 
   /**
    * Creates a new Toucan SDK instance.
@@ -43,12 +45,12 @@ export class ToucanClient extends ServerRuntimeClient<ToucanClientOptions> {
    * By default, integrations are stored in a global. We want to store them in a local instance because they may have contextual data, such as event request.
    */
   public setupIntegrations(): void {
-    if (this._isEnabled() && !this._integrationsInitialized && this.#sdk) {
+    if (this._isEnabled() && !this.#integrationsInitialized && this.#sdk) {
       this._integrations = setupIntegrations(
         this._options.integrations,
         this.#sdk,
       );
-      this._integrationsInitialized = true;
+      this.#integrationsInitialized = true;
     }
   }
 

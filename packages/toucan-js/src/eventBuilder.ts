@@ -98,12 +98,10 @@ export function eventFromUnknownInput(
 
       const client = sdk?.getClient();
       const normalizeDepth = client && client.getOptions().normalizeDepth;
-      sdk?.configureScope((scope) => {
-        scope.setExtra(
-          '__serialized__',
-          normalizeToSize(exception, normalizeDepth),
-        );
-      });
+      sdk?.setExtra(
+        '__serialized__',
+        normalizeToSize(exception, normalizeDepth),
+      );
 
       ex = (hint && hint.syntheticException) || new Error(message);
       ex.message = message;
