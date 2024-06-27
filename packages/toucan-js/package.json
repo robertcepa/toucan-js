@@ -29,9 +29,9 @@
     "serverless"
   ],
   "dependencies": {
-    "@sentry/core": "7.112.2",
-    "@sentry/utils": "7.112.2",
-    "@sentry/types": "7.112.2",
+    "@sentry/core": "8.13.0",
+    "@sentry/utils": "8.13.0",
+    "@sentry/types": "8.13.0",
     "@sentry/integrations": "7.112.2"
   },
   "devDependencies": {
