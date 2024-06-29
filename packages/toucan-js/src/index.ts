@@ -1,11 +1,10 @@
 export {
-  LinkedErrors,
-  RequestData,
-  Dedupe,
-  ExtraErrorData,
-  RewriteFrames,
-  SessionTiming,
-  Transaction,
+  linkedErrorsIntegration,
+  requestDataIntegration,
+  dedupeIntegration,
+  extraErrorDataIntegration,
+  rewriteFramesIntegration,
+  sessionTimingIntegration,
 } from './integrations';
 export type { LinkedErrorsOptions, RequestDataOptions } from './integrations';
 export { Toucan } from './sdk';

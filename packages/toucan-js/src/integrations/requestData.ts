@@ -1,8 +1,6 @@
-import { Event, EventProcessor, Integration, User } from '@sentry/types';
-
+import { User } from '@sentry/types';
+import { defineIntegration } from '@sentry/core';
 import type { Request as EventRequest } from '@sentry/types';
-import { ToucanClient } from '../client';
-import { Toucan } from '../sdk';
 
 type Allowlist = string[] | RegExp | boolean;
 
@@ -17,65 +15,49 @@ const defaultRequestDataOptions: RequestDataOptions = {
   allowedHeaders: ['CF-RAY', 'CF-Worker'],
 };
 
-export class RequestData implements Integration {
-  public static id = 'RequestData';
+export const requestDataIntegration = defineIntegration(
+  (userOptions: RequestDataOptions = {}) => {
+    const options = { ...defaultRequestDataOptions, ...userOptions };
 
-  public readonly name: string = RequestData.id;
+    return {
+      name: 'RequestData',
+      preprocessEvent: (event) => {
+        const { sdkProcessingMetadata } = event;
 
-  #options: RequestDataOptions;
-
-  public constructor(options: RequestDataOptions = {}) {
-    this.#options = { ...defaultRequestDataOptions, ...options };
-  }
-
-  public setupOnce(
-    addGlobalEventProcessor: (eventProcessor: EventProcessor) => void,
-    getCurrentHub: () => Toucan,
-  ): void {
-    const client = getCurrentHub().getClient<ToucanClient>();
-
-    if (!client) {
-      return;
-    }
-
-    addGlobalEventProcessor((event: Event) => {
-      const { sdkProcessingMetadata } = event;
-
-      const self = getCurrentHub().getIntegration(RequestData);
-
-      if (!self || !sdkProcessingMetadata) {
-        return event;
-      }
-
-      if (
-        'request' in sdkProcessingMetadata &&
-        sdkProcessingMetadata.request instanceof Request
-      ) {
-        event.request = toEventRequest(
-          sdkProcessingMetadata.request,
-          this.#options,
-        );
-        event.user = toEventUser(
-          event.user ?? {},
-          sdkProcessingMetadata.request,
-          this.#options,
-        );
-      }
-
-      if ('requestData' in sdkProcessingMetadata) {
-        if (event.request) {
-          event.request.data = sdkProcessingMetadata.requestData as unknown;
-        } else {
-          event.request = {
-            data: sdkProcessingMetadata.requestData as unknown,
-          };
+        if (!sdkProcessingMetadata) {
+          return event;
         }
-      }
 
-      return event;
-    });
-  }
-}
+        if (
+          'request' in sdkProcessingMetadata &&
+          sdkProcessingMetadata.request instanceof Request
+        ) {
+          event.request = toEventRequest(
+            sdkProcessingMetadata.request,
+            options,
+          );
+          event.user = toEventUser(
+            event.user ?? {},
+            sdkProcessingMetadata.request,
+            options,
+          );
+        }
+
+        if ('requestData' in sdkProcessingMetadata) {
+          if (event.request) {
+            event.request.data = sdkProcessingMetadata.requestData as unknown;
+          } else {
+            event.request = {
+              data: sdkProcessingMetadata.requestData as unknown,
+            };
+          }
+        }
+
+        return event;
+      },
+    };
+  },
+);
 
 /**
  * Applies allowlists on existing user object.
