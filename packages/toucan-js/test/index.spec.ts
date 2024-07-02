@@ -1,4 +1,4 @@
-import type { Event } from '@sentry/types';
+import type { Event, Session } from '@sentry/types';
 import { defineIntegration } from '@sentry/core';
 import { Toucan } from 'toucan-js';
 import {
@@ -1103,6 +1103,103 @@ describe('Toucan', () => {
       expect(requests.length).toBe(10);
 
       resetMathRandom();
+    });
+  });
+
+  describe('cloning', () => {
+    test('clone', async () => {
+      const toucan = new Toucan({ dsn: VALID_DSN, context });
+
+      toucan.addBreadcrumb({ message: 'test' });
+      toucan.setTag('foo', 'bar');
+      toucan.setExtra('foo', 'bar');
+      toucan.setContext('foo', { foo: 'bar' });
+      toucan.setUser({ email: 'foo@bar.com' });
+      toucan.setLevel('debug');
+      toucan.setSession({ ipAddress: '1.1.1.1' } as Session);
+      toucan.setTransactionName('foo');
+      toucan.setFingerprint(['foo']);
+      toucan.addEventProcessor((event) => {
+        // Verifying 'extra' added by event processor allows us to verify that event processors get cloned as well
+        if (event.extra) event.extra['bar'] = 'baz';
+        return event;
+      });
+      toucan.setRequestSession({ status: 'ok' });
+      toucan.setSDKProcessingMetadata({ foo: 'bar' });
+      toucan.setPropagationContext({ spanId: 'foo', traceId: 'bar' });
+      toucan.setLastEventId('foo');
+
+      const toucanClone1 = toucan.clone();
+      const toucanClone2 = toucan.clone();
+      const toucanClone3 = toucanClone2.clone();
+
+      // Verify we always create new client instance during Toucan.clone()
+      expect(toucan.getClient()).not.toBe(toucanClone1.getClient());
+      expect(toucan.getClient()).not.toBe(toucanClone2.getClient());
+      expect(toucan.getClient()).not.toBe(toucanClone3.getClient());
+      expect(toucanClone1.getClient()).not.toBe(toucanClone2.getClient());
+      expect(toucanClone1.getClient()).not.toBe(toucanClone3.getClient());
+      expect(toucanClone2.getClient()).not.toBe(toucanClone3.getClient());
+
+      // Capture an exception on original and cloned instances and verify the metadata in payloads are the same
+      toucan.captureException(new Error('error!'));
+      toucanClone1.captureException(new Error('error!'));
+      toucanClone2.captureException(new Error('error!'));
+      toucanClone3.captureException(new Error('error!'));
+
+      const waitUntilResults = await getMiniflareWaitUntil(context);
+
+      expect(waitUntilResults.length).toBe(4);
+      expect(requests.length).toBe(4);
+
+      const assertEnvelopePayloadsEqual = (
+        p1: Record<string, any>,
+        p2: Record<string, any>,
+      ) => {
+        const assertPropertyExistsAndEqual = (propertyName: string) => {
+          expect(propertyName in p1).toBe(true);
+          expect(p1[propertyName]).toBeTruthy();
+
+          expect(propertyName in p2).toBe(true);
+          expect(p2[propertyName]).toBeTruthy();
+
+          expect(p1[propertyName]).toStrictEqual(p2[propertyName]);
+        };
+
+        assertPropertyExistsAndEqual('breadcrumbs');
+        assertPropertyExistsAndEqual('tags');
+        assertPropertyExistsAndEqual('extra');
+        assertPropertyExistsAndEqual('contexts');
+        assertPropertyExistsAndEqual('user');
+        assertPropertyExistsAndEqual('level');
+        assertPropertyExistsAndEqual('transaction');
+        assertPropertyExistsAndEqual('fingerprint');
+      };
+
+      assertEnvelopePayloadsEqual(
+        await requests[0].envelopePayload(),
+        await requests[1].envelopePayload(),
+      );
+      assertEnvelopePayloadsEqual(
+        await requests[0].envelopePayload(),
+        await requests[2].envelopePayload(),
+      );
+      assertEnvelopePayloadsEqual(
+        await requests[0].envelopePayload(),
+        await requests[3].envelopePayload(),
+      );
+      assertEnvelopePayloadsEqual(
+        await requests[1].envelopePayload(),
+        await requests[2].envelopePayload(),
+      );
+      assertEnvelopePayloadsEqual(
+        await requests[1].envelopePayload(),
+        await requests[3].envelopePayload(),
+      );
+      assertEnvelopePayloadsEqual(
+        await requests[2].envelopePayload(),
+        await requests[3].envelopePayload(),
+      );
     });
   });
 

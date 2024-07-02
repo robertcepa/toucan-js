@@ -16,7 +16,7 @@
 
 ## Features
 
-This SDK provides all options and methods of [Hub](https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/hub.ts) and additionally:
+This SDK provides all options and methods of [ScopeClass](https://github.com/getsentry/sentry-javascript/blob/master/packages/core/src/scope.ts) and additionally:
 
 ### Additional constructor options
 
@@ -44,30 +44,27 @@ On top of base `transportOptions` you can pass additional configuration:
 
 ## Integrations
 
-You can use custom integrations to enhance `toucan-js` as you would any other Sentry SDK. Some integrations are provided in [@sentry/integrations](https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations) package, and you can also write your own! To ensure an integration will work properly in `toucan-js`, it must:
+You can use custom integrations to enhance `toucan-js` as you would any other Sentry SDK. Some integrations are provided in various [Sentry packages](https://github.com/getsentry/sentry-javascript/tree/develop/packages), and you can also write your own! To ensure an integration will work properly in `toucan-js`, it must:
 
-- not use global `getCurrentHub` from `@sentry/core`.
 - not enhance or wrap global runtime methods (such as `console.log`).
 - not use runtime APIs that aren't available in Cloudflare Workers (NodeJS runtime functions, `window` object, etc...).
 
-Supported integrations from [@sentry/integrations](https://github.com/getsentry/sentry-javascript/tree/master/packages/integrations) are re-exported from `toucan-js`:
+Supported integrations from [@sentry/core](https://github.com/getsentry/sentry-javascript/tree/develop/packages/core) are re-exported from `toucan-js`:
 
-- [Dedupe](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/dedupe.ts)
-- [ExtraErrorData](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/extraerrordata.ts)
-- [RewriteFrames](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/rewriteframes.ts)
-- [SessionTiming](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/sessiontiming.ts)
-- [Transaction](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/transaction.ts)
+- [dedupeIntegration](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/dedupe.ts)
+- [extraErrorDataIntegration](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/extraerrordata.ts)
+- [rewriteFramesIntegration](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/rewriteframes.ts)
+- [sessionTimingIntegration](https://github.com/getsentry/sentry-javascript/blob/master/packages/integrations/src/sessiontiming.ts)
 
 `toucan-js` also provides 2 integrations that are enabled by default, but are provided if you need to reconfigure them:
 
-- [LinkedErrors](src/integrations/linkedErrors.ts)
-- [RequestData](src/integrations/requestData.ts)
+- [linkedErrorsIntegration](src/integrations/linkedErrors.ts)
+- [requestDataIntegration](src/integrations/requestData.ts)
 
 ### Custom integration example:
 
 ```ts
-import { Toucan } from 'toucan-js';
-import { RewriteFrames } from '@sentry/integrations';
+import { Toucan, rewriteFramesIntegration } from 'toucan-js';
 
 type Env = {
   SENTRY_DSN: string;
@@ -79,7 +76,7 @@ export default {
       dsn: env.SENTRY_DSN,
       context,
       request,
-      integrations: [new RewriteFrames({ root: '/' })],
+      integrations: [rewriteFramesIntegration({ root: '/' })],
     });
 
     ...
