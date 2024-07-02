@@ -15,49 +15,55 @@ import type { Breadcrumb, CheckIn, MonitorConfig } from '@sentry/types';
  * The Cloudflare Workers SDK.
  */
 export class Toucan extends Scope {
-  constructor(options: Options | ToucanClient) {
+  #options: Options;
+
+  constructor(options: Options) {
     super();
 
-    if (options instanceof ToucanClient) {
-      this.setClient(options);
-      options.setSdk(this);
-    } else {
-      options.defaultIntegrations =
-        options.defaultIntegrations === false
-          ? []
-          : [
-              ...(Array.isArray(options.defaultIntegrations)
-                ? options.defaultIntegrations
-                : [
-                    requestDataIntegration(options.requestDataOptions),
-                    linkedErrorsIntegration(),
-                  ]),
-            ];
+    options.defaultIntegrations =
+      options.defaultIntegrations === false
+        ? []
+        : [
+            ...(Array.isArray(options.defaultIntegrations)
+              ? options.defaultIntegrations
+              : [
+                  requestDataIntegration(options.requestDataOptions),
+                  linkedErrorsIntegration(),
+                ]),
+          ];
 
-      if (options.release === undefined) {
-        const detectedRelease = getSentryRelease();
-        if (detectedRelease !== undefined) {
-          options.release = detectedRelease;
-        }
+    if (options.release === undefined) {
+      const detectedRelease = getSentryRelease();
+      if (detectedRelease !== undefined) {
+        options.release = detectedRelease;
       }
-
-      const client = new ToucanClient({
-        ...options,
-        transport: makeFetchTransport,
-        integrations: getIntegrationsToSetup(options),
-        stackParser: stackParserFromStackParserOptions(
-          options.stackParser || defaultStackParser,
-        ),
-        transportOptions: {
-          ...options.transportOptions,
-          context: options.context,
-        },
-      });
-
-      this.setClient(client);
-      client.setSdk(this);
-      client.setupIntegrations();
     }
+
+    this.#options = options;
+
+    this.attachNewClient();
+  }
+
+  /**
+   * Creates new ToucanClient and links it to this instance.
+   */
+  protected attachNewClient() {
+    const client = new ToucanClient({
+      ...this.#options,
+      transport: makeFetchTransport,
+      integrations: getIntegrationsToSetup(this.#options),
+      stackParser: stackParserFromStackParserOptions(
+        this.#options.stackParser || defaultStackParser,
+      ),
+      transportOptions: {
+        ...this.#options.transportOptions,
+        context: this.#options.context,
+      },
+    });
+
+    this.setClient(client);
+    client.setSdk(this);
+    client.setupIntegrations();
   }
 
   /**
@@ -112,13 +118,15 @@ export class Toucan extends Scope {
   }
 
   /**
-   * Creates a new scope with and executes the given operation within.
-   * The scope is automatically removed once the operation
-   * finishes or throws.
+   * Clone all data from this instance into a new Toucan instance.
+   *
+   * @override
+   * @returns New Toucan instance.
    */
-  withScope<T>(callback: (scope: Toucan) => T): T {
-    // Clone this scope
-    const toucan = new Toucan(this.getClient<ToucanClient>() as ToucanClient);
+  clone(): Toucan {
+    // Create new scope using the same options
+    const toucan = new Toucan({ ...this.#options });
+
     // And copy all the scope data
     toucan._breadcrumbs = [...this._breadcrumbs];
     toucan._tags = { ...this._tags };
@@ -134,6 +142,18 @@ export class Toucan extends Scope {
     toucan._attachments = [...this._attachments];
     toucan._sdkProcessingMetadata = { ...this._sdkProcessingMetadata };
     toucan._propagationContext = { ...this._propagationContext };
+    toucan._lastEventId = this._lastEventId;
+
+    return toucan;
+  }
+
+  /**
+   * Creates a new scope with and executes the given operation within.
+   * The scope is automatically removed once the operation
+   * finishes or throws.
+   */
+  withScope<T>(callback: (scope: Toucan) => T): T {
+    const toucan = this.clone();
     return callback(toucan);
   }
 }
