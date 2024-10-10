@@ -1508,13 +1508,13 @@
     "@sentry/utils" "7.23.0"
     tslib "^1.9.3"
 
-"@sentry/core@8.9.2":
-  version "8.9.2"
-  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-8.9.2.tgz#af0f2ec25b88da5467cf327d2ffcd555323c30e6"
-  integrity sha512-ixm8NISFlPlEo3FjSaqmq4nnd13BRHoafwJ5MG+okCz6BKGZ1SexEggP42/QpGvDprUUHnfncG6WUMgcarr1zA==
+"@sentry/core@8.34.0":
+  version "8.34.0"
+  resolved "https://registry.yarnpkg.com/@sentry/core/-/core-8.34.0.tgz#92efe1cc8ced843beee636c344e66086d8915563"
+  integrity sha512-adrXCTK/zsg5pJ67lgtZqdqHvyx6etMjQW3P82NgWdj83c8fb+zH+K79Z47pD4zQjX0ou2Ws5nwwi4wJbz4bfA==
   dependencies:
-    "@sentry/types" "8.9.2"
-    "@sentry/utils" "8.9.2"
+    "@sentry/types" "8.34.0"
+    "@sentry/utils" "8.34.0"
 
 "@sentry/esbuild-plugin@^0.2.3":
   version "0.2.3"
@@ -1558,10 +1558,10 @@
   resolved "https://registry.yarnpkg.com/@sentry/types/-/types-7.23.0.tgz#5d2ce94d81d7c1fad702645306f3c0932708cad5"
   integrity sha512-fZ5XfVRswVZhKoCutQ27UpIHP16tvyc6ws+xq+njHv8Jg8gFBCoOxlJxuFhegD2xxylAn1aiSHNAErFWdajbpA==
 
-"@sentry/types@8.9.2":
-  version "8.9.2"
-  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-8.9.2.tgz#d143383fc35552d9f153042cc6d56c5ee8ec2fa6"
-  integrity sha512-+LFOyQGl+zk5SZRGZD2MEURf7i5RHgP/mt3s85Rza+vz8M211WJ0YsjkIGUJFSY842nged5QLx4JysLaBlLymg==
+"@sentry/types@8.34.0":
+  version "8.34.0"
+  resolved "https://registry.yarnpkg.com/@sentry/types/-/types-8.34.0.tgz#b02da72d1be67df5246aa9a97ca661ee71569372"
+  integrity sha512-zLRc60CzohGCo6zNsNeQ9JF3SiEeRE4aDCP9fDDdIVCOKovS+mn1rtSip0qd0Vp2fidOu0+2yY0ALCz1A3PJSQ==
 
 "@sentry/utils@7.23.0":
   version "7.23.0"
@@ -1571,12 +1571,12 @@
     "@sentry/types" "7.23.0"
     tslib "^1.9.3"
 
-"@sentry/utils@8.9.2":
-  version "8.9.2"
-  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-8.9.2.tgz#58b003d9c1302f61192e7c99ea42bf1cd5cad7f7"
-  integrity sha512-A4srR9mEBFdVXwSEKjQ94msUbVkMr8JeFiEj9ouOFORw/Y/ux/WV2bWVD/ZI9wq0TcTNK8L1wBgU8UMS5lIq3A==
+"@sentry/utils@8.34.0":
+  version "8.34.0"
+  resolved "https://registry.yarnpkg.com/@sentry/utils/-/utils-8.34.0.tgz#5ba543381a9de0ada1196df1fc5cde3b891de41e"
+  integrity sha512-W1KoRlFUjprlh3t86DZPFxLfM6mzjRzshVfMY7vRlJFymBelJsnJ3A1lPeBZM9nCraOSiw6GtOWu6k5BAkiGIg==
   dependencies:
-    "@sentry/types" "8.9.2"
+    "@sentry/types" "8.34.0"
 
 "@sentry/vite-plugin@^0.2.3":
   version "0.2.3"
