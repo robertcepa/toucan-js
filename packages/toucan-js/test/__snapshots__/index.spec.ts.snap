@@ -57,6 +57,7 @@ exports[`Toucan captureException Error with cause 1`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -112,6 +113,7 @@ exports[`Toucan captureException captureException: primitive 1`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -167,6 +169,7 @@ exports[`Toucan captureException captureException: primitive 2`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -222,6 +225,7 @@ exports[`Toucan captureException captureException: primitive 3`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -283,6 +287,7 @@ exports[`Toucan captureException object 1`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -337,6 +342,7 @@ exports[`Toucan captureException runtime thrown Error 1`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -377,6 +383,7 @@ exports[`Toucan captureMessage sends correct body to Sentry 1`] = `
         "integrations": [
           "RequestData",
           "LinkedErrors",
+          "ZodErrors",
         ],
         "name": "toucan-js",
         "packages": ArrayContaining [
@@ -410,6 +417,7 @@ exports[`Toucan general invalid URL does not fail 1`] = `
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [
@@ -461,6 +469,7 @@ exports[`Toucan stacktraces attachStacktrace = true sends stacktrace with captur
     "integrations": [
       "RequestData",
       "LinkedErrors",
+      "ZodErrors",
     ],
     "name": "toucan-js",
     "packages": ArrayContaining [

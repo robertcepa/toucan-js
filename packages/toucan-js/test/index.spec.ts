@@ -14,7 +14,7 @@ const VALID_DSN = 'https://123:456@testorg.ingest.sentry.io/123';
 // This is the default buffer size
 const DEFAULT_BUFFER_SIZE = 30;
 
-const DEFAULT_INTEGRATIONS = ['RequestData', 'LinkedErrors'];
+const DEFAULT_INTEGRATIONS = ['RequestData', 'LinkedErrors', 'ZodErrors'];
 
 /**
  * We don't care about exact values of pseudorandomized and time-related properties, as long as they match the type we accept them.
