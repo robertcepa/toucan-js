@@ -1,5 +1,13 @@
 # toucan-js
 
+## 4.1.0
+
+### Minor Changes
+
+- a0138f7: feat: Add zodErrorsIntegration
+
+  This integration improves the format of errors recorded to Sentry when using Zod
+
 ## 4.0.0
 
 ### Major Changes
