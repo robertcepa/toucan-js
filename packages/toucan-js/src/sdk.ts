@@ -4,6 +4,7 @@ import { ToucanClient } from './client';
 import {
   linkedErrorsIntegration,
   requestDataIntegration,
+  zodErrorsIntegration,
 } from './integrations';
 import { defaultStackParser } from './stacktrace';
 import { makeFetchTransport } from './transports';
@@ -29,6 +30,7 @@ export class Toucan extends Scope {
               : [
                   requestDataIntegration(options.requestDataOptions),
                   linkedErrorsIntegration(),
+                  zodErrorsIntegration(),
                 ]),
           ];
 

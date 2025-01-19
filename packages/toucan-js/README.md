@@ -60,6 +60,7 @@ Supported integrations from [@sentry/core](https://github.com/getsentry/sentry-j
 
 - [linkedErrorsIntegration](src/integrations/linkedErrors.ts)
 - [requestDataIntegration](src/integrations/requestData.ts)
+- [zodErrorsIntegration](src/integrations/zod/zoderrors.ts)
 
 ### Custom integration example:
 
