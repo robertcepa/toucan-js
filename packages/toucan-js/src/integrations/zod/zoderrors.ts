@@ -5,7 +5,6 @@ import { isError, truncate } from '@sentry/utils';
 import { defineIntegration } from './integration';
 
 import type { Event, EventHint } from '@sentry/types';
-import type { ZodError, ZodIssue } from 'zod';
 
 const INTEGRATION_NAME = 'ZodErrors';
 const DEFAULT_LIMIT = 10;
@@ -18,7 +17,9 @@ interface ZodErrorsOptions {
    */
   limit?: number;
   /**
-   * Optionally save full error info as an attachment in Sentry
+   * Save full list of Zod issues as an attachment in Sentry
+   *
+   * @default false
    */
   saveAttachments?: boolean;
 }
@@ -29,24 +30,28 @@ function originalExceptionIsZodError(
   return (
     isError(originalException) &&
     originalException.name === 'ZodError' &&
-    Array.isArray((originalException as ZodError).errors)
+    Array.isArray((originalException as ZodError).issues)
   );
 }
 
 /**
  * Simplified ZodIssue type definition
  */
-type SimpleZodIssue = {
-  path: Array<string | number>;
+interface ZodIssue {
+  path: (string | number)[];
   message?: string;
   expected?: unknown;
   received?: unknown;
   unionErrors?: unknown[];
   keys?: unknown[];
   invalid_literal?: unknown;
-};
+}
 
-type SingleLevelZodIssue<T extends SimpleZodIssue> = {
+interface ZodError extends Error {
+  issues: ZodIssue[];
+}
+
+type SingleLevelZodIssue<T extends ZodIssue> = {
   [P in keyof T]: T[P] extends string | number | undefined
     ? T[P]
     : T[P] extends unknown[]
@@ -67,9 +72,7 @@ type SingleLevelZodIssue<T extends SimpleZodIssue> = {
  *  [Object]
  * ]
  */
-export function flattenIssue(
-  issue: ZodIssue,
-): SingleLevelZodIssue<SimpleZodIssue> {
+export function flattenIssue(issue: ZodIssue): SingleLevelZodIssue<ZodIssue> {
   return {
     ...issue,
     path:
@@ -128,7 +131,11 @@ export function formatIssueMessage(zodError: ZodError): string {
     let rootExpectedType = 'variable';
     if (zodError.issues.length > 0) {
       const iss = zodError.issues[0];
-      if ('expected' in iss && typeof iss.expected === 'string') {
+      if (
+        iss !== undefined &&
+        'expected' in iss &&
+        typeof iss.expected === 'string'
+      ) {
         rootExpectedType = iss.expected;
       }
     }
@@ -138,19 +145,17 @@ export function formatIssueMessage(zodError: ZodError): string {
 }
 
 /**
- * Applies ZodError issues to an event context and replaces the error message
+ * Applies ZodError issues to an event extra and replaces the error message
  */
-function applyZodErrorsToEvent(
+export function applyZodErrorsToEvent(
   limit: number,
   event: Event,
-  saveAttachments?: boolean,
-  hint?: EventHint,
+  saveAttachments: boolean = false,
+  hint: EventHint,
 ): Event {
   if (
-    event.exception === undefined ||
-    event.exception.values === undefined ||
-    hint === undefined ||
-    hint.originalException === undefined ||
+    !event.exception?.values ||
+    !hint.originalException ||
     !originalExceptionIsZodError(hint.originalException) ||
     hint.originalException.issues.length === 0
   ) {
@@ -158,18 +163,21 @@ function applyZodErrorsToEvent(
   }
 
   try {
-    const flattenedIssues = hint.originalException.errors.map(flattenIssue);
+    const issuesToFlatten = saveAttachments
+      ? hint.originalException.issues
+      : hint.originalException.issues.slice(0, limit);
+    const flattenedIssues = issuesToFlatten.map(flattenIssue);
 
-    if (saveAttachments === true) {
-      // Add an attachment with all issues (no limits), as well as the default
-      // flatten format to see if it's preferred over our custom flatten format.
+    if (saveAttachments) {
+      // Sometimes having the full error details can be helpful.
+      // Attachments have much higher limits, so we can include the full list of issues.
       if (!Array.isArray(hint.attachments)) {
         hint.attachments = [];
       }
       hint.attachments.push({
         filename: 'zod_issues.json',
         data: JSON.stringify({
-          issueDetails: hint.originalException.flatten(flattenIssue),
+          issues: flattenedIssues,
         }),
       });
     }
@@ -199,7 +207,8 @@ function applyZodErrorsToEvent(
       extra: {
         ...event.extra,
         'zoderrors sentry integration parse error': {
-          message: `an exception was thrown while processing ZodError within applyZodErrorsToEvent()`,
+          message:
+            'an exception was thrown while processing ZodError within applyZodErrorsToEvent()',
           error:
             e instanceof Error
               ? `${e.name}: ${e.message}\n${e.stack}`
