@@ -5,6 +5,7 @@ export {
   extraErrorDataIntegration,
   rewriteFramesIntegration,
   sessionTimingIntegration,
+  zodErrorsIntegration
 } from './integrations';
 export type { LinkedErrorsOptions, RequestDataOptions } from './integrations';
 export { Toucan } from './sdk';
