@@ -37,7 +37,7 @@
     "@rollup/plugin-commonjs": "26.0.1",
     "@rollup/plugin-node-resolve": "15.1.0",
     "@rollup/plugin-replace": "5.0.2",
-    "rollup": "3.26.3",
+    "rollup": "4.34.9",
     "rollup-plugin-typescript2": "0.35.0",
     "eslint-config-base": "*",
     "config-typescript": "*",
