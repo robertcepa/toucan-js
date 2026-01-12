@@ -17,7 +17,7 @@
     "@changesets/cli": "^2.25.2",
     "prettier": "^3.0.0",
     "prettier-plugin-organize-imports": "^4.0.0",
-    "turbo": "^1.6.3",
+    "turbo": "^2.0.0",
     "typescript": "5.1.6"
   },
   "engines": {
